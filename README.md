@@ -40,7 +40,7 @@
 | `toslim -a image.SLIM image.png`           | Compare two images ( PSNR / SSIM / PSQNR )|
 
 
-## Installation
+## Build
 Attention, you may need to compile SDL2 manually.
 
 **Default build (graphical mode)**

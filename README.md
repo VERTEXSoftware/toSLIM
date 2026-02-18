@@ -9,13 +9,13 @@
 
 ## Implemented
 **Attention:** this project uses a cut version of **SLIM (miniSLIM)**. Currently, **miniSLIM** implements the following features.
-##### Implement:
+#### Implement:
 - ✅ Lossy compression
 - ✅ Lossless compression
 - ✅ Alpha channel and blending modes
 - ✅ Support for 4K and 8K resolution images
 - ❌ MIP mapping support
-- ❌ Multilayer
+- ❌ Multilayer support
 
 ## Usage
 

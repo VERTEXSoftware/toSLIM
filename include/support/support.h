@@ -2,7 +2,7 @@
 #define SUPPORT_H
 
 
-#include "SLIM/SLIM.h"
+#include "SLIM/miniSLIM.h"
 #include <cmath>
 #include <vector>
 

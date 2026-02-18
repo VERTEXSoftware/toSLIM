@@ -1,5 +1,5 @@
-#ifndef SLIM_H
-#define SLIM_H
+#ifndef miniSLIM_H
+#define miniSLIM_H
 
 #include <cmath>
 #include <cstdio>
@@ -1202,4 +1202,4 @@ SLIMERROR Load_SLIM_Map(MiniStream &infile, SLIM_INFO &header, uint8_t* &img){
 
 
 
-#endif // SLIM_H
+#endif // miniSLIM_H

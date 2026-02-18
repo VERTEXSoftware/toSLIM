@@ -2,12 +2,19 @@
 ![logo](example/slim_logo.png)
 
 # SLIM
-
+**SLIM (SLeptsov IMage)** – An image encoding and compression format developed as a replacement for the DDS format. This format is designed for storing raster graphics and supports resolutions up to 65535x65535 pixels. It uses lossless compression algorithms (**RLE**, **RICE**, **SLDD**, **MASKARED**) and also employs a smart quantization algorithm.
 
 # ToSLIM
+**ToSLIM** – This is a tool for basic work with the **SLIM** format. This tool allows you to convert, compare, and view **SLIM** format files, and also supports other formats such as **PNG**, **JPG/JPEG**, **GIF**, **BMP**, **PIC** (supported by **stb_image.h**).
 
-
-
+## Implemented
+**Attention:** this project uses a cut version of **SLIM (miniSLIM)**. Currently, **miniSLIM** implements the following features.
+- [x] Lossy compression
+- [x] Lossless compression
+- [x] Alpha channel and blending modes
+- [x] Support for 4K and 8K resolution images
+- [ ] MIP mapping support
+- [ ] Multilayer
 
 ## Usage
 
@@ -33,11 +40,12 @@
 
 
 ## Installation
+Attention, you may need to compile SDL2 manually.
 
-##### Default build (graphical mode)
+**Default build (graphical mode)**
 `make`
 
-##### Terminal mode only build
+**Terminal mode only build**
 `make terminal`
 
 ## External dependencies
@@ -46,9 +54,6 @@
 |------------|----------------------------------------------|-------------------------------------|
 | SDL2       | https://github.com/libsdl-org/SDL            | cf5dabd6 (release-2.32.0 + patches) |
 | stb        | https://github.com/nothings/stb              | master                              |
-## Contribution
-
-If you would like to contribute, please read [contribution guide](CONTRIBUTING.md).
 
 ## License
 

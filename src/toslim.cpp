@@ -14,7 +14,7 @@ const char* BUILD_TIME = __TIME__;
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
-#include "SLIM/SLIM.h"
+#include "SLIM/miniSLIM.h"
 #include "support/support.h"
 #include "../external/stb/stb_image.h"
 #include "../external/stb/stb_image_write.h"

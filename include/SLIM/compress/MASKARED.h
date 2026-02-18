@@ -7,7 +7,7 @@
 // └──────────────────────────────────┘
 // MASKARED compression algorithm for C/C++
 // Version: 1.4.0.0
-// Copyright (C) 2025 Sleptsov Vladimir 
+// Copyright (C) 2026 Sleptsov Vladimir 
 // https://github.com/VERTEXSoftware
 
 

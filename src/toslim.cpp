@@ -81,7 +81,7 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
     std::cout << "  -i          Get information about an image\n";
     std::cout << "  -c          Convert from format file to other format\n";
     std::cout << "  -q          Image quality level for JPEG and SLIM (0..255)\n";
-    std::cout << "  -a          Comparison of images using PSNR and SSIM\n";
+    std::cout << "  -a          Comparison of images using PSNR/SSIM/PSQNR\n";
     std::cout << "  -h          Show this help message\n";
     std::cout << "  -y          Overwrite file\n";
     std::cout << "\nExamples:\n";
@@ -107,7 +107,7 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
     std::cout << "  -c          Convert from format file to other format\n";
     std::cout << "  -q          Image quality level for JPEG and SLIM (0..255)\n";
     std::cout << "  -v          Display image (default behavior)\n";
-    std::cout << "  -a          Comparison of images using PSNR and SSIM\n";
+    std::cout << "  -a          Comparison of images using PSNR/SSIM/PSQNR\n";
     std::cout << "  -h          Show this help message\n";
     std::cout << "  -y          Overwrite file\n";
     std::cout << "\nExamples:\n";

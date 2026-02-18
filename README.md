@@ -2,7 +2,7 @@
 ![logo](example/slim_logo.png)
 
 # SLIM
-**SLIM (SLeptsov IMage)** – An image encoding and compression format developed as a replacement for the DDS format. This format is designed for storing raster graphics and supports resolutions up to 65535x65535 pixels. It uses lossless compression algorithms (**RLE**, **RICE**, **SLDD**, **MASKARED**) and also employs a smart quantization algorithm.
+**SLIM (SLeptsov IMage)** – This is image encoding and compression format developed as a replacement for the DDS format. This format is designed for storing raster graphics and supports resolutions up to 65535x65535 pixels. It uses lossless compression algorithms (**RLE**, **RICE**, **SLDD**, **MASKARED**) and also employs a smart quantization algorithm.
 
 # ToSLIM
 **ToSLIM** – This is a tool for basic work with the **SLIM** format. This tool allows you to convert, compare, and view **SLIM** format files, and also supports other formats such as **PNG**, **JPG/JPEG**, **GIF**, **BMP**, **PIC** (supported by **stb_image.h**).

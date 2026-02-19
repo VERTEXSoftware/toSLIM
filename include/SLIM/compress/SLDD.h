@@ -21,6 +21,7 @@
 //                               | $$                                                    
 //                               |__/                                                    
 //
+// SPDX-License-Identifier: MIT
 // SLDD compression algorithm for C/C++
 // Version: 2.1.0.0
 // Copyright (C) 2026 Sleptsov Vladimir 

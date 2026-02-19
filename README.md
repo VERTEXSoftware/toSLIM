@@ -43,17 +43,21 @@
 
 
 ## Build
+
 Attention, you may need to compile SDL2 manually!
 
 **Installing dependencies**
+
 `apt update`
 `apt install build-essential cmake`
 `apt install libx11-dev libxext-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev libxss-dev libgl1-mesa-dev`
 
 **Default build (graphical mode)**
+
 `make`
 
 **Terminal mode only build**
+
 `make terminal`
 
 ## External dependencies

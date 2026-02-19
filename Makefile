@@ -10,7 +10,7 @@ SDL2_BUILD_DIR = $(SDL2_DIR)/build
 SDL2_LIB       = $(SDL2_BUILD_DIR)/libSDL2.a
 SDL2_INCLUDE   = $(SDL2_DIR)/include
 
-SYS_LIBS = -ldl -lpthread -lrt -lm -lGL -lX11 -lXext -lXrandr -lXi -lXcursor -lXinerama -lasound -lpulse
+SYS_LIBS = -ldl -lpthread -lrt -lm -lGL -lX11 -lXext -lXrandr -lXi -lXcursor -lXinerama
 
 OBJDIR       = obj
 BUILDDIR     = build
@@ -63,7 +63,13 @@ $(SDL2_LIB):
 		exit 1; \
 	fi
 	mkdir -p $(SDL2_BUILD_DIR)
-	cd $(SDL2_BUILD_DIR) && cmake .. -DCMAKE_BUILD_TYPE=Release
+	cd $(SDL2_BUILD_DIR) && cmake .. \
+    -DCMAKE_BUILD_TYPE=Release \
+	-DSDL_SHARED=OFF \
+	-DSDL_STATIC=ON \
+    -DSDL_ALSA=OFF \
+    -DSDL_PULSEAUDIO=OFF \
+	-DSDL_AUDIO=OFF
 	cd $(SDL2_BUILD_DIR) && make -j$$(nproc)
 	@echo "SDL2 build complete"
 

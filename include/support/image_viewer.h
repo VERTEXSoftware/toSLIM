@@ -1,5 +1,5 @@
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -44,14 +44,14 @@ public:
             return;
         }
 
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
+
         if (SDL_Init(SDL_INIT_VIDEO) != 0) {
             std::cerr << "SDL_Init Error: " << SDL_GetError() << "\n";
             return;
         }
 
         const std::string& namef = getFilename(title);
-
-        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
 
         SDL_Window* window = SDL_CreateWindow(
             namef.c_str(),

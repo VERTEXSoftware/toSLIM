@@ -50,7 +50,7 @@ Attention, you may need to compile SDL2 manually!
 
 ```bash
 apt update
-apt install build-essential cmake
+apt install build-essential make cmake
 apt install libx11-dev libxext-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev libxss-dev libgl1-mesa-dev
 ```
 

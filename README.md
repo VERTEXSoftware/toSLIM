@@ -32,6 +32,7 @@
 | `-y`   | Overwrite output file without asking           |                                      |
 
 ## Examples
+
 | Command                                    | Description                               |
 |:-------------------------------------------|:------------------------------------------|
 | `toslim image.png`                         | Show the image                            |
@@ -41,26 +42,29 @@
 | `toslim -c -q 128 image.SLIM image.png`    | Convert with specified quality (~50%)     |
 | `toslim -a image.SLIM image.png`           | Compare two images ( PSNR / SSIM / PSQNR )|
 
-
 ## Build
 
 Attention, you may need to compile SDL2 manually!
 
 **Installing dependencies**
 
-`apt update`
-
-`apt install build-essential cmake`
-
-`apt install libx11-dev libxext-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev libxss-dev libgl1-mesa-dev`
+```bash
+apt update
+apt install build-essential cmake
+apt install libx11-dev libxext-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev libxss-dev libgl1-mesa-dev
+```
 
 **Default build (graphical mode)**
 
-`make`
+```bash
+make
+```
 
 **Terminal mode only build**
 
-`make terminal`
+```bash
+make terminal
+```
 
 ## External dependencies
 

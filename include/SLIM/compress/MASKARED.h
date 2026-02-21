@@ -1,10 +1,10 @@
-// SPDX-License-Identifier: MIT
 // ┌──────────────────────────────────┐
 // │            __          _   _  _  │
 // │ |\/|  /\  (_  |/  /\  |_) |_ | \ │
 // │ |  | /--\ __) |\ /--\ | \ |_ |_/ │
 // │ Sleptsov compression algorithm   │
 // └──────────────────────────────────┘
+// SPDX-License-Identifier: MIT
 // MASKARED compression algorithm for C/C++
 // Version: 1.4.0.0
 // Copyright (C) 2026 Sleptsov Vladimir 

@@ -380,7 +380,7 @@ uint32_t BLOCK_ANALYZER(uint8_t level,uint8_t* img, uint32_t m_WIDTH, uint32_t m
    	uint32_t levelq = colorCount * 0.0274509803;  // (7 / 255)
 	
 	uint32_t count = 0;
-	double sum = 0;
+	double mse = 0;
     const double invLevelq = 1.0 / (levelq*2.0);
 
     for (uint32_t y = 0; y < 16; ++y)
@@ -397,28 +397,28 @@ uint32_t BLOCK_ANALYZER(uint8_t level,uint8_t* img, uint32_t m_WIDTH, uint32_t m
 			if(channels>0){ 
 				int c = img[idx]; 
                 double d = (double)c - (double)((double)c * invLevelq);
-                sum += d * d;
+                mse += d * d;
 			} 
 			if(channels>1){ 
 				int c = img[idx+1]; 
                 double d = (double)c - (double)((double)c * invLevelq);
-                sum += d * d;
+                mse += d * d;
 			} 
 			if(channels>2){ 
 				int c = img[idx+2]; 
                 double d = (double)c - (double)((double)c * invLevelq);
-                sum += d * d;
+                mse += d * d;
 			} 
 			if(channels>3){ 
 				int c = img[idx+3]; 
                 double d = (double)c - (double)((double)c * invLevelq);
-                sum += d * d;
+                mse += d * d;
 			}
             count += channels;
         }
     }
 
-	double psnr = 1.0 - (sum / count / 65025.0);
+	double psnr = 1.0 - (mse / count / 65025.0);
 
 	if (psnr < 0.0){psnr = 0.0;}
     if (psnr > 1.0){psnr = 1.0;}

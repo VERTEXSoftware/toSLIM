@@ -425,7 +425,7 @@ uint32_t BLOCK_ANALYZER(uint8_t level,uint8_t* img, uint32_t m_WIDTH, uint32_t m
     
   	const double factor = (255.0 - (double)level) * 0.0156862745; //(4.0 / 255.0)
 
-	uint32_t idxt = (levelq*psnr*factor);
+	uint32_t idxt = levelq * psnr * factor;
 
 	if (idxt > 7){ idxt = 7;}
 

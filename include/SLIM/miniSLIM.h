@@ -351,10 +351,9 @@ uint32_t BLOCK_ANALYZER(uint8_t level,uint8_t* img, uint32_t m_WIDTH, uint32_t m
 
     for (uint32_t y = 0; y < 16; ++y)
     {
-		uint32_t row    = blocksY + y;
-
         for (uint32_t x = 0; x < 16; ++x)
         {
+			uint32_t row    = blocksY + y;
             uint32_t column = blocksX + x;
 
             if (column >= m_WIDTH || row >= m_HEIGHT){continue;}
@@ -378,19 +377,18 @@ uint32_t BLOCK_ANALYZER(uint8_t level,uint8_t* img, uint32_t m_WIDTH, uint32_t m
         }
     }
 
-   	uint32_t levelq = colorCount == 0 ? 1 : colorCount;
+   	uint32_t levelq = colorCount * 0.0274509803;  // (7 / 255)
+	
 	uint32_t count = 0;
 	double sum = 0;
-    const double invLevelq = 1.0 / levelq;
-    const double factor = 2.0 - (double)level * 0.00784313725;
+    const double invLevelq = 1.0 / (levelq*2.0);
 
     for (uint32_t y = 0; y < 16; ++y)
     {
-		uint32_t row    = blocksY + y;
-
         for (uint32_t x = 0; x < 16; ++x)
         {
             uint32_t column = blocksX + x;
+			uint32_t row    = blocksY + y;
 
             if (column >= m_WIDTH || row >= m_HEIGHT){continue;}
 
@@ -420,33 +418,16 @@ uint32_t BLOCK_ANALYZER(uint8_t level,uint8_t* img, uint32_t m_WIDTH, uint32_t m
         }
     }
 
-    double mse = sum / (count==0 ? 1 : count);
-    if (mse < 1e-9){mse = 1e-9;}
+	double psnr = 1.0 - (sum / count / 65025.0);
 
-    union { double d; uint64_t i; } conv;
-    conv.d = mse;
-    conv.i = 0x5fe6eb50c7b537a9 - (conv.i >> 1);
+	if (psnr < 0.0){psnr = 0.0;}
+    if (psnr > 1.0){psnr = 1.0;}
+    
+  	const double factor = (255.0 - (double)level) * 0.0156862745; //(4.0 / 255.0)
 
-    double y = conv.d;
+	uint32_t idxt = (levelq*psnr*factor);
 
-    y = ((y * (1.5 - 0.5 * mse * y * y)) * mse )/24;
-
-    double tr = 1.0 + y * 23.0;
-    if (tr > 24.0){ tr = 24.0;}
-
-    double base = levelq / tr;
-	base = base<4?4:base;
-
-	uint32_t tmpres = uint32_t(base*factor);
-	uint32_t idxt =
-    (tmpres > 0) +
-    (tmpres > 2) +
-    (tmpres > 4) +
-    (tmpres > 6) +
-    (tmpres > 8) +
-    (tmpres > 10) +
-    (tmpres > 12) +
-    (tmpres > 14);
+	if (idxt > 7){ idxt = 7;}
 
 	return idxt;
 }
@@ -481,7 +462,6 @@ SLIMERROR SLIM_WRITE_BLOCKS_3CHANNEL(MiniStream &outfile, SLIM_INFO &header, uin
 	{
 		for (uint32_t blcX = 0; blcX < m_WIDTH; blcX += 16)
 		{
-			//for (uint32_t i = 0; i < 1024; ++i) {l_data[i]=0;}
 
 			uint32_t Cout 	= 0;
 			uint32_t CColor = 0;	

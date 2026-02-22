@@ -44,12 +44,12 @@ public:
             return;
         }
 
-        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
-
         if (SDL_Init(SDL_INIT_VIDEO) != 0) {
             std::cerr << "SDL_Init Error: " << SDL_GetError() << "\n";
             return;
         }
+
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
 
         const std::string& namef = getFilename(title);
 

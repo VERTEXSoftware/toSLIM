@@ -381,7 +381,7 @@ uint32_t BLOCK_ANALYZER(uint8_t level,uint8_t* img, uint32_t m_WIDTH, uint32_t m
 	
 	uint32_t count = 0;
 	double mse = 0;
-    const double invLevelq = 1.0 / (levelq*2.0);
+    const double invLevelq = levelq == 0 ? 1.0 : 1.0 / levelq * 2.0;
 
     for (uint32_t y = 0; y < 16; ++y)
     {

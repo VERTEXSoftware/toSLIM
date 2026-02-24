@@ -49,6 +49,7 @@ Attention, you may need to compile SDL2 manually!
 **Installing dependencies**
 
 ```bash
+#Debian/Ubuntu
 apt update
 apt install build-essential make cmake
 apt install libx11-dev libxext-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev libxss-dev libgl1-mesa-dev

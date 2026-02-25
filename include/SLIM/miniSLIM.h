@@ -120,7 +120,10 @@ struct		SLIM_INFO_FULL {
 	uint8_t					_FILTER;
 	uint8_t					_LEVEL;
 
-	uint32_t				_BLOCK_256_C;
+	uint32_t 				_BLOCK_256_ALL;
+	uint32_t 				_BLOCK_256_EXIST;
+	uint32_t 				_BLOCK_256_EMPTY;
+
 	uint32_t				_BLOCK_COLOR_TABLE_MAX;
 	uint32_t				_BLOCK_COLOR_TABLE_MIN;
 	uint32_t				_BLOCK_COLOR_TABLE_AVG;
@@ -966,7 +969,9 @@ SLIMERROR Info_SLIM(MiniStream &infile, SLIM_INFO_FULL &info){
 	info._FILTER 				= header._FILTER;
 	info._LEVEL					= header._LEVEL;
 
-	info._BLOCK_256_C 			= 0;
+	info._BLOCK_256_ALL 		= 0;
+	info._BLOCK_256_EXIST		= 0;
+	info._BLOCK_256_EMPTY		= 0;
 	info._BLOCK_COLOR_TABLE_MAX = 0;
 	info._BLOCK_COLOR_TABLE_MIN = 0xFFFFFFFFu;
 	info._BLOCK_COLOR_TABLE_AVG = 0;
@@ -1033,10 +1038,12 @@ SLIMERROR Info_SLIM(MiniStream &infile, SLIM_INFO_FULL &info){
 				if(info._BLOCK_Q_MIN>qnt){info._BLOCK_Q_MIN=qnt;}
 			}
 
-			info._BLOCK_Q_AVG+= qnt;
-			info._BLOCK_256_C++;
-
 			uint8_t cm_size = ch0_org + ch1_org + ch2_org + ch3_org + idx_org;
+
+			info._BLOCK_256_ALL++;
+			info._BLOCK_256_EXIST += (cm_size>0);
+			info._BLOCK_256_EMPTY += (cm_size==0);
+			info._BLOCK_Q_AVG += qnt;
 
 			if (!infile.read(m_size, 1, cm_size)){ return SLIMERROR::ERROR_END; }
 
@@ -1071,13 +1078,14 @@ SLIMERROR Info_SLIM(MiniStream &infile, SLIM_INFO_FULL &info){
 					if(lc_blk_min>idxclr){lc_blk_min=idxclr;}
 					if(lc_blk_max<idxclr){lc_blk_max=idxclr;}
 				}
+				info._BLOCK_COLOR_TABLE_AVG+=lc_blk_max;
 			}
-			info._BLOCK_COLOR_TABLE_AVG+=lc_blk_max;
+			
 		}
 	}
 	info._ALL_C = info._REUSE_C + info._ORIGINAL_C + info._RLE_C + info._RICE_C + info._SLDD_C + info._MASKARED_C;
-	info._BLOCK_Q_AVG /= info._BLOCK_256_C;
-	info._BLOCK_COLOR_TABLE_AVG /= info._BLOCK_256_C;
+	info._BLOCK_Q_AVG /= info._BLOCK_256_ALL;
+	info._BLOCK_COLOR_TABLE_AVG /= info._BLOCK_256_EXIST;
 
 	return  SLIMERROR::ERROR_OK;
 }

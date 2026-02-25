@@ -296,7 +296,7 @@ void InfoIMG(std::string imagePath){
                     std::cout<<"SIZE COMP: "<<sizefile<<" ("<<formatSize(sizefile)<<")\n";
                     std::cout<<"SIZE RAW: "<<sizefileraw<<" ("<<formatSize(sizefileraw)<<")\n";
 
-                    const auto totalpix = header._BLOCK_256_C;
+                    const auto totalpix = header._BLOCK_256_ALL;
 
                     std::cout << "\n----[ BLOCKS " << totalpix << " ]----\n";
                     std::cout << "COLOR MIN: "<< header._BLOCK_COLOR_TABLE_MIN<< "\n";

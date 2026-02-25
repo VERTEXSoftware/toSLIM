@@ -125,9 +125,9 @@ struct		SLIM_INFO_FULL {
 	uint32_t				_BLOCK_COLOR_TABLE_MIN;
 	uint32_t				_BLOCK_COLOR_TABLE_AVG;
 
-	uint32_t				_BLOCK_DELTA_MAX;
-	uint32_t				_BLOCK_DELTA_MIN;
-	uint32_t				_BLOCK_DELTA_AVG;
+	uint32_t				_BLOCK_Q_MAX;
+	uint32_t				_BLOCK_Q_MIN;
+	uint32_t				_BLOCK_Q_AVG;
 
 	uint32_t				_ALL_C;
 	uint32_t				_REUSE_C;
@@ -465,8 +465,8 @@ SLIMERROR SLIM_WRITE_BLOCKS_3CHANNEL(MiniStream &outfile, SLIM_INFO &header, uin
 
 			uint32_t Cout 	= 0;
 			uint32_t CColor = 0;	
-			uint32_t delIdx = BLOCK_ANALYZER(header._LEVEL, img, m_WIDTH, m_HEIGHT, blcX, blcY, 3);
-			uint32_t delta 	= delIdx << 1;
+			uint32_t qnt_idx = BLOCK_ANALYZER(header._LEVEL, img, m_WIDTH, m_HEIGHT, blcX, blcY, 3);
+			uint32_t qnt 	= qnt_idx << 1;
 
 			for (uint32_t y = 0; y < 16; ++y)
 			{
@@ -483,10 +483,10 @@ SLIMERROR SLIM_WRITE_BLOCKS_3CHANNEL(MiniStream &outfile, SLIM_INFO &header, uin
 					uint8_t Gc = img[index+1];
 					uint8_t Bc = img[index+2];
 
-					if(delta>0){
-						Rc /= delta;
-						Gc /= delta;
-						Bc /= delta;
+					if(qnt>0){
+						Rc /= qnt;
+						Gc /= qnt;
+						Bc /= qnt;
 					}
 
 					GEN_CLR_MAP_RGB(l_ch0, l_ch1, l_ch2, CColor, l_idx, Cout, Rc, Gc, Bc);
@@ -533,7 +533,7 @@ SLIMERROR SLIM_WRITE_BLOCKS_3CHANNEL(MiniStream &outfile, SLIM_INFO &header, uin
 			
 			uint16_t meta_code = v0 * 1296u + v1 * 216u + v2 * 36u + v4;
 
-    		meta_code = uint16_t((meta_code << 0x03u) | (delIdx & 0x07u));
+    		meta_code = uint16_t((meta_code << 0x03u) | (qnt_idx & 0x07u));
 
 			outfile.write(&meta_code, 1, 2);
 
@@ -583,8 +583,8 @@ SLIMERROR SLIM_WRITE_BLOCKS_4CHANNEL(MiniStream &outfile, SLIM_INFO &header, uin
 		{
 			uint32_t Cout = 0;
 			uint32_t CColor = 0;
-			uint32_t delIdx = BLOCK_ANALYZER(header._LEVEL, img, m_WIDTH, m_HEIGHT, blcX, blcY, 4);
-			uint32_t delta 	= delIdx << 1;
+			uint32_t qnt_idx = BLOCK_ANALYZER(header._LEVEL, img, m_WIDTH, m_HEIGHT, blcX, blcY, 4);
+			uint32_t qnt	= qnt_idx << 1;
 
 			for (uint32_t y = 0; y < 16; ++y)
 			{
@@ -604,11 +604,11 @@ SLIMERROR SLIM_WRITE_BLOCKS_4CHANNEL(MiniStream &outfile, SLIM_INFO &header, uin
 
 					if(Ac<1){Rc=0;Gc=0;Bc=0;}
 
-					if(delta>0){
-						Rc /= delta;
-						Gc /= delta;
-						Bc /= delta;
-						Ac /= delta;
+					if(qnt>0){
+						Rc /= qnt;
+						Gc /= qnt;
+						Bc /= qnt;
+						Ac /= qnt;
 					}
 
 					GEN_CLR_MAP_RGBA(l_ch0, l_ch1, l_ch2, l_ch3, CColor, l_idx, Cout, Rc, Gc, Bc, Ac);
@@ -660,7 +660,7 @@ SLIMERROR SLIM_WRITE_BLOCKS_4CHANNEL(MiniStream &outfile, SLIM_INFO &header, uin
 
 			uint16_t meta_code = v0 * 1296u + v1 * 216u + v2 * 36u + v3 * 6u + v4;
 
-			meta_code = uint16_t((meta_code << 0x03u) | (delIdx & 0x07u));
+			meta_code = uint16_t((meta_code << 0x03u) | (qnt_idx & 0x07u));
 
 			outfile.write(&meta_code, 1, 2);
 
@@ -692,7 +692,7 @@ SLIMERROR 	SLIM_READ_BLOCKS_3CHANNEL(MiniStream &infile, SLIM_INFO &header, uint
 	uint8_t m_read		[1024]{0};	//Read		block memory
 	uint8_t m_size		[4]{0};		//Size 		blocks packed
 
-	uint32_t delta 		= 0;
+	uint32_t qnt 		= 0;
 	uint16_t meta_code	= 0;
 
 	for (uint32_t blcY = 0; blcY < m_HEIGHT; blcY += 16)
@@ -702,7 +702,7 @@ SLIMERROR 	SLIM_READ_BLOCKS_3CHANNEL(MiniStream &infile, SLIM_INFO &header, uint
 				
 			if (!infile.read(&meta_code, 1, 2)){ return SLIMERROR::ERROR_END; }
 
-			delta = (meta_code & 0x07u) << 1;
+			qnt = (meta_code & 0x07u) << 1;
 			meta_code >>= 0x03u;
 
 			uint32_t t;
@@ -761,10 +761,10 @@ SLIMERROR 	SLIM_READ_BLOCKS_3CHANNEL(MiniStream &infile, SLIM_INFO &header, uint
 					uint8_t chn1 	= m_data[idxclr + 256];
 					uint8_t chn2 	= m_data[idxclr + 512];
 
-					if (delta > 0) {
-						uint32_t tc0 = (uint32_t(chn0) * delta);
-						uint32_t tc1 = (uint32_t(chn1) * delta);
-						uint32_t tc2 = (uint32_t(chn2) * delta);
+					if (qnt > 0) {
+						uint32_t tc0 = (uint32_t(chn0) * qnt);
+						uint32_t tc1 = (uint32_t(chn1) * qnt);
+						uint32_t tc2 = (uint32_t(chn2) * qnt);
 						chn0 = tc0 > 255 ? 255 : tc0;
 						chn1 = tc1 > 255 ? 255 : tc1;
 						chn2 = tc2 > 255 ? 255 : tc2;
@@ -799,7 +799,7 @@ SLIMERROR SLIM_READ_BLOCKS_4CHANNEL(MiniStream &infile, SLIM_INFO &header, uint8
 	uint8_t m_read		[1280]{0};	//Read		block memory
 	uint8_t m_size		[5]{0};		//Size 		blocks packed
 
-	uint32_t delta 		= 0;
+	uint32_t qnt		= 0;
 	uint16_t meta_code	= 0;
 
 	for (uint32_t blcY = 0; blcY < m_HEIGHT; blcY += 16)
@@ -809,7 +809,7 @@ SLIMERROR SLIM_READ_BLOCKS_4CHANNEL(MiniStream &infile, SLIM_INFO &header, uint8
 
 			if (!infile.read(&meta_code, 1, 2)){ return SLIMERROR::ERROR_END; }
 
-			delta = (meta_code & 0x07u) << 1;
+			qnt = (meta_code & 0x07u) << 1;
 			meta_code >>= 0x03u;
 
 			uint32_t t;
@@ -873,11 +873,11 @@ SLIMERROR SLIM_READ_BLOCKS_4CHANNEL(MiniStream &infile, SLIM_INFO &header, uint8
 					uint8_t chn2 	= m_data[idxclr + 512];
 					uint8_t chn3 	= m_data[idxclr + 768];
 
-					if (delta > 0) {
-						uint32_t tc0 = (uint32_t(chn0) * delta);
-						uint32_t tc1 = (uint32_t(chn1) * delta);
-						uint32_t tc2 = (uint32_t(chn2) * delta);
-						uint32_t tc3 = (uint32_t(chn3) * delta);
+					if (qnt > 0) {
+						uint32_t tc0 = (uint32_t(chn0) * qnt);
+						uint32_t tc1 = (uint32_t(chn1) * qnt);
+						uint32_t tc2 = (uint32_t(chn2) * qnt);
+						uint32_t tc3 = (uint32_t(chn3) * qnt);
 						chn0 = tc0 > 255 ? 255 : tc0;
 						chn1 = tc1 > 255 ? 255 : tc1;
 						chn2 = tc2 > 255 ? 255 : tc2;
@@ -971,9 +971,9 @@ SLIMERROR Info_SLIM(MiniStream &infile, SLIM_INFO_FULL &info){
 	info._BLOCK_COLOR_TABLE_MIN = 0xFFFFFFFFu;
 	info._BLOCK_COLOR_TABLE_AVG = 0;
 
-	info._BLOCK_DELTA_MAX		= 0;
-	info._BLOCK_DELTA_MIN		= 0xFFFFFFFFu;
-	info._BLOCK_DELTA_AVG		= 0;
+	info._BLOCK_Q_MAX		= 0;
+	info._BLOCK_Q_MIN		= 0xFFFFFFFFu;
+	info._BLOCK_Q_AVG		= 0;
 	
 	info._ALL_C					= 0;
 	info._REUSE_C				= 0;
@@ -986,10 +986,12 @@ SLIMERROR Info_SLIM(MiniStream &infile, SLIM_INFO_FULL &info){
 	const uint32_t m_WIDTH	= (uint32_t)header._WIDTH;
 	const uint32_t m_HEIGHT = (uint32_t)header._HEIGHT;
 
+	uint8_t m_data		[1280]{0};	//Curret	block memory
+	uint8_t m_read		[1280]{0};	//Read		block memory
 	uint8_t m_size		[5]{0};		//Size 		blocks packed
 
 	uint16_t comp_pack[5]{0,0,0,0,0};
-	uint32_t delta 		= 0;
+	uint32_t qnt 		= 0;
 
 	uint16_t meta_code	= 0;
 
@@ -1000,7 +1002,7 @@ SLIMERROR Info_SLIM(MiniStream &infile, SLIM_INFO_FULL &info){
 
 			if (!infile.read(&meta_code, 1, 2)){ return SLIMERROR::ERROR_END; }
 
-			delta = (meta_code & 0x07u)<< 1;
+			qnt = (meta_code & 0x07u)<< 1;
 			meta_code >>= 0x03u;
 
 			uint32_t t;
@@ -1027,11 +1029,11 @@ SLIMERROR Info_SLIM(MiniStream &infile, SLIM_INFO_FULL &info){
 			}
 
 			if(ch0_org || ch1_org || ch2_org || ch3_org){
-				if(info._BLOCK_DELTA_MAX<delta){info._BLOCK_DELTA_MAX=delta;}
-				if(info._BLOCK_DELTA_MIN>delta){info._BLOCK_DELTA_MIN=delta;}
+				if(info._BLOCK_Q_MAX<qnt){info._BLOCK_Q_MAX=qnt;}
+				if(info._BLOCK_Q_MIN>qnt){info._BLOCK_Q_MIN=qnt;}
 			}
 
-			info._BLOCK_DELTA_AVG	+= delta;
+			info._BLOCK_Q_AVG+= qnt;
 			info._BLOCK_256_C++;
 
 			uint8_t cm_size = ch0_org + ch1_org + ch2_org + ch3_org + idx_org;
@@ -1051,13 +1053,31 @@ SLIMERROR Info_SLIM(MiniStream &infile, SLIM_INFO_FULL &info){
 			const uint32_t st_idx		= st_ch3 + cmps_ch3;
 			const uint32_t st_size		= st_idx + cmps_idx;
 
-			if (!infile.seek(st_size, MiniStream::Cur)){ return SLIMERROR::ERROR_END; }
+			if (!infile.read(m_read, 1, st_size)){ return SLIMERROR::ERROR_END; }
 
+			DECODE_RAY(comp_pack[0], m_read, m_data, cmps_ch0);
+			DECODE_RAY(comp_pack[1], m_read + st_ch1, m_data + 256, cmps_ch1);
+			DECODE_RAY(comp_pack[2], m_read + st_ch2, m_data + 512, cmps_ch2);
+			DECODE_RAY(comp_pack[3], m_read + st_ch3, m_data + 768, cmps_ch3);
+			DECODE_RAY(comp_pack[4], m_read + st_idx, m_data + 1024, cmps_idx);
+
+			uint32_t lc_blk_max = 0;
+			uint32_t lc_blk_min = 0xFFFFFFFFu;
+			if(idx_org){
+				for(uint32_t idx = 0; idx<256; ++idx){
+					uint32_t idxclr = m_data[1024 + idx]+1;
+					if(info._BLOCK_COLOR_TABLE_MIN>idxclr){info._BLOCK_COLOR_TABLE_MIN=idxclr;}
+					if(info._BLOCK_COLOR_TABLE_MAX<idxclr){info._BLOCK_COLOR_TABLE_MAX=idxclr;}			
+					if(lc_blk_min>idxclr){lc_blk_min=idxclr;}
+					if(lc_blk_max<idxclr){lc_blk_max=idxclr;}
+				}
+			}
+			info._BLOCK_COLOR_TABLE_AVG+=lc_blk_max;
 		}
 	}
-
 	info._ALL_C = info._REUSE_C + info._ORIGINAL_C + info._RLE_C + info._RICE_C + info._SLDD_C + info._MASKARED_C;
-	info._BLOCK_DELTA_AVG /= info._BLOCK_256_C;
+	info._BLOCK_Q_AVG /= info._BLOCK_256_C;
+	info._BLOCK_COLOR_TABLE_AVG /= info._BLOCK_256_C;
 
 	return  SLIMERROR::ERROR_OK;
 }

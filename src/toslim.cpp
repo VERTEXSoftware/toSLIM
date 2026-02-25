@@ -303,9 +303,9 @@ void InfoIMG(std::string imagePath){
                     std::cout << "COLOR MAX: "<< header._BLOCK_COLOR_TABLE_MAX<< "\n";
                     std::cout << "COLOR AVG: "<< header._BLOCK_COLOR_TABLE_AVG<< "\n";
                      std::cout << "\n----[ BLOCKS " << totalpix << " ]----\n";
-                    std::cout << "DELTA MIN: "<< header._BLOCK_DELTA_MIN<< "\n";
-                    std::cout << "DELTA MAX: "<< header._BLOCK_DELTA_MAX<< "\n";
-                    std::cout << "DELTA AVG: "<< header._BLOCK_DELTA_AVG<< "\n";
+                    std::cout << "DELTA MIN: "<< header._BLOCK_Q_MIN<< "\n";
+                    std::cout << "DELTA MAX: "<< header._BLOCK_Q_MAX<< "\n";
+                    std::cout << "DELTA AVG: "<< header._BLOCK_Q_AVG<< "\n";
 
                     const uint32_t total = header._ALL_C;
 

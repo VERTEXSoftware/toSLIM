@@ -349,6 +349,10 @@ void  DECODE_RAY(uint16_t mode, uint8_t* src, uint8_t* dest, uint32_t size) {
 
 uint32_t BLOCK_ANALYZER(uint8_t level,uint8_t* img, uint32_t m_WIDTH, uint32_t m_HEIGHT, uint32_t blocksX, uint32_t blocksY, uint32_t channels = 3) {
 
+	//--------------------------------------------------------------//
+	//Counting unique colors
+	//--------------------------------------------------------------//
+
 	uint32_t colors[256]{0};
 	uint32_t colorCount = 0;
 
@@ -386,6 +390,10 @@ uint32_t BLOCK_ANALYZER(uint8_t level,uint8_t* img, uint32_t m_WIDTH, uint32_t m
 	double mse = 0;
     const double invLevelq = levelq == 0 ? 1.0 : 1.0 / levelq * 2.0;
 
+	//--------------------------------------------------------------//
+	//PSNR Analysis
+	//--------------------------------------------------------------//
+
     for (uint32_t y = 0; y < 16; ++y)
     {
         for (uint32_t x = 0; x < 16; ++x)
@@ -422,6 +430,10 @@ uint32_t BLOCK_ANALYZER(uint8_t level,uint8_t* img, uint32_t m_WIDTH, uint32_t m
     }
 
 	double psnr = 1.0 - (mse / count / 65025.0);
+
+	//--------------------------------------------------------------//
+	//Adjusting the evaluation level and quantization
+	//--------------------------------------------------------------//
 
 	if (psnr < 0.0){psnr = 0.0;}
     if (psnr > 1.0){psnr = 1.0;}
@@ -1151,7 +1163,7 @@ SLIMERROR Load_SLIM_Map(MiniStream &infile, SLIM_INFO &header, uint8_t* &img){
 	uint8_t m_size		[5]{0};
 
 
-	uint32_t delta 		= 0;
+	uint32_t qnt 		= 0;
 	uint16_t meta_code	= 0;
 
 	for (uint32_t blcY = 0; blcY < m_HEIGHT; blcY += 16)
@@ -1160,7 +1172,7 @@ SLIMERROR Load_SLIM_Map(MiniStream &infile, SLIM_INFO &header, uint8_t* &img){
 		{
 			if (!infile.read(&meta_code, 1, 2)){ return SLIMERROR::ERROR_END; }
 
-			delta = (meta_code & 0x07u)<< 1;
+			qnt = (meta_code & 0x07u)<< 1;
 			meta_code >>= 0x03u;
 
 			uint32_t t;
@@ -1203,7 +1215,7 @@ SLIMERROR Load_SLIM_Map(MiniStream &infile, SLIM_INFO &header, uint8_t* &img){
 					if (column >= m_WIDTH || row >= m_HEIGHT) { continue; }
 
 					uint32_t index	= (row * m_WIDTH + column);
-					img[index]		= delta;
+					img[index]		= qnt;
 
 				}
 			}

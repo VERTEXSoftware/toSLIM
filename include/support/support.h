@@ -11,7 +11,6 @@ SLIMCODE ChannelToCode(int channels);
 double calcPSNR(const unsigned char* img1, const unsigned char* img2, int width, int height, int channels);
 double calcPSQNR(const unsigned char* img1, const unsigned char* img2, int width, int height, int channels);
 double calcSSIM(const unsigned char* img1, const unsigned char* img2, int width, int height, int channels);
-double calcVIF(const unsigned char* img1, const unsigned char* img2, int width, int height, int channels);
 void grayToViridis(const unsigned char* grayscale, unsigned char* rgb, int width, int height);
 
 std::string formatSize(uint32_t size);
@@ -144,9 +143,8 @@ void grayToViridis(const unsigned char* grayscale, unsigned char* rgb, int width
     
     if (maxGray == minGray){maxGray = minGray + 1;}
     
-
     for (int i = 0; i < totalPixels; ++i) {
-        double t = static_cast<double>(grayscale[i] - minGray) / (maxGray - minGray);
+        double t = (double)(grayscale[i] - minGray) / (maxGray - minGray);
 
         unsigned char r = 0;
         unsigned char g = 0; 
@@ -154,27 +152,27 @@ void grayToViridis(const unsigned char* grayscale, unsigned char* rgb, int width
         
         if (t < 0.25) {
             double local_t = t / 0.25;
-            r = static_cast<unsigned char>(36 * local_t);
+            r = (unsigned char)(36 * local_t);
             g = 0;
-            b = static_cast<unsigned char>(68 * local_t);
+            b = (unsigned char)(68 * local_t);
         }
         else if (t < 0.5) {
             double local_t = (t - 0.25) / 0.25;
-            r = static_cast<unsigned char>(36 + (155 * local_t));
-            g = static_cast<unsigned char>(33 * local_t);
-            b = static_cast<unsigned char>(68 + (59 * local_t));
+            r = (unsigned char)(36 + (155 * local_t));
+            g = (unsigned char)(33 * local_t);
+            b = (unsigned char)(68 + (59 * local_t));
         }
         else if (t < 0.75) {
             double local_t = (t - 0.5) / 0.25;
-            r = static_cast<unsigned char>(191 + (55 * local_t));
-            g = static_cast<unsigned char>(33 + (92 * local_t));
-            b = static_cast<unsigned char>(127 - (68 * local_t));
+            r = (unsigned char)(191 + (55 * local_t));
+            g = (unsigned char)(33 + (92 * local_t));
+            b = (unsigned char)(127 - (68 * local_t));
         }
         else {
             double local_t = (t - 0.75) / 0.25;
-            r = static_cast<unsigned char>(246 + (9 * local_t));
-            g = static_cast<unsigned char>(125 + (130 * local_t));
-            b = static_cast<unsigned char>(59 + (196 * local_t));
+            r = (unsigned char)(246 + (9 * local_t));
+            g = (unsigned char)(125 + (130 * local_t));
+            b = (unsigned char)(59 + (196 * local_t));
         }
         
         rgb[i * 3]     = r;
@@ -184,10 +182,13 @@ void grayToViridis(const unsigned char* grayscale, unsigned char* rgb, int width
 }
 
 double calcPSNR(const unsigned char* img1, const unsigned char* img2, int width, int height, int channels) {
+
+    if (!img1 || !img2 || width <= 0 || height <= 0 || channels <= 0){return -1.0;}
+
     double mse = 0.0;
     int size = width * height * channels;
     for (int i = 0; i < size; ++i) {
-        double diff = double(img1[i]) - double(img2[i]);
+        double diff = (double)(img1[i]) - double(img2[i]);
         mse += diff * diff;
     }
     mse /= size;
@@ -198,17 +199,16 @@ double calcPSNR(const unsigned char* img1, const unsigned char* img2, int width,
 
 double calcPSQNR(const unsigned char* img1, const unsigned char* img2, int width, int height, int channels){
     
-    if (!img1 || !img2 || width <= 0 || height <= 0 || channels <= 0)
-        return -1.0;
+    if (!img1 || !img2 || width <= 0 || height <= 0 || channels <= 0){return -1.0;}
 
-    const size_t total = static_cast<size_t>(width) * height * channels;
+    const int total = width * height * channels;
     double weightedError = 0.0;
     double weightSum = 0.0;
 
-    for (size_t i = 0; i < total; ++i)
+    for (int  i = 0; i < total; ++i)
     {
-        const double p1 = static_cast<double>(img1[i]);
-        const double p2 = static_cast<double>(img2[i]);
+        const double p1 = double(img1[i]);
+        const double p2 = double(img2[i]);
         const double diff = p1 - p2;
 
         const double luminanceWeight = 1.0 / (1.0 + 0.003 * p1 * p1);
@@ -229,8 +229,10 @@ double calcPSQNR(const unsigned char* img1, const unsigned char* img2, int width
 
 double calcSSIM(const unsigned char* img1, const unsigned char* img2, int width, int height, int channels) {
 
-    std::vector<double> Y1(width * height);
-    std::vector<double> Y2(width * height);
+    if (!img1 || !img2 || width <= 0 || height <= 0 || channels <= 0){return -1.0;}
+
+    double* Y1 = new double[width * height]{0};
+    double* Y2 = new double[width * height]{0};
 
     for (int i = 0; i < width * height; ++i) {
         if (channels >= 3) {
@@ -242,7 +244,8 @@ double calcSSIM(const unsigned char* img1, const unsigned char* img2, int width,
         }
     }
 
-    double mu1 = 0.0, mu2 = 0.0;
+    double mu1 = 0.0;
+    double mu2 = 0.0;
     for (int i = 0; i < width * height; ++i) {
         mu1 += Y1[i];
         mu2 += Y2[i];
@@ -265,89 +268,10 @@ double calcSSIM(const unsigned char* img1, const unsigned char* img2, int width,
 
     double ssim = ((2 * mu1 * mu2 + C1) * (2 * sigma12 + C2)) / ((mu1 * mu1 + mu2 * mu2 + C1) * (sigma1 + sigma2 + C2));
 
+    delete[] Y1;
+    delete[] Y2;
+
     return ssim;
-}
-
-double calcVIF(const unsigned char* img1, const unsigned char* img2, int width, int height, int channels)
-{
-    if (!img1 || !img2 || width <= 0 || height <= 0 || channels <= 0)
-        return -1.0;
-
-    const int total = width * height * channels;
-    const int window = 8;  // локальное окно для оценки
-    const double eps = 1e-9;
-
-    double vif_num = 0.0;
-    double vif_den = 0.0;
-
-    // создаём простые копии для усреднения по окну
-    std::vector<double> mean1(total, 0.0), mean2(total, 0.0);
-    std::vector<double> var1(total, 0.0), var2(total, 0.0), cov(total, 0.0);
-
-    auto idx = [&](int x, int y, int c) {
-        return (y * width + x) * channels + c;
-    };
-
-    // предварительное сглаживание (локальное среднее)
-    for (int c = 0; c < channels; ++c) {
-        for (int y = 0; y < height; ++y) {
-            for (int x = 0; x < width; ++x) {
-                double m1 = 0.0, m2 = 0.0;
-                int count = 0;
-                for (int dy = -window/2; dy <= window/2; ++dy) {
-                    for (int dx = -window/2; dx <= window/2; ++dx) {
-                        int nx = x + dx;
-                        int ny = y + dy;
-                        if (nx < 0 || ny < 0 || nx >= width || ny >= height)
-                            continue;
-                        ++count;
-                        m1 += img1[idx(nx, ny, c)];
-                        m2 += img2[idx(nx, ny, c)];
-                    }
-                }
-                m1 /= count;
-                m2 /= count;
-                mean1[idx(x, y, c)] = m1;
-                mean2[idx(x, y, c)] = m2;
-            }
-        }
-    }
-
-    // теперь считаем локальные дисперсии и ковариацию
-    for (int c = 0; c < channels; ++c) {
-        for (int y = 0; y < height; ++y) {
-            for (int x = 0; x < width; ++x) {
-                double v1 = 0.0, v2 = 0.0, cv = 0.0;
-                int count = 0;
-                for (int dy = -window/2; dy <= window/2; ++dy) {
-                    for (int dx = -window/2; dx <= window/2; ++dx) {
-                        int nx = x + dx;
-                        int ny = y + dy;
-                        if (nx < 0 || ny < 0 || nx >= width || ny >= height)
-                            continue;
-                        ++count;
-                        double d1 = img1[idx(nx, ny, c)] - mean1[idx(x, y, c)];
-                        double d2 = img2[idx(nx, ny, c)] - mean2[idx(x, y, c)];
-                        v1 += d1 * d1;
-                        v2 += d2 * d2;
-                        cv += d1 * d2;
-                    }
-                }
-                v1 = std::max(v1 / count, eps);
-                v2 = std::max(v2 / count, eps);
-                cv = cv / count;
-
-                const double g = cv / (v1 + eps);
-                const double sv_sq = v2 - g * cv;
-
-                vif_num += std::log10(1.0 + g * g * v1 / (sv_sq + eps));
-                vif_den += std::log10(1.0 + v1 / eps);
-            }
-        }
-    }
-
-    double vif = vif_num / (vif_den + eps);
-    return std::clamp(vif, 0.0, 1.0);
 }
 
 

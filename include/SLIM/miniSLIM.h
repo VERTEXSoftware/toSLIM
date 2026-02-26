@@ -35,17 +35,6 @@
 
 #define SLIM_VER ((SLIM_VER_MAJOR << 24) | (SLIM_VER_MINOR << 16) | (SLIM_VER_BUGFIX << 8) | (SLIM_VER_HOTFIX))
 
-#define OGR(X) ( (X) > 255 ? 255 : (X) < 0 ? 0 : X)
-
-#define CRGB2Y(R, G, B) OGR((19595 * R + 38470 * G + 7471 * B ) >> 16)
-#define CRGB2Cb(R, G, B) OGR((36962 * (B - OGR((19595 * R + 38470 * G + 7471 * B ) >> 16) ) >> 16) + 128)
-#define CRGB2Cr(R, G, B) OGR((46727 * (R - OGR((19595 * R + 38470 * G + 7471 * B ) >> 16) ) >> 16) + 128)
-
-#define CYCbCr2R(Y, Cb, Cr) OGR( Y + ( 91881 * Cr >> 16 ) - 179 )
-#define CYCbCr2G(Y, Cb, Cr) OGR( Y - (( 22544 * Cb + 46793 * Cr ) >> 16) + 135)
-#define CYCbCr2B(Y, Cb, Cr) OGR( Y + (116129 * Cb >> 16 ) - 226 )
-
-
 #if defined(SLIM_MALLOC) && defined(SLIM_FREE)
 // ok
 #elif !defined(SLIM_MALLOC) && !defined(SLIM_FREE)

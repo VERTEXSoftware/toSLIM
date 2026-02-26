@@ -260,7 +260,11 @@ void GEN_CLR_MAP_RGBA(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t& 
 
 
 
-uint16_t ENCODE_RAY(bool orig, uint8_t* src, uint8_t* dest, uint32_t size, uint32_t &r_size) {
+uint16_t ENCODE_REVOLVER(bool orig, uint8_t* src, uint8_t* dest, uint32_t size, uint32_t &r_size) {
+
+	//--------------------------------------------------------------//
+	//Encode by the revolver method
+	//--------------------------------------------------------------//
 
 	if (size <= 0) { return 0; }
 	if (orig==false)  {return 0; }
@@ -299,7 +303,11 @@ uint16_t ENCODE_RAY(bool orig, uint8_t* src, uint8_t* dest, uint32_t size, uint3
 
 
 
-void  DECODE_RAY(uint16_t mode, uint8_t* src, uint8_t* dest, uint32_t size) {
+void  DECODE_REVOLVER(uint16_t mode, uint8_t* src, uint8_t* dest, uint32_t size) {
+
+	//--------------------------------------------------------------//
+	//Decode by the revolver method
+	//--------------------------------------------------------------//
 
 	if (size<=0) { return; }
 	if (mode==0)  { return; }
@@ -541,10 +549,10 @@ SLIMERROR SLIM_WRITE_BLOCKS_3CHANNEL(MiniStream &outfile, SLIM_INFO &header, uin
 			uint32_t ch2_c = 0;
 			uint32_t idx_c = 0;
 
-			const uint16_t v0 = ENCODE_RAY(ch0_org, l_ch0, m_write, CColor, ch0_c);
-			const uint16_t v1 = ENCODE_RAY(ch1_org, l_ch1, m_write + ch0_c, CColor, ch1_c);
-			const uint16_t v2 = ENCODE_RAY(ch2_org, l_ch2, m_write + ch0_c + ch1_c, CColor, ch2_c);
-			const uint16_t v4 = ENCODE_RAY(idx_org, l_idx, m_write + ch0_c + ch1_c + ch2_c, Cout, idx_c);
+			const uint16_t v0 = ENCODE_REVOLVER(ch0_org, l_ch0, m_write, CColor, ch0_c);
+			const uint16_t v1 = ENCODE_REVOLVER(ch1_org, l_ch1, m_write + ch0_c, CColor, ch1_c);
+			const uint16_t v2 = ENCODE_REVOLVER(ch2_org, l_ch2, m_write + ch0_c + ch1_c, CColor, ch2_c);
+			const uint16_t v4 = ENCODE_REVOLVER(idx_org, l_idx, m_write + ch0_c + ch1_c + ch2_c, Cout, idx_c);
 			
 			uint16_t meta_code = v0 * 1296u + v1 * 216u + v2 * 36u + v4;
 
@@ -667,11 +675,11 @@ SLIMERROR SLIM_WRITE_BLOCKS_4CHANNEL(MiniStream &outfile, SLIM_INFO &header, uin
 			uint32_t ch3_c = 0;
 			uint32_t idx_c = 0;
 
-			const uint16_t v0 = ENCODE_RAY(ch0_org, l_ch0, m_write, CColor, ch0_c);
-			const uint16_t v1 = ENCODE_RAY(ch1_org, l_ch1, m_write + ch0_c, CColor, ch1_c);
-			const uint16_t v2 = ENCODE_RAY(ch2_org, l_ch2, m_write + ch0_c + ch1_c, CColor, ch2_c);
-			const uint16_t v3 = ENCODE_RAY(ch3_org, l_ch3, m_write + ch0_c + ch1_c + ch2_c, CColor, ch3_c);
-			const uint16_t v4 = ENCODE_RAY(idx_org, l_idx, m_write + ch0_c + ch1_c + ch2_c + ch3_c, Cout, idx_c);
+			const uint16_t v0 = ENCODE_REVOLVER(ch0_org, l_ch0, m_write, CColor, ch0_c);
+			const uint16_t v1 = ENCODE_REVOLVER(ch1_org, l_ch1, m_write + ch0_c, CColor, ch1_c);
+			const uint16_t v2 = ENCODE_REVOLVER(ch2_org, l_ch2, m_write + ch0_c + ch1_c, CColor, ch2_c);
+			const uint16_t v3 = ENCODE_REVOLVER(ch3_org, l_ch3, m_write + ch0_c + ch1_c + ch2_c, CColor, ch3_c);
+			const uint16_t v4 = ENCODE_REVOLVER(idx_org, l_idx, m_write + ch0_c + ch1_c + ch2_c + ch3_c, Cout, idx_c);
 
 			uint16_t meta_code = v0 * 1296u + v1 * 216u + v2 * 36u + v3 * 6u + v4;
 
@@ -750,10 +758,10 @@ SLIMERROR 	SLIM_READ_BLOCKS_3CHANNEL(MiniStream &infile, SLIM_INFO &header, uint
 
 			if (!infile.read(m_read, 1, st_size)){ return SLIMERROR::ERROR_END; }
 			
-			DECODE_RAY(v0, m_read, m_data, cmps_ch0);
-			DECODE_RAY(v1, m_read + st_ch1, m_data + 256, cmps_ch1);
-			DECODE_RAY(v2, m_read + st_ch2, m_data + 512, cmps_ch2);
-			DECODE_RAY(v4, m_read + st_idx, m_data + 768, cmps_idx);
+			DECODE_REVOLVER(v0, m_read, m_data, cmps_ch0);
+			DECODE_REVOLVER(v1, m_read + st_ch1, m_data + 256, cmps_ch1);
+			DECODE_REVOLVER(v2, m_read + st_ch2, m_data + 512, cmps_ch2);
+			DECODE_REVOLVER(v4, m_read + st_idx, m_data + 768, cmps_idx);
 
 			uint32_t idxclr		= 0;
 			uint32_t Cout		= 0;
@@ -860,11 +868,11 @@ SLIMERROR SLIM_READ_BLOCKS_4CHANNEL(MiniStream &infile, SLIM_INFO &header, uint8
 
 			if (!infile.read(m_read, 1, st_size)){ return SLIMERROR::ERROR_END; }
 
-			DECODE_RAY(v0, m_read, m_data, cmps_ch0);
-			DECODE_RAY(v1, m_read + st_ch1, m_data + 256, cmps_ch1);
-			DECODE_RAY(v2, m_read + st_ch2, m_data + 512, cmps_ch2);
-			DECODE_RAY(v3, m_read + st_ch3, m_data + 768, cmps_ch3);
-			DECODE_RAY(v4, m_read + st_idx, m_data + 1024, cmps_idx);
+			DECODE_REVOLVER(v0, m_read, m_data, cmps_ch0);
+			DECODE_REVOLVER(v1, m_read + st_ch1, m_data + 256, cmps_ch1);
+			DECODE_REVOLVER(v2, m_read + st_ch2, m_data + 512, cmps_ch2);
+			DECODE_REVOLVER(v3, m_read + st_ch3, m_data + 768, cmps_ch3);
+			DECODE_REVOLVER(v4, m_read + st_idx, m_data + 1024, cmps_idx);
 
 			uint32_t idxclr		= 0;
 			uint32_t Cout		= 0;
@@ -1074,11 +1082,11 @@ SLIMERROR Info_SLIM(MiniStream &infile, SLIM_INFO_FULL &info){
 
 			if (!infile.read(m_read, 1, st_size)){ return SLIMERROR::ERROR_END; }
 
-			DECODE_RAY(comp_pack[0], m_read, m_data, cmps_ch0);
-			DECODE_RAY(comp_pack[1], m_read + st_ch1, m_data + 256, cmps_ch1);
-			DECODE_RAY(comp_pack[2], m_read + st_ch2, m_data + 512, cmps_ch2);
-			DECODE_RAY(comp_pack[3], m_read + st_ch3, m_data + 768, cmps_ch3);
-			DECODE_RAY(comp_pack[4], m_read + st_idx, m_data + 1024, cmps_idx);
+			DECODE_REVOLVER(comp_pack[0], m_read, m_data, cmps_ch0);
+			DECODE_REVOLVER(comp_pack[1], m_read + st_ch1, m_data + 256, cmps_ch1);
+			DECODE_REVOLVER(comp_pack[2], m_read + st_ch2, m_data + 512, cmps_ch2);
+			DECODE_REVOLVER(comp_pack[3], m_read + st_ch3, m_data + 768, cmps_ch3);
+			DECODE_REVOLVER(comp_pack[4], m_read + st_idx, m_data + 1024, cmps_idx);
 
 			uint32_t lc_blk_max = 0;
 			uint32_t lc_blk_min = 0xFFFFFFFFu;

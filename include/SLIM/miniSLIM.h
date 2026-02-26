@@ -406,23 +406,23 @@ uint32_t BLOCK_ANALYZER(uint8_t level,uint8_t* img, uint32_t m_WIDTH, uint32_t m
             uint32_t idx = channels * (row * m_WIDTH + column);
 
 			if(channels>0){ 
-				int c = img[idx]; 
-                double d = (double)c - (double)((double)c * invLevelq);
+				double c = (double)img[idx]; 
+                double d = c - (c * invLevelq);
                 mse += d * d;
 			} 
 			if(channels>1){ 
-				int c = img[idx+1]; 
-                double d = (double)c - (double)((double)c * invLevelq);
+				double c = (double)img[idx+1]; 
+                double d = c - (c * invLevelq);
                 mse += d * d;
 			} 
 			if(channels>2){ 
-				int c = img[idx+2]; 
-                double d = (double)c - (double)((double)c * invLevelq);
+				double c = (double)img[idx+2]; 
+                double d = c - (c * invLevelq);
                 mse += d * d;
 			} 
 			if(channels>3){ 
-				int c = img[idx+3]; 
-                double d = (double)c - (double)((double)c * invLevelq);
+				double c = (double)img[idx+3]; 
+                double d = c - (c * invLevelq);
                 mse += d * d;
 			}
             count += channels;

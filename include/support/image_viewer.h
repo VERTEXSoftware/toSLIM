@@ -18,6 +18,7 @@ class ImageViewer {
 public:
     ImageViewer(unsigned char* data, int w, int h, SLIMCODE code): width(w), height(h), codes(code) 
     {
+        dataimg = NULL;
         if (!data || w <= 0 || h <= 0) {
             std::cerr << "Invalid image data\n";
             valid = false;
@@ -36,6 +37,15 @@ public:
         }
 
     }
+
+    ~ImageViewer(){
+        width = 0;
+        height = 0;
+        ch = 0;
+        valid = false;
+        if(dataimg!=NULL){SLIM_FREE(dataimg);};
+    }
+
 
     void show(const std::string& title = "Image Viewer") {
         

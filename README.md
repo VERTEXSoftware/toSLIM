@@ -40,7 +40,7 @@
 | `toslim -c image.png image.SLIM`           | Convert PNG → SLIM                        |
 | `toslim -c image.SLIM image.png`           | Convert SLIM → PNG                        |
 | `toslim -c -q 128 image.SLIM image.png`    | Convert with specified quality (~50%)     |
-| `toslim -a image.SLIM image.png`           | Compare two images ( PSNR / SSIM / PSQNR )|
+| `toslim -a image.png image.SLIM`           | Compare two images ( PSNR / SSIM / PSQNR )|
 
 ## Build
 

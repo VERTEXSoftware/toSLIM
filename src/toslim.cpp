@@ -82,13 +82,15 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
     std::cout << "  -c          Convert from format file to other format\n";
     std::cout << "  -q          Image quality level for JPEG and SLIM (0..255)\n";
     std::cout << "  -a          Comparison of images using PSNR/SSIM/PSQNR\n";
+    std::cout << "  -w          Exporting a map from SLIM\n";
     std::cout << "  -h          Show this help message\n";
     std::cout << "  -y          Overwrite file\n";
     std::cout << "\nExamples:\n";
     std::cout << "  toslim -c image.png image.SLIM                 Convert image.png to image.SLIM\n";
     std::cout << "  toslim -c image.SLIM image.png                 Convert image.SLIM to image.png\n";
-    std::cout << "  toslim -c -q 128 image.SLIM image.png          Convert image.png to image.SLIM quality 50%\n";
-    std::cout << "  toslim -a image.SLIM image.png                 Comparing image.png with image.SLIM\n";
+    std::cout << "  toslim -c -q 128 image.png image.SLIM          Convert image.png to image.SLIM quality 50%\n";
+    std::cout << "  toslim -a image.png image.SLIM                 Comparing image.png with image.SLIM\n";
+    std::cout << "  toslim -w image.SLIM map.png                   Exporting a map from image.SLIM to map.png\n";
     std::cout << "\nDefault:\n";
     std::cout << "  Quality: 255 (MAX)\n";
     }
@@ -107,34 +109,38 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
     std::cout << "  -c          Convert from format file to other format\n";
     std::cout << "  -q          Image quality level for JPEG and SLIM (0..255)\n";
     std::cout << "  -v          Display image (default behavior)\n";
+    std::cout << "  -m          Display map image (only SLIM is supported)\n";
     std::cout << "  -a          Comparison of images using PSNR/SSIM/PSQNR\n";
+    std::cout << "  -w          Exporting a map from SLIM\n";
     std::cout << "  -h          Show this help message\n";
     std::cout << "  -y          Overwrite file\n";
     std::cout << "\nExamples:\n";
     std::cout << "  toslim image.png                               Display image\n";
     std::cout << "  toslim -v image.SLIM                           Display image\n";
+    std::cout << "  toslim -m image.SLIM                           Display map image\n";
     std::cout << "  toslim -c image.png image.SLIM                 Convert image.png to image.SLIM\n";
     std::cout << "  toslim -c image.SLIM image.png                 Convert image.SLIM to image.png\n";
-    std::cout << "  toslim -c -q 128 image.SLIM image.png          Convert image.png to image.SLIM quality 50%\n";
-    std::cout << "  toslim -a image.SLIM image.png                 Comparing image.png with image.SLIM\n";
+    std::cout << "  toslim -c -q 128 image.png image.SLIM          Convert image.png to image.SLIM quality 50%\n";
+    std::cout << "  toslim -a image.png image.SLIM                 Comparing image.png with image.SLIM\n";
+    std::cout << "  toslim -w image.SLIM map.png                   Exporting a map from image.SLIM to map.png\n";
     std::cout << "\nDefault:\n";
     std::cout << "  Quality: 255 (MAX)\n";
     }
 
     void DemoIMG(std::string file){
 
-    unsigned char* data = NULL;
-    int w = 0;
-    int h = 0;
-    SLIMCODE channels;
+        unsigned char* data = NULL;
+        int w = 0;
+        int h = 0;
+        SLIMCODE channels;
 
 
-    load_image(file, data, w, h, channels);
+        load_image(file, data, w, h, channels);
 
-    ImageViewer viewer(data, w, h, channels);
-    viewer.show(file);
+        ImageViewer viewer(data, w, h, channels);
+        viewer.show(file);
 
-    if(data!=NULL){free(data);}
+        if(data!=NULL){free(data);}
     }
 
 
@@ -176,7 +182,8 @@ enum class Mode {
     CONVERT,
     ANALIZE,
     INFO,
-    VIEWMAP
+    VIEWMAP,
+    SAVEMAP
 };
 
 void InfoOtherFormat(std::string imagePath){
@@ -442,7 +449,39 @@ void ConvertIMG(std::string fileA,std::string fileB, uint8_t quality){
 
 }
 
+void SaveMapToIMG(std::string fileA,std::string fileB){
 
+    unsigned char* data = NULL;
+    int w = 0;
+    int h = 0;
+    SLIMCODE channels;
+
+    IStream infile(fileA.c_str(), MiniStream::Mode::Read);
+
+    if(infile.isOpen()) {
+        SLIM_INFO header;
+
+        Load_SLIM_Map(infile, header, data);
+
+        w           = header._WIDTH;
+        h           = header._HEIGHT;
+        channels    = (SLIMCODE)header._CODE;
+
+        infile.close();
+
+        if(channels!=SLIMCODE::CODE_MAP){return;}
+
+        unsigned char* dataimg = (unsigned char*)SLIM_MALLOC(w * h * 3);
+        grayToViridis(data, dataimg, w, h);
+        save_image(fileB, dataimg, w, h,SLIMCODE::CODE_RGB,255);
+        if(dataimg!=NULL){SLIM_FREE(dataimg);};
+    }
+
+
+
+    if(data!=NULL){free(data);}
+
+}
 
 
 
@@ -490,6 +529,8 @@ int main(int argc, char* argv[]) {
         #endif
         else if (args[i] == "-c") {
             mode = Mode::CONVERT;
+        } else if (args[i] == "-w") {
+            mode = Mode::SAVEMAP;
         } else if (args[i] == "-i") {
             mode = Mode::INFO;
         } else if (args[i] == "-a") {
@@ -535,6 +576,15 @@ int main(int argc, char* argv[]) {
         if(!overwrite){if(!FileNotExistSave(files[1])){return 0;}}
 
         ConvertIMG(files[0],files[1],imageQuality);
+    }else if (mode == Mode::SAVEMAP) {
+        if(files.size()<2){return -1;}
+        if(files[0]==files[1]){return -1;}
+
+        if(detect_format(files[0]) != ImageFormat::fSLIM){std::cout << "You can only export a map from the SLIM format!\n";return 0;}
+        if(!overwrite){if(!FileNotExistSave(files[1])){return 0;}}
+        
+        SaveMapToIMG(files[0],files[1]);
+    
     } else if (mode == Mode::ANALIZE) {
         if(files.size()<2){return -1;}
         AnalizeIMG(files);

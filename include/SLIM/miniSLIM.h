@@ -1160,7 +1160,7 @@ SLIMERROR Load_SLIM_Map(MiniStream &infile, SLIM_INFO &header, uint8_t* &img){
 	uint8_t m_size		[5]{0};
 
 
-	uint32_t qnt 		= 0;
+	uint32_t qnt_idx 	= 0;
 	uint16_t meta_code	= 0;
 
 	for (uint32_t blcY = 0; blcY < m_HEIGHT; blcY += 16)
@@ -1169,7 +1169,7 @@ SLIMERROR Load_SLIM_Map(MiniStream &infile, SLIM_INFO &header, uint8_t* &img){
 		{
 			if (!infile.read(&meta_code, 1, 2)){ return SLIMERROR::ERROR_END; }
 
-			qnt = (meta_code & 0x07u)<< 1;
+			qnt_idx  = (meta_code & 0x07u);
 			meta_code >>= 0x03u;
 
 			uint32_t t;
@@ -1212,7 +1212,7 @@ SLIMERROR Load_SLIM_Map(MiniStream &infile, SLIM_INFO &header, uint8_t* &img){
 					if (column >= m_WIDTH || row >= m_HEIGHT) { continue; }
 
 					uint32_t index	= (row * m_WIDTH + column);
-					img[index]		= qnt;
+					img[index]		= qnt_idx;
 
 				}
 			}

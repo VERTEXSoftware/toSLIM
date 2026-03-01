@@ -132,16 +132,10 @@ std::string compressionRatio(size_t originalSize, size_t compressedSize) {
 
 
 void grayToViridis(const unsigned char* grayscale, unsigned char* rgb, int width, int height) {
+    
     const int totalPixels = width * height;
-    
-    unsigned char minGray = 255;
-    unsigned char maxGray = 0;
-    for (int i = 0; i < totalPixels; ++i) {
-        if (grayscale[i] > maxGray){maxGray = grayscale[i];}
-        if (grayscale[i] < minGray){minGray = grayscale[i];}
-    }
-    
-    if (maxGray == minGray){maxGray = minGray + 1;}
+    const unsigned char minGray = 0;
+    const unsigned char maxGray = 7;
     
     for (int i = 0; i < totalPixels; ++i) {
         double t = (double)(grayscale[i] - minGray) / (maxGray - minGray);

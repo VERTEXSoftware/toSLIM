@@ -11,7 +11,7 @@ SLIMCODE ChannelToCode(int channels);
 double calcPSNR(const unsigned char* img1, const unsigned char* img2, int width, int height, int channels);
 double calcPSQNR(const unsigned char* img1, const unsigned char* img2, int width, int height, int channels);
 double calcSSIM(const unsigned char* img1, const unsigned char* img2, int width, int height, int channels);
-void grayToViridis(const unsigned char* grayscale, unsigned char* rgb, int width, int height);
+void grayToMagma(const unsigned char* grayscale, unsigned char* rgb, int width, int height);
 
 std::string formatSize(uint32_t size);
 std::string compressionRatio(size_t originalSize, size_t compressedSize);
@@ -131,47 +131,30 @@ std::string compressionRatio(size_t originalSize, size_t compressedSize) {
 
 
 
-void grayToViridis(const unsigned char* grayscale, unsigned char* rgb, int width, int height) {
+void grayToMagma(const unsigned char* grayscale, unsigned char* rgb, int width, int height) {
     
-    const int totalPixels = width * height;
-    const unsigned char minGray = 0;
-    const unsigned char maxGray = 7;
-    
-    for (int i = 0; i < totalPixels; ++i) {
-        double t = (double)(grayscale[i] - minGray) / (maxGray - minGray);
+    const int total = width * height;
 
-        unsigned char r = 0;
-        unsigned char g = 0; 
-        unsigned char b = 0;
-        
-        if (t < 0.25) {
-            double local_t = t / 0.25;
-            r = (unsigned char)(36 * local_t);
-            g = 0;
-            b = (unsigned char)(68 * local_t);
-        }
-        else if (t < 0.5) {
-            double local_t = (t - 0.25) / 0.25;
-            r = (unsigned char)(36 + (155 * local_t));
-            g = (unsigned char)(33 * local_t);
-            b = (unsigned char)(68 + (59 * local_t));
-        }
-        else if (t < 0.75) {
-            double local_t = (t - 0.5) / 0.25;
-            r = (unsigned char)(191 + (55 * local_t));
-            g = (unsigned char)(33 + (92 * local_t));
-            b = (unsigned char)(127 - (68 * local_t));
-        }
-        else {
-            double local_t = (t - 0.75) / 0.25;
-            r = (unsigned char)(246 + (9 * local_t));
-            g = (unsigned char)(125 + (130 * local_t));
-            b = (unsigned char)(59 + (196 * local_t));
-        }
-        
-        rgb[i * 3]     = r;
-        rgb[i * 3 + 1] = g;
-        rgb[i * 3 + 2] = b;
+    static const uint8_t magma_lut[8][3] = {
+        {  0,   0,   4 },
+        { 36,   0,  68 },
+        { 80,  18, 100 },
+        { 140,  40, 120 },
+        { 191,  65,  90 },
+        { 220, 100,  60 },
+        { 246, 180,  80 },
+        { 255, 245, 220 }
+    };
+
+    for (int i = 0; i < total; ++i)
+    {
+
+        unsigned int idx = grayscale[i];
+        const uint8_t* color = magma_lut[idx];
+
+        rgb[i*3 + 0] = color[0];
+        rgb[i*3 + 1] = color[1];
+        rgb[i*3 + 2] = color[2];
     }
 }
 

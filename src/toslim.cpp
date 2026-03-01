@@ -472,7 +472,7 @@ void SaveMapToIMG(std::string fileA,std::string fileB){
         if(channels!=SLIMCODE::CODE_MAP){return;}
 
         unsigned char* dataimg = (unsigned char*)SLIM_MALLOC(w * h * 3);
-        grayToViridis(data, dataimg, w, h);
+        grayToMagma(data, dataimg, w, h);
         save_image(fileB, dataimg, w, h,SLIMCODE::CODE_RGB,255);
         if(dataimg!=NULL){SLIM_FREE(dataimg);};
     }

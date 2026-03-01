@@ -26,7 +26,7 @@ public:
         }
         if(codes==SLIMCODE::CODE_MAP){
             dataimg = (unsigned char*)SLIM_MALLOC(w * h * 3);
-            grayToViridis(data, dataimg, w, h);
+            grayToMagma(data, dataimg, w, h);
             codes=SLIMCODE::CODE_RGB;
             ch = CodeToChannel(codes);
             valid = true;

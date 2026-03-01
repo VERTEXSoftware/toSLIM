@@ -30,6 +30,7 @@ public:
             codes=SLIMCODE::CODE_RGB;
             ch = CodeToChannel(codes);
             valid = true;
+            mapgen = true;
         }else{
             ch = CodeToChannel(codes);
             dataimg = data;
@@ -39,11 +40,15 @@ public:
     }
 
     ~ImageViewer(){
+
+        if(dataimg!=NULL && mapgen){SLIM_FREE(dataimg);};
+        
         width = 0;
         height = 0;
         ch = 0;
         valid = false;
-        if(dataimg!=NULL){SLIM_FREE(dataimg);};
+        mapgen = false;
+        
     }
 
 
@@ -220,7 +225,8 @@ private:
     int ch = 0;
     SLIMCODE codes;
     bool valid = false;
-    unsigned char* dataimg;
+    bool mapgen = false;
+    unsigned char* dataimg = NULL;
 
     std::string getFilename(const std::string& path) {
         size_t pos = path.find_last_of("/\\");

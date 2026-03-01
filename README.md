@@ -53,6 +53,11 @@ Attention, you may need to compile SDL2 manually!
 apt update
 apt install build-essential make cmake
 apt install libx11-dev libxext-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev libxss-dev libgl1-mesa-dev
+
+#Arch Linux
+pacman -Syu
+pacman -S base-devel make cmake
+pacman -S mesa libx11 libxext libxrandr libxi libxcursor libxinerama libxss
 ```
 
 **Default build (graphical mode)**

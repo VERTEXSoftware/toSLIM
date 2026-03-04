@@ -52,10 +52,14 @@ RICE_RESULT RICE_ENCODE(uint8_t* buf, uint32_t size, uint8_t*& bufc, uint32_t& s
 
     if (avg >= 1.0)
     {
-        k = (uint8_t)std::floor(std::log2(avg));
-        if (k > 7){k = 7;}
+        if      (avg >= 128.0){k = 7;}
+        else if (avg >= 64.0) {k = 6;}
+        else if (avg >= 32.0) {k = 5;}
+        else if (avg >= 16.0) {k = 4;}
+        else if (avg >= 8.0)  {k = 3;}
+        else if (avg >= 4.0)  {k = 2;}
+        else if (avg >= 2.0)  {k = 1;}
     }
-
 
     bufc[0] = k;
     uint32_t bitPos = 8;

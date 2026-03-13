@@ -409,7 +409,7 @@ uint32_t BLOCK_ANALYZER(const uint8_t level,const uint8_t* img, const uint32_t m
 	
 	uint32_t count = 0;
 	double sumDiff = 0;
-    const double invLevelq = levelq == 0 ? 1.0 : 1.0 / levelq * 2.0;
+    const double realLevelq = 1.0/(levelq == 0 ? 1.0 : 1.0 / levelq * 2.0);
 
 	//--------------------------------------------------------------//
 	//PSNR Analysis
@@ -428,22 +428,22 @@ uint32_t BLOCK_ANALYZER(const uint8_t level,const uint8_t* img, const uint32_t m
 
 			if(channels>0){ 
 				double c = (double)img[idx]; 
-                double d = c - (c * invLevelq);
+                double d = c - (c *realLevelq);
                 sumDiff += d * d;
 			} 
 			if(channels>1){ 
 				double c = (double)img[idx+1]; 
-                double d = c - (c * invLevelq);
+                double d = c - (c *realLevelq);
                 sumDiff += d * d;
 			} 
 			if(channels>2){ 
 				double c = (double)img[idx+2]; 
-                double d = c - (c * invLevelq);
+                double d = c - (c *realLevelq);
                 sumDiff += d * d;
 			} 
 			if(channels>3){ 
 				double c = (double)img[idx+3]; 
-                double d = c - (c * invLevelq);
+                double d = c - (c *realLevelq);
                 sumDiff += d * d;
 			}
             count += channels;
@@ -698,27 +698,29 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 			const bool idx_org	= IS_ORIG_LINE(m_idx, l_idx, Cout);
 
 			if (ch0_org || ch1_org || ch2_org|| ch3_org) {
+
+				for (uint32_t i = 0; i <256; ++i) {
+					if (ch0_org) { m_ch0[i] = 0;}
+					if (ch1_org) { m_ch1[i] = 0;}
+					if (ch2_org) { m_ch2[i] = 0;}
+					if (ch3_org) { m_ch3[i] = 0;}
+				}
 				for (uint32_t i = 0; i < CColor; ++i) {
 					if (ch0_org) { m_ch0[i] = l_ch0[i]; }
 					if (ch1_org) { m_ch1[i] = l_ch1[i]; }
 					if (ch2_org) { m_ch2[i] = l_ch2[i]; }
 					if (ch3_org) { m_ch3[i] = l_ch3[i]; }
 				}
-				for (uint32_t i = CColor; i < 256; ++i) {
-					m_ch0[i] = 0;
-					m_ch1[i] = 0;
-					m_ch2[i] = 0;
-					m_ch3[i] = 0;
-				}
 			}
 
 			if (idx_org) {
+				for (uint32_t i = 0; i < 256; ++i) {
+					m_idx[i] = 0;
+				}
 				for (uint32_t i = 0; i < Cout; ++i) {
 					m_idx[i] = l_idx[i];
 				}
-				for (uint32_t i = Cout; i < 256; ++i) {
-					m_idx[i] = 0;
-				}
+
 			}
 
 			uint32_t ch0_c = 0;

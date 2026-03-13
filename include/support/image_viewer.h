@@ -24,7 +24,7 @@ public:
             valid = false;
             return;
         }
-        if(codes==SLIMCODE::CODE_MAP){
+        if(codes==SLIMCODE::CODE_GRAY){
             dataimg = (unsigned char*)SLIM_MALLOC(w * h * 3);
             grayToMagma(data, dataimg, w, h);
             codes=SLIMCODE::CODE_RGB;

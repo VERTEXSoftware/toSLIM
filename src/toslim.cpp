@@ -14,7 +14,7 @@ const char* BUILD_TIME = __TIME__;
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
-#include "SLIM/miniSLIM.h"
+#include "SLIM/SLIM.h"
 #include "support/support.h"
 #include "../external/stb/stb_image.h"
 #include "../external/stb/stb_image_write.h"
@@ -44,16 +44,25 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
             return loadotherformat(input.c_str(), data, w, h, channels);
         case ImageFormat::fSLIM:
             {
-                IStream infile(input.c_str(), MiniStream::Mode::Read);
+                IStream infile(input.c_str(), SLIMStream::Mode::Read);
 
                 if(infile.isOpen()) {
-                    SLIM_INFO header;
 
-                    Load_SLIM(infile, header, data);
+                    SLIMHeaderDesc  header{};
+                    SLIMLayerDesc   layer{};
 
-                    w           = header._WIDTH;
-                    h           = header._HEIGHT;
-                    channels    = (SLIMCODE)header._CODE;
+                    SLIM_Read_Header(&infile, &header);
+                    SLIM_Read_Layer(&infile, &layer);
+                    
+
+                    w           = layer.width;
+                    h           = layer.height;
+                    channels    = (SLIMCODE)layer.code;
+                    data        = (unsigned char*)layer.img;
+
+
+                    SLIM_Free(layer.name);
+                    SLIM_Free(layer.ext);
 
                     infile.close();
                 }else{
@@ -140,7 +149,7 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
         ImageViewer viewer(data, w, h, channels);
         viewer.show(file);
 
-        if(data!=NULL){free(data);}
+        SLIM_Free(data);
     }
 
 
@@ -152,16 +161,22 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
         SLIMCODE channels=SLIMCODE::CODE_NONE;
 
 
-        IStream infile(file.c_str(), MiniStream::Mode::Read);
+        IStream infile(file.c_str(), SLIMStream::Mode::Read);
 
         if(infile.isOpen()) {
-            SLIM_INFO header;
+            SLIMHeaderDesc  header{};
+            SLIMLayerDesc   layer{};
 
-            Load_SLIM_Map(infile, header, data);
+            SLIM_Read_Header(&infile, &header);
+            SLIM_Read_Layer_Map(&infile, &layer);
 
-            w   = header._WIDTH;
-            h   = header._HEIGHT;
-            channels    = (SLIMCODE)header._CODE;
+            w           = layer.width;
+            h           = layer.height;
+            channels    = (SLIMCODE)layer.code;
+            data        = (unsigned char*)layer.img;
+
+            SLIM_Free(layer.name);
+            SLIM_Free(layer.ext);
 
             infile.close();
         }    
@@ -169,7 +184,7 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
         ImageViewer viewer(data, w, h, channels);
         viewer.show(file);
 
-        if(data!=NULL){free(data);}
+        SLIM_Free(data);
 
     }
 #endif
@@ -212,7 +227,7 @@ void InfoOtherFormat(std::string imagePath){
 
     size_t sizefile=0;    
 
-    IStream infile(imagePath.c_str(),MiniStream::Mode::Read);
+    IStream infile(imagePath.c_str(),SLIMStream::Mode::Read);
        
     if(infile.isOpen()){
         sizefile=infile.size(); 
@@ -259,70 +274,91 @@ void InfoIMG(std::string imagePath){
             break;
         case ImageFormat::fSLIM:
             {
-                IStream infile(imagePath.c_str(),MiniStream::Mode::Read);
+                IStream infile(imagePath.c_str(), SLIMStream::Mode::Read);
                 
                 if(infile.isOpen()){
                     
-                    SLIM_INFO_FULL header;
-                    Info_SLIM(infile,header);    
+                    SLIMHeaderDesc      header{};
+                    SLIMLayerInfoDesc   layer{};
+
+                    SLIM_Read_Header(&infile, &header);
+                    SLIM_Read_Layer_Info(&infile, &layer);
 
                     std::cout << "----[ INFORMATION ]----\n";
 
                     std::cout<<"FORMAT: Sleptsov Vladimir Image (SLIM)\n";
 
-                    uint8_t major = (header._VERS>> 24) & 0xFF;
-                    uint8_t minor = (header._VERS>> 16) & 0xFF;
-                    uint8_t patch = (header._VERS >> 8) & 0xFF;
-                    uint8_t build = header._VERS & 0xFF;
+                    uint8_t major = (header.version>> 24) & 0xFF;
+                    uint8_t minor = (header.version>> 16) & 0xFF;
+                    uint8_t patch = (header.version >> 8) & 0xFF;
+                    uint8_t build = header.version & 0xFF;
 
                     std::cout<<"VERSION: "<<(int)major <<"."<<(int)minor<<"."<<(int)patch<<"."<<(int)build<< "\n";
-                    std::cout<<"WIDTH: "<<header._WIDTH<< "\n";
-                    std::cout<<"HEIGHT: "<<header._HEIGHT<< "\n";
+                    
+                    std::cout<<"NAME: "<<(layer.name==NULL?"[NULL]":layer.name)<< "\n";
+                    std::cout<<"ID: "<<layer.id<< "\n";
+                    std::cout<<"WIDTH: "<<layer.width<< "\n";
+                    std::cout<<"HEIGHT: "<<layer.height<< "\n";
                     std::cout<<"CODE: ";
 
                     uint32_t chanells =1;
 
-                    switch (header._CODE)
+                    switch (layer.code)
                     {
+                        case SLIMCODE::CODE_GRAY:
+                            std::cout<<"Gray (1 channels)\n";
+                            chanells =1;
+                            break;
                         case SLIMCODE::CODE_RGB:
                             std::cout<<"RGB (3 channels)\n";
+                            chanells =3;
+                            break;
+                        case SLIMCODE::CODE_BGR:
+                            std::cout<<"BGR (3 channels)\n";
                             chanells =3;
                             break;
                         case SLIMCODE::CODE_RGBA:
                             std::cout<<"RGBA (4 channels)\n";
                             chanells =4;
                             break;
+                        case SLIMCODE::CODE_BGRA:
+                            std::cout<<"BGRA (4 channels)\n";
+                            chanells =4;
+                            break;
                         default:
                             std::cout<<"NONE (not defined)\n";
                     }
                     uint32_t sizefile=infile.size();
-                    uint32_t sizefileraw=header._WIDTH*header._HEIGHT*chanells;
+                    uint32_t sizefileraw=layer.width * layer.height * chanells;
 
 
                     std::cout<<compressionRatio(sizefileraw,sizefile)<<"\n";
                     std::cout<<"SIZE COMP: "<<sizefile<<" ("<<formatSize(sizefile)<<")\n";
                     std::cout<<"SIZE RAW: "<<sizefileraw<<" ("<<formatSize(sizefileraw)<<")\n";
 
-                    const auto totalpix = header._BLOCK_256_ALL;
+                    const auto totalpix = layer.block_256_all;
 
                     std::cout << "\n----[ BLOCKS " << totalpix << " ]----\n";
-                    std::cout << "COLOR MIN: "<< header._BLOCK_COLOR_TABLE_MIN<< "\n";
-                    std::cout << "COLOR MAX: "<< header._BLOCK_COLOR_TABLE_MAX<< "\n";
-                    std::cout << "COLOR AVG: "<< header._BLOCK_COLOR_TABLE_AVG<< "\n";
-                     std::cout << "\n----[ BLOCKS " << totalpix << " ]----\n";
-                    std::cout << "DELTA MIN: "<< header._BLOCK_Q_MIN<< "\n";
-                    std::cout << "DELTA MAX: "<< header._BLOCK_Q_MAX<< "\n";
-                    std::cout << "DELTA AVG: "<< header._BLOCK_Q_AVG<< "\n";
+                    std::cout << "COLOR MIN: "<< layer.block_color_table_min<< "\n";
+                    std::cout << "COLOR MAX: "<< layer.block_color_table_max<< "\n";
+                    std::cout << "COLOR AVG: "<< layer.block_color_table_avg<< "\n";
+                    std::cout << "\n----[ BLOCKS " << totalpix << " ]----\n";
+                    std::cout << "DELTA MIN: "<< layer.block_q_min<< "\n";
+                    std::cout << "DELTA MAX: "<< layer.block_q_max<< "\n";
+                    std::cout << "DELTA AVG: "<< layer.block_q_avg<< "\n";
 
-                    const uint32_t total = header._ALL_C;
+                    const uint32_t total = layer.all_c;
 
                     std::cout << "\n----[ LINES " << total << " ]----\n";
-                    std::cout << "REUSE: "<< header._REUSE_C<< " (" << Percent(header._REUSE_C, total) << "%)\n";
-                    std::cout << "ORIGINAL: "<< header._ORIGINAL_C<< " (" << Percent(header._ORIGINAL_C, total) << "%)\n";
-                    std::cout << "RLE: "<< header._RLE_C<< " (" << Percent(header._RLE_C, total) << "%)\n";
-                    std::cout << "RICE: "<< header._RICE_C<< " (" << Percent(header._RICE_C, total) << "%)\n";
-                    std::cout << "SLDD: "<< header._SLDD_C<< " (" << Percent(header._SLDD_C, total) << "%)\n";
-                    std::cout << "MASKARED: "<< header._MASKARED_C<< " (" << Percent(header._MASKARED_C, total) << "%)\n";
+                    std::cout << "REUSE: "<< layer.reuse_c<< " (" << Percent(layer.reuse_c, total) << "%)\n";
+                    std::cout << "ORIGINAL: "<< layer.origin_c<< " (" << Percent(layer.origin_c, total) << "%)\n";
+                    std::cout << "RLE: "<< layer.rle_c<< " (" << Percent(layer.rle_c, total) << "%)\n";
+                    std::cout << "RICE: "<< layer.rice_c<< " (" << Percent(layer.rice_c, total) << "%)\n";
+                    std::cout << "SLDD: "<< layer.sldd_c<< " (" << Percent(layer.sldd_c, total) << "%)\n";
+                    std::cout << "MASKARED: "<< layer.maskared_c<< " (" << Percent(layer.maskared_c, total) << "%)\n";
+
+                    SLIM_Free(layer.name);
+                    SLIM_Free(layer.ext);
 
                     infile.close();
                 }
@@ -355,16 +391,24 @@ bool save_image(const std::string& output, unsigned char* data, int w, int h,  S
             return stbi_write_tga(output.c_str(), w, h, channels, data);
         case ImageFormat::fSLIM:
             {
-                IStream infile(output.c_str(),MiniStream::Mode::Write);
+                IStream infile(output.c_str(), SLIMStream::Mode::Write);
                 
                 if(infile.isOpen()){
-                    uint8_t     code    = chan;
-                    uint8_t*    img     = (uint8_t*)data;
-                    uint16_t    width   = (uint16_t)w;
-                    uint16_t    height  = (uint16_t)h;
 
-                    SLIM_INFO header = Create_Info(width, height, code, FILTER_COLORDIV, quality);
-                    Save_SLIM(infile,header,img);             
+                    SLIMHeaderDesc  header{};
+                    header.width    = (uint16_t)w;
+                    header.height   = (uint16_t)h;
+                    header.code     = (uint8_t )chan;
+
+                    SLIMLayerDesc   layer{};
+                    layer.width     = (uint16_t)w;
+                    layer.height    = (uint16_t)h;
+                    layer.code      = (uint8_t )chan;
+                    layer.quality   = quality;
+                    layer.img       = data;
+                                         
+                    SLIM_Write_Header(&infile, &header);
+                    SLIM_Write_Layer(&infile, &layer);
 
                     infile.close();
                 }
@@ -456,30 +500,36 @@ void SaveMapToIMG(std::string fileA,std::string fileB){
     int h = 0;
     SLIMCODE channels;
 
-    IStream infile(fileA.c_str(), MiniStream::Mode::Read);
+    IStream infile(fileA.c_str(), SLIMStream::Mode::Read);
 
     if(infile.isOpen()) {
-        SLIM_INFO header;
+        SLIMHeaderDesc  header{};
+        SLIMLayerDesc   layer{};
 
-        Load_SLIM_Map(infile, header, data);
+        SLIM_Read_Header(&infile, &header);
+        SLIM_Read_Layer_Map(&infile, &layer);
 
-        w           = header._WIDTH;
-        h           = header._HEIGHT;
-        channels    = (SLIMCODE)header._CODE;
+        w           = layer.width;
+        h           = layer.height;
+        channels    = (SLIMCODE)layer.code;
+        data        = (unsigned char*)layer.img;
 
         infile.close();
 
-        if(channels!=SLIMCODE::CODE_MAP){return;}
+        if(channels!=SLIMCODE::CODE_GRAY){return;}
 
-        unsigned char* dataimg = (unsigned char*)SLIM_MALLOC(w * h * 3);
+        unsigned char* dataimg = (unsigned char*)SLIM_Malloc(w * h * 3);
         grayToMagma(data, dataimg, w, h);
         save_image(fileB, dataimg, w, h,SLIMCODE::CODE_RGB,255);
-        if(dataimg!=NULL){SLIM_FREE(dataimg);};
+        SLIM_Free(dataimg);
+
+        SLIM_Free(layer.name);
+        SLIM_Free(layer.ext);
+        SLIM_Free(layer.img);
     }
 
 
 
-    if(data!=NULL){free(data);}
 
 }
 

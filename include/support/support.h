@@ -2,7 +2,7 @@
 #define SUPPORT_H
 
 
-#include "SLIM/miniSLIM.h"
+#include "SLIM/SLIM.h"
 #include <cmath>
 #include <vector>
 
@@ -53,10 +53,19 @@ int CodeToChannel(SLIMCODE code){
         case SLIMCODE::CODE_NONE:
             channels = 0;
             break;
+        case SLIMCODE::CODE_GRAY:
+            channels = 1;
+            break;
         case SLIMCODE::CODE_RGB:
             channels = 3;
             break;
+        case SLIMCODE::CODE_BGR:
+            channels = 3;
+            break;
         case SLIMCODE::CODE_RGBA:
+            channels = 4;
+            break;
+        case SLIMCODE::CODE_BGRA:
             channels = 4;
             break;
         default:

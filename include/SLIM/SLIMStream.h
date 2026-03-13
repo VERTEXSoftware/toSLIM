@@ -1,11 +1,11 @@
-#ifndef MINI_STREAM_H
-#define MINI_STREAM_H
+#ifndef SLIM_STREAM_H
+#define SLIM_STREAM_H
 
 #include <fstream>
 #include <cstdint>
 #include <cstddef>
 
-class MiniStream {
+class SLIMStream {
 protected:
     uint8_t _mode;
     
@@ -26,7 +26,7 @@ public:
         End = 2
     };
 
-    virtual ~MiniStream() = default;
+    virtual ~SLIMStream() = default;
     virtual bool open(const char* filename, uint8_t mode) = 0;
     virtual bool close() = 0;
     virtual bool isOpen() const = 0;
@@ -40,7 +40,7 @@ public:
     uint8_t getMode() { return _mode; }
 };
 
-class IStream : public MiniStream {
+class IStream : public SLIMStream {
 private:
     mutable std::fstream file_;
 
@@ -60,19 +60,19 @@ public:
         std::ios_base::openmode fmode = std::ios_base::binary;
 
         switch (mode) {
-        case MiniStream::Write:
+        case SLIMStream::Write:
             fmode |= std::ios_base::out;
             break;
-        case MiniStream::Read:
+        case SLIMStream::Read:
             fmode |= std::ios_base::in;
             break;
-        case MiniStream::Append:
+        case SLIMStream::Append:
             fmode |= std::ios_base::out | std::ios_base::app;
             break;
-        case MiniStream::CRW:
+        case SLIMStream::CRW:
             fmode |= std::ios_base::out | std::ios_base::in | std::ios_base::trunc;
             break;
-        case MiniStream::ORW:
+        case SLIMStream::ORW:
             fmode |= std::ios_base::out | std::ios_base::in;
             break;
         default:
@@ -112,13 +112,13 @@ public:
 
         std::ios_base::seekdir dir;
         switch (origin) {
-        case MiniStream::Set:
+        case SLIMStream::Set:
             dir = std::ios_base::beg;
             break;
-        case MiniStream::Cur:
+        case SLIMStream::Cur:
             dir = std::ios_base::cur;
             break;
-        case MiniStream::End:
+        case SLIMStream::End:
             dir = std::ios_base::end;
             break;
         default:
@@ -152,4 +152,4 @@ public:
     }
 };
 
-#endif // MINI_STREAM_H
+#endif // SLIM_STREAM_H

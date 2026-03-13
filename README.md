@@ -10,14 +10,14 @@
 **ToSLIM** – This is a tool for basic work with the **SLIM** format. This tool allows you to convert, compare, and view **SLIM** format files, and also supports other formats such as **PNG**, **JPG/JPEG**, **GIF**, **BMP**, **PIC** (supported by **stb_image.h**).
 
 ## Implemented
-**Attention:** this project uses a cut version of **SLIM (miniSLIM)**. Currently, **miniSLIM** implements the following features.
+**Attention:** this project uses a cut version of **SLIM**. Currently, **SLIM** implements the following features.
 #### Implement:
 - ✅ Lossy compression
 - ✅ Lossless compression
 - ✅ Alpha channel and blending modes
 - ✅ Support for 4K and 8K resolution images
+- ✅ Multilayer support
 - ❌ MIP mapping support
-- ❌ Multilayer support
 
 ## Usage
 

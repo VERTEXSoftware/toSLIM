@@ -215,7 +215,7 @@ bool IsOrgLine(uint8_t* a, uint8_t* b, uint32_t count) {
 }
 
 
-void GEN_CLR_MAP_RGBA(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t& size, uint8_t* idx, uint32_t pidx, uint8_t cR, uint8_t cG, uint8_t cB, uint8_t cA) {
+void GEN_CLR_MAP(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t& size, uint8_t* idx, uint32_t pidx, uint8_t cR, uint8_t cG, uint8_t cB, uint8_t cA) {
 
 	uint32_t pos = 0;
 	uint32_t fnd = ((uint32_t)cR << 24) | ((uint32_t)cG << 16) | ((uint32_t)cB << 8) | (uint32_t)cA;
@@ -475,6 +475,7 @@ SLIMERROR SLIM_Write_Header(SLIMStream *file, const SLIMHeaderDesc* desc){
 		return SLIMERROR::ERROR_NOTSUP;
 	}
 
+	#pragma pack(push, 1)
 	struct _SLIM_HEADER
 	{
 		uint64_t _magic;
@@ -484,6 +485,7 @@ SLIMERROR SLIM_Write_Header(SLIMStream *file, const SLIMHeaderDesc* desc){
 		uint16_t _layers;
 		uint8_t  _code;
 	};
+	#pragma pack(pop)
 
 	_SLIM_HEADER _slim_h{};
 
@@ -507,6 +509,7 @@ SLIMERROR SLIM_Read_Header(SLIMStream *file, SLIMHeaderDesc* desc){
 
 	if (!file->isOpen())	{return SLIMERROR::ERROR_FILE;}
 
+	#pragma pack(push, 1)
 	struct _SLIM_HEADER
 	{
 		uint64_t _magic;
@@ -516,6 +519,7 @@ SLIMERROR SLIM_Read_Header(SLIMStream *file, SLIMHeaderDesc* desc){
 		uint16_t _layers;
 		uint8_t  _code;
 	};
+	#pragma pack(pop)
 
 	_SLIM_HEADER _slim_h{};
 
@@ -556,6 +560,7 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 
 	if (!file->isOpen())						{return SLIMERROR::ERROR_FILE;}
 
+	#pragma pack(push, 1)
 	struct _SLIM_LAYER_HEADER
 	{
 		uint16_t _id;
@@ -568,6 +573,7 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 		uint8_t  _name_size;	
 		uint16_t _ext_size;	
 	};
+	#pragma pack(pop)
 
 	_SLIM_LAYER_HEADER _slim_lh{};
 
@@ -698,7 +704,7 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 						Ac /= qnt;
 					}
 
-					GEN_CLR_MAP_RGBA(l_ch0, l_ch1, l_ch2, l_ch3, CColor, l_idx, Cout, Rc, Gc, Bc, Ac);
+					GEN_CLR_MAP(l_ch0, l_ch1, l_ch2, l_ch3, CColor, l_idx, Cout, Rc, Gc, Bc, Ac);
 					++Cout;
 				}
 			}
@@ -772,6 +778,7 @@ SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc){
 
 	if(!file->isOpen())							{return SLIMERROR::ERROR_FILE;}
 
+	#pragma pack(push, 1)
 	struct _SLIM_LAYER_HEADER
 	{
 		uint16_t _id;
@@ -784,6 +791,7 @@ SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc){
 		uint8_t  _name_size;
 		uint16_t _ext_size;	
 	};
+	#pragma pack(pop)
 
 	_SLIM_LAYER_HEADER _slim_lh{};
 
@@ -973,6 +981,7 @@ SLIMERROR SLIM_Read_Layer_Map(SLIMStream *file, SLIMLayerDesc* desc){
 
 	if(!file->isOpen())							{return SLIMERROR::ERROR_FILE;}
 
+	#pragma pack(push, 1)
 	struct _SLIM_LAYER_HEADER
 	{
 		uint16_t _id;
@@ -985,6 +994,7 @@ SLIMERROR SLIM_Read_Layer_Map(SLIMStream *file, SLIMLayerDesc* desc){
 		uint8_t  _name_size;
 		uint16_t _ext_size;	
 	};
+	#pragma pack(pop)
 
 	_SLIM_LAYER_HEADER _slim_lh{};
 
@@ -1140,6 +1150,7 @@ SLIMERROR SLIM_Read_Layer_Info(SLIMStream *file, SLIMLayerInfoDesc* desc){
 
 	if(!file->isOpen())							{return SLIMERROR::ERROR_FILE;}
 
+	#pragma pack(push, 1)
 	struct _SLIM_LAYER_HEADER
 	{
 		uint16_t _id;
@@ -1152,6 +1163,7 @@ SLIMERROR SLIM_Read_Layer_Info(SLIMStream *file, SLIMLayerInfoDesc* desc){
 		uint8_t  _name_size;
 		uint16_t _ext_size;	
 	};
+	#pragma pack(pop)
 
 	_SLIM_LAYER_HEADER _slim_lh{};
 

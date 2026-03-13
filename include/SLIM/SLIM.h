@@ -199,7 +199,7 @@ SLIMERROR SLIM_Free_Layer_Info(SLIMLayerInfoDesc* desc){
 
 
 
-bool IsOrgLine(uint8_t* a, uint8_t* b, uint32_t count) {
+bool IS_ORIG_LINE(uint8_t* a, uint8_t* b, uint32_t count) {
 
 	uint8_t* _a = a;
 	uint8_t* _b = b;
@@ -212,6 +212,23 @@ bool IsOrgLine(uint8_t* a, uint8_t* b, uint32_t count) {
 	}
 
 	return false;
+}
+
+uint8_t COUNT_CHANNEL_SPACE(uint8_t code){
+	switch (code)
+	{
+	case SLIMCODE::CODE_GRAY: 
+		return 1; 
+	case SLIMCODE::CODE_RGB:
+	case SLIMCODE::CODE_BGR:  
+		return 3;
+	case SLIMCODE::CODE_RGBA:
+	case SLIMCODE::CODE_BGRA: 
+		return 4;
+	default:
+		return 0;
+	}
+	return 0;
 }
 
 
@@ -463,17 +480,7 @@ SLIMERROR SLIM_Write_Header(SLIMStream *file, const SLIMHeaderDesc* desc){
 
 	if (!file->isOpen())							{return SLIMERROR::ERROR_FILE;}
 
-	switch (desc->code)
-	{
-	case SLIMCODE::CODE_GRAY: 
-	case SLIMCODE::CODE_RGB:
-	case SLIMCODE::CODE_BGR:  
-	case SLIMCODE::CODE_RGBA:
-	case SLIMCODE::CODE_BGRA: 
-		break;
-	default:
-		return SLIMERROR::ERROR_NOTSUP;
-	}
+	if(COUNT_CHANNEL_SPACE(desc->code) == 0)		{return SLIMERROR::ERROR_NOTSUP;}
 
 	#pragma pack(push, 1)
 	struct _SLIM_HEADER
@@ -529,17 +536,7 @@ SLIMERROR SLIM_Read_Header(SLIMStream *file, SLIMHeaderDesc* desc){
 	if (_slim_h._version != SLIM_VERSION)				{return SLIMERROR::ERROR_BLOCK;}
 	if (_slim_h._height == 0 || _slim_h._width == 0)	{return SLIMERROR::ERROR_BLOCK;}
 
-	switch (_slim_h._code)
-	{
-	case SLIMCODE::CODE_GRAY: 
-	case SLIMCODE::CODE_RGB:
-	case SLIMCODE::CODE_BGR:  
-	case SLIMCODE::CODE_RGBA:
-	case SLIMCODE::CODE_BGRA: 
-		break;
-	default:
-		return SLIMERROR::ERROR_BLOCK;
-	}
+	if(COUNT_CHANNEL_SPACE(_slim_h._code) == 0)			{return SLIMERROR::ERROR_NOTSUP;}
 
 	desc->version 		= _slim_h._version;
 	desc->width 		= _slim_h._width;
@@ -587,26 +584,11 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 	_slim_lh._name_size 	= (desc->name_size>0 && desc->name!=NULL) ? desc->name_size : 0;
 	_slim_lh._ext_size 		= (desc->ext_size>0 && desc->ext!=NULL) ? desc->ext_size : 0;
 
-	uint32_t m_CHANNELS 	= 0;
+	uint32_t m_CHANNELS 	= COUNT_CHANNEL_SPACE(desc->code);
 
-	switch (desc->code)
-	{
-	case SLIMCODE::CODE_GRAY: 
-		m_CHANNELS = 1; 
-		break;
-	case SLIMCODE::CODE_RGB:
-	case SLIMCODE::CODE_BGR:  
-		m_CHANNELS = 3; 
-		break;
-	case SLIMCODE::CODE_RGBA:
-	case SLIMCODE::CODE_BGRA: 
-		m_CHANNELS = 4; 
-		break;
-	default:
-		return SLIMERROR::ERROR_NOTSUP;
-	}
+	if(m_CHANNELS  == 0)	{return SLIMERROR::ERROR_NOTSUP;}
 
-	if (!file->write(&_slim_lh, sizeof(_SLIM_LAYER_HEADER), 1)) 		{ return SLIMERROR::ERROR_BLOCK; }
+	if(!file->write(&_slim_lh, sizeof(_SLIM_LAYER_HEADER), 1)) 				{ return SLIMERROR::ERROR_BLOCK; }
 
 	if(_slim_lh._name_size  > 0 && desc->name != NULL){
 		if (!file->write(desc->name, sizeof(char), _slim_lh._name_size)) 	{ return SLIMERROR::ERROR_BLOCK; }
@@ -709,11 +691,11 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 				}
 			}
 
-			const bool ch0_org	= IsOrgLine(m_ch0, l_ch0, CColor);
-			const bool ch1_org	= IsOrgLine(m_ch1, l_ch1, CColor);
-			const bool ch2_org	= IsOrgLine(m_ch2, l_ch2, CColor);
-			const bool ch3_org	= IsOrgLine(m_ch3, l_ch3, CColor);
-			const bool idx_org	= IsOrgLine(m_idx, l_idx, Cout);
+			const bool ch0_org	= IS_ORIG_LINE(m_ch0, l_ch0, CColor);
+			const bool ch1_org	= IS_ORIG_LINE(m_ch1, l_ch1, CColor);
+			const bool ch2_org	= IS_ORIG_LINE(m_ch2, l_ch2, CColor);
+			const bool ch3_org	= IS_ORIG_LINE(m_ch3, l_ch3, CColor);
+			const bool idx_org	= IS_ORIG_LINE(m_idx, l_idx, Cout);
 
 			if (ch0_org || ch1_org || ch2_org|| ch3_org) {
 				for (uint32_t i = 0; i < CColor; ++i) {
@@ -773,10 +755,10 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 
 SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc){
 
-	if(file == NULL)							{return SLIMERROR::ERROR_ARG;}
-	if(desc == NULL)							{return SLIMERROR::ERROR_ARG;}
+	if(file == NULL)			{return SLIMERROR::ERROR_ARG;}
+	if(desc == NULL)			{return SLIMERROR::ERROR_ARG;}
 
-	if(!file->isOpen())							{return SLIMERROR::ERROR_FILE;}
+	if(!file->isOpen())			{return SLIMERROR::ERROR_FILE;}
 
 	#pragma pack(push, 1)
 	struct _SLIM_LAYER_HEADER
@@ -799,26 +781,12 @@ SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc){
 
 	if(_slim_lh._width == 0 || _slim_lh._height == 0) 			{return SLIMERROR::ERROR_BLOCK;}
 
-	const uint8_t  m_CODE		= desc->forced_code == SLIMCODE::CODE_NONE ? _slim_lh._code : desc->forced_code;
+	const uint8_t  m_CODE		= (desc->forced_code == 0) ? _slim_lh._code : desc->forced_code;
 
-	uint32_t m_CHANNELS 		= 0;
+	uint32_t m_CHANNELS_CUR 	= COUNT_CHANNEL_SPACE(_slim_lh._code);
+	uint32_t m_CHANNELS 		= COUNT_CHANNEL_SPACE(m_CODE);
 
-	switch (m_CODE)
-	{
-	case SLIMCODE::CODE_GRAY: 
-		m_CHANNELS = 1; 
-		break;
-	case SLIMCODE::CODE_RGB:
-	case SLIMCODE::CODE_BGR:  
-		m_CHANNELS = 3; 
-		break;
-	case SLIMCODE::CODE_RGBA:
-	case SLIMCODE::CODE_BGRA: 
-		m_CHANNELS = 4; 
-		break;
-	default:
-		return SLIMERROR::ERROR_NOTSUP;
-	}
+	if(m_CHANNELS_CUR == 0 || m_CHANNELS == 0 )					{return SLIMERROR::ERROR_NOTSUP;}
 
 	desc->id 			= _slim_lh._id;
 	desc->height 		= _slim_lh._height;
@@ -953,13 +921,13 @@ SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc){
 						m_IMG[index]		= chn0;
 						m_IMG[index + 1] 	= chn1;
 						m_IMG[index + 2] 	= chn2;
-						m_IMG[index + 3] 	= _slim_lh._code < m_CODE ? 255 : chn3;
+						m_IMG[index + 3] 	= (m_CHANNELS_CUR < m_CHANNELS)? 255 : chn3;
 						break;
 					case SLIMCODE::CODE_BGRA:
 						m_IMG[index]		= chn2;
 						m_IMG[index + 1] 	= chn1;
 						m_IMG[index + 2] 	= chn0;
-						m_IMG[index + 3] 	= _slim_lh._code < m_CODE ? 255 : chn3;
+						m_IMG[index + 3] 	= (m_CHANNELS_CUR < m_CHANNELS)? 255 : chn3;
 						break;
 					default:
 						return SLIMERROR::ERROR_NOTSUP;

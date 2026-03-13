@@ -974,24 +974,10 @@ SLIMERROR SLIM_Read_Layer_Map(SLIMStream *file, SLIMLayerDesc* desc){
 
 	const uint8_t  m_CODE		= desc->forced_code == SLIMCODE::CODE_NONE ? _slim_lh._code : desc->forced_code;
 
-	uint32_t m_CHANNELS 		= 0;
+	uint32_t m_CHANNELS 		= COUNT_CHANNEL_SPACE(m_CODE);
 
-	switch (m_CODE)
-	{
-	case SLIMCODE::CODE_GRAY: 
-		m_CHANNELS = 1; 
-		break;
-	case SLIMCODE::CODE_RGB:
-	case SLIMCODE::CODE_BGR:  
-		m_CHANNELS = 3; 
-		break;
-	case SLIMCODE::CODE_RGBA:
-	case SLIMCODE::CODE_BGRA: 
-		m_CHANNELS = 4; 
-		break;
-	default:
-		return SLIMERROR::ERROR_NOTSUP;
-	}
+	if(m_CHANNELS == 0)			{return SLIMERROR::ERROR_NOTSUP;}
+
 	desc->id 			= _slim_lh._id;
 	desc->height 		= _slim_lh._height;
 	desc->width 		= _slim_lh._width;
@@ -1141,17 +1127,9 @@ SLIMERROR SLIM_Read_Layer_Info(SLIMStream *file, SLIMLayerInfoDesc* desc){
 
 	const uint8_t  m_CODE		= _slim_lh._code;
 
-	switch (m_CODE)
-	{
-	case SLIMCODE::CODE_GRAY: 
-	case SLIMCODE::CODE_RGB:
-	case SLIMCODE::CODE_BGR:  
-	case SLIMCODE::CODE_RGBA:
-	case SLIMCODE::CODE_BGRA:
-		break;
-	default:
-		return SLIMERROR::ERROR_NOTSUP;
-	}
+	uint32_t m_CHANNELS 		= COUNT_CHANNEL_SPACE(m_CODE);
+
+	if(m_CHANNELS == 0)			{return SLIMERROR::ERROR_NOTSUP;}
 
 	desc->id 					= _slim_lh._id;
 	desc->height 				= _slim_lh._height;

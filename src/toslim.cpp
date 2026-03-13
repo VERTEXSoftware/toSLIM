@@ -54,7 +54,6 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
                     SLIM_Read_Header(&infile, &header);
                     SLIM_Read_Layer(&infile, &layer);
                     
-
                     w           = layer.width;
                     h           = layer.height;
                     channels    = (SLIMCODE)layer.code;

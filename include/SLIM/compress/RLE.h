@@ -25,8 +25,8 @@ extern "C" {
 
 	extern uint32_t   RLE_VERSION		();
 
-	extern RLE_RESULT RLE_ENCODE		(uint8_t* buf, uint32_t size, uint8_t*& bufc, uint32_t& sizec);
-	extern RLE_RESULT RLE_DECODE		(uint8_t* data, uint32_t Length, uint8_t* &outdata, uint32_t &counter);
+	extern RLE_RESULT RLE_ENCODE		(uint8_t* buf, uint32_t size, uint8_t* bufc, uint32_t* sizec);
+	extern RLE_RESULT RLE_DECODE		(uint8_t* data, uint32_t Length, uint8_t* outdata, uint32_t* counter);
 
 
 #ifdef __cplusplus
@@ -38,7 +38,7 @@ extern "C" {
 uint32_t RLE_VERSION(){ return RLE_VER; }
 
 
-RLE_RESULT RLE_ENCODE(uint8_t* data, uint32_t Length, uint8_t* &outdata, uint32_t &counter)
+RLE_RESULT RLE_ENCODE(uint8_t* data, uint32_t Length, uint8_t* outdata, uint32_t* counter)
 {
     if (data == NULL || outdata == NULL  || Length <= 0) { return RLE_RESULT::RLE_ERROR_INVALID_PARAM; }
 
@@ -62,12 +62,12 @@ RLE_RESULT RLE_ENCODE(uint8_t* data, uint32_t Length, uint8_t* &outdata, uint32_
 			i += cnt;
 		}
 	}
-	counter = idx;
+	*counter = idx;
 	return RLE_RESULT::RLE_OK;
 }
 
 
-RLE_RESULT RLE_DECODE(uint8_t* data, uint32_t Length, uint8_t* &outdata, uint32_t &outLength)
+RLE_RESULT RLE_DECODE(uint8_t* data, uint32_t Length, uint8_t* outdata, uint32_t* outLength)
 {
     if (data == NULL || outdata == NULL  || Length <= 0 ) { return RLE_RESULT::RLE_ERROR_INVALID_PARAM; }
 
@@ -87,7 +87,7 @@ RLE_RESULT RLE_DECODE(uint8_t* data, uint32_t Length, uint8_t* &outdata, uint32_
 			}
 		}
 	}
-	outLength = idx;
+	*outLength = idx;
 	return RLE_RESULT::RLE_OK;
 }
 

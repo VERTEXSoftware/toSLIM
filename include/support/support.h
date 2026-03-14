@@ -5,6 +5,7 @@
 #include "SLIM/SLIM.h"
 #include <cmath>
 #include <vector>
+#include <algorithm>
 
 SLIMCODE ChannelToCode(int channels);
 

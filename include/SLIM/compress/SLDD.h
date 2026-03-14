@@ -54,8 +54,8 @@ extern "C" {
 
 	extern uint32_t     SLDD_VERSION	();
 
-	extern SLDD_RESULT  SLDD_ENCODE		(uint8_t* buffer, uint32_t size, uint8_t* &buffercomp, uint32_t& sizecomp);
-	extern SLDD_RESULT  SLDD_DECODE		(uint8_t* buffer, uint32_t size, uint8_t* &bufferde, uint32_t& sizede);
+	extern SLDD_RESULT  SLDD_ENCODE		(uint8_t* buffer, uint32_t size, uint8_t* buffercomp, uint32_t* sizecomp);
+	extern SLDD_RESULT  SLDD_DECODE		(uint8_t* buffer, uint32_t size, uint8_t* bufferde, uint32_t sizede);
 
 
 
@@ -69,7 +69,7 @@ extern "C" {
 uint32_t SLDD_VERSION(){ return SLDD_VER; }
 
 
-SLDD_RESULT SLDD_ENCODE(uint8_t* buffer, uint32_t size, uint8_t* &buffercomp, uint32_t& sizecomp) {
+SLDD_RESULT SLDD_ENCODE(uint8_t* buffer, uint32_t size, uint8_t* buffercomp, uint32_t* sizecomp) {
 
     if (buffer == NULL || buffercomp == NULL  || size <= 0) { return SLDD_RESULT::SLDD_ERROR_INVALID_PARAM; }
 
@@ -118,7 +118,7 @@ SLDD_RESULT SLDD_ENCODE(uint8_t* buffer, uint32_t size, uint8_t* &buffercomp, ui
 
 
 	uint32_t total 	= size * (0x08u - leftCount - rightCount);
-	sizecomp 		= (total + 0x0Fu) >> 0x03u;
+	*sizecomp 		= (total + 0x0Fu) >> 0x03u;
 
 	*buffercomp		= (leftCount << 5) | (rightCount << 2) | (leftc << 1) | rightc;
 
@@ -136,8 +136,8 @@ SLDD_RESULT SLDD_ENCODE(uint8_t* buffer, uint32_t size, uint8_t* &buffercomp, ui
 		}
 	}
 	//Tails remover
-	while (sizecomp > 1 && buffercomp[sizecomp - 1] == 0) {
-		--sizecomp;
+	while (*sizecomp > 1 && buffercomp[*sizecomp - 1] == 0) {
+		--*sizecomp;
 	}
 
     return SLDD_RESULT::SLDD_OK;
@@ -146,7 +146,7 @@ SLDD_RESULT SLDD_ENCODE(uint8_t* buffer, uint32_t size, uint8_t* &buffercomp, ui
 
 
 
-SLDD_RESULT SLDD_DECODE(uint8_t* buffer, uint32_t size, uint8_t* &bufferde, uint32_t& sizede) {
+SLDD_RESULT SLDD_DECODE(uint8_t* buffer, uint32_t size, uint8_t* bufferde, uint32_t sizede) {
 
     if (buffer == NULL || bufferde == NULL  || size <= 0 ) { return SLDD_RESULT::SLDD_ERROR_INVALID_PARAM; }
 

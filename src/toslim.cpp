@@ -13,6 +13,7 @@ const char* BUILD_TIME = __TIME__;
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+#define SLEP_SLIM_IMP
 
 #include "SLIM/SLIM.h"
 #include "support/support.h"

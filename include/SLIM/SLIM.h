@@ -7,12 +7,18 @@
 #ifndef SLIM_H
 #define SLIM_H
 
+#define SLIM_MAGIC 0x4D494C5373696854
+#define SLIM_VERSION_MAJOR 1
+#define SLIM_VERSION_MINOR 2
+#define SLIM_VERSION_BUGFIX 0
+#define SLIM_VERSION_HOTFIX 0
+
+#define SLIM_VERSION ((SLIM_VERSION_MAJOR << 24) | (SLIM_VERSION_MINOR << 16) | (SLIM_VERSION_BUGFIX << 8) | (SLIM_VERSION_HOTFIX))
+
 #include <cmath>
 #include <cstdio>
 #include <cstdint>
-#include <fstream>
 #include <cstring>
-#include <algorithm>
 #include "./SLIMStream.h"
 
 #define SLEP_SLDD_IMP
@@ -25,14 +31,6 @@
 #include "./compress/MASKARED.h"
 #include "./compress/RLE.h"
 #include "./compress/RICE.h"
-
-#define SLIM_MAGIC 0x4D494C5373696854
-#define SLIM_VERSION_MAJOR 1
-#define SLIM_VERSION_MINOR 2
-#define SLIM_VERSION_BUGFIX 0
-#define SLIM_VERSION_HOTFIX 0
-
-#define SLIM_VERSION ((SLIM_VERSION_MAJOR << 24) | (SLIM_VERSION_MINOR << 16) | (SLIM_VERSION_BUGFIX << 8) | (SLIM_VERSION_HOTFIX))
 
 #if defined(SLIM_MALLOC) && defined(SLIM_FREE)
 // ok
@@ -71,6 +69,40 @@ enum	SLIMCODE {
 };
 
 
+struct SLIMHeaderDesc
+{
+	uint32_t version;
+
+    uint16_t width;
+    uint16_t height;
+
+    uint16_t layers;
+
+    uint8_t  code;
+};
+
+struct SLIMLayerDesc
+{
+	uint16_t id;
+
+    uint16_t width;
+    uint16_t height;
+
+    uint16_t x;
+    uint16_t y;
+    uint16_t z;
+
+    uint8_t  code;
+	uint8_t  forced_code;
+    uint8_t  quality;
+
+	uint8_t  name_size;	
+	uint16_t ext_size;	
+
+	void* 	 img;
+	char*	 name;
+	char* 	 ext;
+};
 
 struct	SLIMLayerInfoDesc 
 {
@@ -112,41 +144,6 @@ struct	SLIMLayerInfoDesc
 
 };
 
-struct SLIMHeaderDesc
-{
-	uint32_t version;
-
-    uint16_t width;
-    uint16_t height;
-
-    uint16_t layers;
-
-    uint8_t  code;
-};
-
-struct SLIMLayerDesc
-{
-	uint16_t id;
-
-    uint16_t width;
-    uint16_t height;
-
-    uint16_t x;
-    uint16_t y;
-    uint16_t z;
-
-    uint8_t  code;
-	uint8_t  forced_code;
-    uint8_t  quality;
-
-	uint8_t  name_size;	
-	uint16_t ext_size;	
-
-	void* 	 img;
-	char*	 name;
-	char* 	 ext;
-};
-
 
 SLIMERROR SLIM_Read_Header(SLIMStream *file, SLIMHeaderDesc* desc);
 SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc);
@@ -165,6 +162,9 @@ void* SLIM_Malloc(const uint32_t size);
 SLIMERROR SLIM_Free(void* data);
 SLIMERROR SLIM_Free_Layer(SLIMLayerDesc* desc);
 SLIMERROR SLIM_Free_Layer_Info(SLIMLayerInfoDesc* desc);
+
+
+#ifdef SLEP_SLIM_IMP
 
 
 void* SLIM_Malloc(uint32_t size){
@@ -307,10 +307,10 @@ uint16_t ENCODE_REVOLVER(bool orig, uint8_t* src, uint8_t* dest, uint32_t size, 
 
 	uint16_t pos_mode = 0;
 
-    RLE_ENCODE(src, size, pack[1u], r_size_pack[1u]);
-	RICE_ENCODE(src, size, pack[2u], r_size_pack[2u]);
-    SLDD_ENCODE(src, size, pack[3u], r_size_pack[3u]);
-    MASKARED_ENCODE(src, size, pack[4u], r_size_pack[4u]);
+    RLE_ENCODE(src, 		size, pack[1u], &r_size_pack[1u]);
+	RICE_ENCODE(src, 		size, pack[2u], &r_size_pack[2u]);
+    SLDD_ENCODE(src, 		size, pack[3u], &r_size_pack[3u]);
+    MASKARED_ENCODE(src, 	size, pack[4u], &r_size_pack[4u]);
 
     for(uint16_t i = 1; i < 5; ++i){
         if(r_size_pack[pos_mode]>r_size_pack[i]){
@@ -354,7 +354,7 @@ void  DECODE_REVOLVER(uint16_t mode, uint8_t* src, uint8_t* dest, uint32_t size)
 		}	
 		case 2:
 		{
-			RLE_DECODE(src, size, dest, r_size);
+			RLE_DECODE(src, size, dest, &r_size);
 			break;
 		}
 		case 3:
@@ -1292,5 +1292,5 @@ SLIMERROR SLIM_Read_Layer_Info(SLIMStream *file, SLIMLayerInfoDesc* desc){
 	return SLIMERROR::ERROR_OK;
 }
 
-
+#endif // SLEP_SLIM_IMP
 #endif // SLIM_H

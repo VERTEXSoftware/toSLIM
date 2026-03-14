@@ -25,8 +25,8 @@ extern "C" {
 
 	extern uint32_t     RICE_VERSION		();
 
-	extern RICE_RESULT  RICE_ENCODE		    (uint8_t* buf, uint32_t size, uint8_t*& bufc, uint32_t& sizec);
-	extern RICE_RESULT  RICE_DECODE		    (uint8_t* buf, uint32_t size, uint8_t*& bufd, uint32_t  sized);
+	extern RICE_RESULT  RICE_ENCODE		    (uint8_t* buf, uint32_t size, uint8_t* bufc, uint32_t* sizec);
+	extern RICE_RESULT  RICE_DECODE		    (uint8_t* buf, uint32_t size, uint8_t* bufd, uint32_t sized);
 
 
 #ifdef __cplusplus
@@ -38,7 +38,7 @@ extern "C" {
 uint32_t RICE_VERSION(){ return RICE_VER; }
 
 
-RICE_RESULT RICE_ENCODE(uint8_t* buf, uint32_t size, uint8_t*& bufc, uint32_t& sizec)
+RICE_RESULT RICE_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint32_t* sizec)
 {
     if (buf == NULL || bufc == NULL  || size <= 0) { return RICE_RESULT::RICE_ERROR_INVALID_PARAM; }
 
@@ -92,13 +92,13 @@ RICE_RESULT RICE_ENCODE(uint8_t* buf, uint32_t size, uint8_t*& bufc, uint32_t& s
         }
     }
 
-    sizec = (bitPos + 7) / 8;
+    *sizec = (bitPos + 7) / 8;
 
 	return RICE_RESULT::RICE_OK;
 }
 
 
-RICE_RESULT RICE_DECODE(uint8_t* buf, uint32_t size, uint8_t*& bufd, uint32_t sized)
+RICE_RESULT RICE_DECODE(uint8_t* buf, uint32_t size, uint8_t* bufd, uint32_t sized)
 {
     if (buf == NULL || bufd == NULL || size == 0 || sized == 0) {return RICE_RESULT::RICE_ERROR_INVALID_PARAM; }
 

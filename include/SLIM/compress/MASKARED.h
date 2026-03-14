@@ -37,10 +37,10 @@ extern "C" {
 
 	extern uint32_t        MASKARED_VERSION		    ();
 
-	extern MASKARED_RESULT MASKARED_SIZE_CALC		(uint8_t* buf, uint32_t size, uint32_t& sizec, uint8_t mask = 0x00u);
+	extern MASKARED_RESULT MASKARED_SIZE_CALC		(uint8_t* buf, uint32_t size, uint32_t* sizec, uint8_t mask = 0x00u);
 
-	extern MASKARED_RESULT MASKARED_ENCODE		    (uint8_t* buf, uint32_t size, uint8_t*& bufc, uint32_t& sizec);
-	extern MASKARED_RESULT MASKARED_DECODE		    (uint8_t* buf, uint32_t size, uint8_t*& bufd, uint32_t  sized);
+	extern MASKARED_RESULT MASKARED_ENCODE		    (uint8_t* buf, uint32_t size, uint8_t* bufc, uint32_t* sizec);
+	extern MASKARED_RESULT MASKARED_DECODE		    (uint8_t* buf, uint32_t size, uint8_t* bufd, uint32_t  sized);
 
 
 #ifdef __cplusplus
@@ -52,7 +52,7 @@ extern "C" {
 uint32_t MASKARED_VERSION(){ return MASKARED_VER; }
 
 
-MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t& sizec, uint8_t mask) {
+MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec, uint8_t mask) {
 
 	if (buf == NULL || size <= 0) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 
@@ -75,14 +75,14 @@ MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t& sizec,
 	}
 
 	uint32_t total = size * (0x08u - step);
-	sizec = (step + total + 0x0Fu) >> 0x03u;
+	*sizec = (step + total + 0x0Fu) >> 0x03u;
 
 	return MASKARED_RESULT::SL_OK;
 }
 
 
 
-MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t*& bufc, uint32_t& sizec) {
+MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint32_t* sizec) {
 
     if (buf == NULL || bufc == NULL  || size <= 0) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 
@@ -107,7 +107,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t*& bufc, uin
 	}
 
 	uint32_t total = size * (0x08u - step);
-	sizec = (step + total + 0x0Fu) >> 0x03u;
+	*sizec = (step + total + 0x0Fu) >> 0x03u;
 
 	*bufc = mask;
 	*pstr = accum;
@@ -124,15 +124,15 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t*& bufc, uin
 		}
 	}
 	//Tails remover
-	while (sizec > 2 && bufc[sizec - 1] == 0) {
-		--sizec;
+	while (*sizec > 2 && bufc[*sizec - 1] == 0) {
+		--*sizec;
 	}
 
     return MASKARED_RESULT::SL_OK;
 }
 
 
-MASKARED_RESULT MASKARED_DECODE(uint8_t* buf, uint32_t size, uint8_t*& bufd, uint32_t sized) {
+MASKARED_RESULT MASKARED_DECODE(uint8_t* buf, uint32_t size, uint8_t* bufd, uint32_t sized) {
 
     if (buf == NULL || bufd == NULL  || size <= 0 || sized <= 0 ) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 

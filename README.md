@@ -27,6 +27,8 @@
 | `-c`   | Convert image from one format to another       | requires two file paths              |
 | `-q N` | Set quality level for JPEG / SLIM output (0–255) | 255 = lossless / maximum quality   |
 | `-v`   | Display the image (default behavior if no other action) | can be omitted              |
+| `-m`   | Display map image (only SLIM is supported)     | returns the grayscale color space    |
+| `-w`   | Exporting a map from SLIM                      | saves the grayscale color space to a file  |
 | `-a`   | Compare two images using PSNR and SSIM metrics | requires two files                   |
 | `-h`   | Show this help message                         |                                      |
 | `-y`   | Overwrite output file without asking           |                                      |
@@ -37,10 +39,13 @@
 |:-------------------------------------------|:------------------------------------------|
 | `toslim image.png`                         | Show the image                            |
 | `toslim -v image.SLIM`                     | Show image (flag explicitly specified)    |
+| `toslim -m image.SLIM`                     | Display map image\n";                     |
 | `toslim -c image.png image.SLIM`           | Convert PNG → SLIM                        |
 | `toslim -c image.SLIM image.png`           | Convert SLIM → PNG                        |
 | `toslim -c -q 128 image.SLIM image.png`    | Convert with specified quality (~50%)     |
 | `toslim -a image.png image.SLIM`           | Compare two images ( PSNR / SSIM / PSQNR )|
+| `toslim -w image.SLIM map.png`             | Exporting a map from image.SLIM to map.png|
+| `toslim -i image.SLIM`                     | Information about the image.SLIM file     |
 
 ## Build
 

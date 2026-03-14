@@ -834,9 +834,9 @@ SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc){
 
 	uint8_t* m_IMG 	 	= (uint8_t*)desc->img;
 
-	uint8_t m_data		[1280]{0};	//Curret	block memory
-	uint8_t m_read		[1280]{0};	//Read		block memory
-	uint8_t m_size		[5]{0};		//Size 		blocks packed
+	uint8_t m_data		[1280u]{0};	//Curret	block memory
+	uint8_t m_read		[1280u]{0};	//Read		block memory
+	uint8_t m_size		[5u]{0};	//Size 		blocks packed
 
 	uint32_t qnt		= 0;
 	uint16_t meta_code	= 0;
@@ -885,12 +885,12 @@ SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc){
 			if (!file->read(m_read, sizeof(uint8_t), st_size)){ return SLIMERROR::ERROR_END; }
 
 			DECODE_REVOLVER(v0, m_read, m_data, cmps_ch0);
-			DECODE_REVOLVER(v1, m_read + st_ch1, m_data + 256, cmps_ch1);
-			DECODE_REVOLVER(v2, m_read + st_ch2, m_data + 512, cmps_ch2);
-			DECODE_REVOLVER(v3, m_read + st_ch3, m_data + 768, cmps_ch3);
-			DECODE_REVOLVER(v4, m_read + st_idx, m_data + 1024, cmps_idx);
+			DECODE_REVOLVER(v1, m_read + st_ch1, m_data + 256u, cmps_ch1);
+			DECODE_REVOLVER(v2, m_read + st_ch2, m_data + 512u, cmps_ch2);
+			DECODE_REVOLVER(v3, m_read + st_ch3, m_data + 768u, cmps_ch3);
+			DECODE_REVOLVER(v4, m_read + st_idx, m_data + 1024u, cmps_idx);
 
-			uint32_t Cout		= 0;
+			uint32_t Cout		= 0x0u;
 
 			for (uint32_t y = 0; y < 16; ++y)
 			{
@@ -903,12 +903,12 @@ SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc){
 					if (column >= _slim_lh._width || row >=_slim_lh._height) { continue; }
 
 					const uint32_t index	= m_CHANNELS * (row * _slim_lh._width + column);
-					const uint32_t idxclr	= m_data[1024 + Cout];
+					const uint32_t idxclr	= m_data[1024u + Cout];
 
 					uint8_t chn0		= m_data[idxclr];
-					uint8_t chn1 		= m_data[idxclr + 256];
-					uint8_t chn2 		= m_data[idxclr + 512];
-					uint8_t chn3 		= m_data[idxclr + 768];
+					uint8_t chn1 		= m_data[idxclr + 256u];
+					uint8_t chn2 		= m_data[idxclr + 512u];
+					uint8_t chn3 		= m_data[idxclr + 768u];
 
 					if (qnt > 0) {
 						double level 	= 0.8673689 + 0.3571519 * qnt;

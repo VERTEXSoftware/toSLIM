@@ -247,12 +247,12 @@ uint8_t COUNT_SPACE_CHANNEL(uint8_t code){
 }
 
 
-void GEN_CLR_MAP(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t& size, uint8_t* idx, uint32_t pidx, uint8_t cR, uint8_t cG, uint8_t cB, uint8_t cA) {
+void GEN_CLR_MAP(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t* size, uint8_t* idx, uint32_t pidx, uint8_t cR, uint8_t cG, uint8_t cB, uint8_t cA) {
 
 	uint32_t pos = 0;
 	uint32_t fnd = ((uint32_t)cR << 24) | ((uint32_t)cG << 16) | ((uint32_t)cB << 8) | (uint32_t)cA;
 
-    while (pos < size) {
+    while (pos < *size) {
         uint32_t cur = ((uint32_t)R[pos] << 24) |((uint32_t)G[pos] << 16) | ((uint32_t)B[pos] << 8) | (uint32_t)A[pos];
         
         if (cur == fnd) {
@@ -269,7 +269,7 @@ void GEN_CLR_MAP(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t& size,
 		if (idx[i] >= pos) { ++idx[i]; }
 	}
 
-	for (uint32_t i = size; i > pos; --i) {
+	for (uint32_t i = *size; i > pos; --i) {
 		R[i] = R[i - 1];
 		G[i] = G[i - 1];
 		B[i] = B[i - 1];
@@ -281,14 +281,14 @@ void GEN_CLR_MAP(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t& size,
 	B[pos] 		= cB;
 	A[pos] 		= cA;
 	idx[pidx] 	= pos;
-	++size;
+	++*size;
 
 }
 
 
 
 
-uint16_t ENCODE_REVOLVER(bool orig, uint8_t* src, uint8_t* dest, uint32_t size, uint32_t &r_size) {
+uint16_t ENCODE_REVOLVER(bool orig, uint8_t* src, uint8_t* dest, uint32_t size, uint32_t* r_size) {
 
 	//--------------------------------------------------------------//
 	//Encode by the revolver method
@@ -318,11 +318,11 @@ uint16_t ENCODE_REVOLVER(bool orig, uint8_t* src, uint8_t* dest, uint32_t size, 
         }
     }
 
-	r_size = r_size_pack[pos_mode];
+	*r_size = r_size_pack[pos_mode];
 
 	uint8_t* d = dest;
 	uint8_t* s = pack[pos_mode];
-	uint8_t* e = s + r_size;
+	uint8_t* e = s + *r_size;
 	while (s < e) {*d++ = *s++;}
 
 	return pos_mode+1;
@@ -706,7 +706,7 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 						Ac /= qnt;
 					}
 
-					GEN_CLR_MAP(l_ch0, l_ch1, l_ch2, l_ch3, CColor, l_idx, Cout, Rc, Gc, Bc, Ac);
+					GEN_CLR_MAP(l_ch0, l_ch1, l_ch2, l_ch3, &CColor, l_idx, Cout, Rc, Gc, Bc, Ac);
 					++Cout;
 				}
 			}
@@ -749,11 +749,11 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 			uint32_t ch3_c = 0;
 			uint32_t idx_c = 0;
 
-			const uint16_t v0 = ENCODE_REVOLVER(ch0_org, l_ch0, m_write, CColor, ch0_c);
-			const uint16_t v1 = ENCODE_REVOLVER(ch1_org, l_ch1, m_write + ch0_c, CColor, ch1_c);
-			const uint16_t v2 = ENCODE_REVOLVER(ch2_org, l_ch2, m_write + ch0_c + ch1_c, CColor, ch2_c);
-			const uint16_t v3 = ENCODE_REVOLVER(ch3_org, l_ch3, m_write + ch0_c + ch1_c + ch2_c, CColor, ch3_c);
-			const uint16_t v4 = ENCODE_REVOLVER(idx_org, l_idx, m_write + ch0_c + ch1_c + ch2_c + ch3_c, Cout, idx_c);
+			const uint16_t v0 = ENCODE_REVOLVER(ch0_org, l_ch0, m_write, CColor, &ch0_c);
+			const uint16_t v1 = ENCODE_REVOLVER(ch1_org, l_ch1, m_write + ch0_c, CColor, &ch1_c);
+			const uint16_t v2 = ENCODE_REVOLVER(ch2_org, l_ch2, m_write + ch0_c + ch1_c, CColor, &ch2_c);
+			const uint16_t v3 = ENCODE_REVOLVER(ch3_org, l_ch3, m_write + ch0_c + ch1_c + ch2_c, CColor, &ch3_c);
+			const uint16_t v4 = ENCODE_REVOLVER(idx_org, l_idx, m_write + ch0_c + ch1_c + ch2_c + ch3_c, Cout, &idx_c);
 			const uint16_t meta_code = uint16_t(((v0 * 1296u + v1 * 216u + v2 * 36u + v3 * 6u + v4) << 3u) | (qnt_idx & 0x07u));
 
 			file->write(&meta_code, sizeof(uint16_t), 1);

@@ -99,6 +99,7 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
     std::cout << "  toslim -c -q 128 image.png image.SLIM          Convert image.png to image.SLIM quality 50%\n";
     std::cout << "  toslim -a image.png image.SLIM                 Comparing image.png with image.SLIM\n";
     std::cout << "  toslim -w image.SLIM map.png                   Exporting a map from image.SLIM to map.png\n";
+    std::cout << "  toslim -i image.SLIM                           Information about the image.SLIM file\n";
     std::cout << "\nDefault:\n";
     std::cout << "  Quality: 255 (MAX)\n";
     }
@@ -131,6 +132,7 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
     std::cout << "  toslim -c -q 128 image.png image.SLIM          Convert image.png to image.SLIM quality 50%\n";
     std::cout << "  toslim -a image.png image.SLIM                 Comparing image.png with image.SLIM\n";
     std::cout << "  toslim -w image.SLIM map.png                   Exporting a map from image.SLIM to map.png\n";
+    std::cout << "  toslim -i image.SLIM                           Information about the image.SLIM file\n";
     std::cout << "\nDefault:\n";
     std::cout << "  Quality: 255 (MAX)\n";
     }

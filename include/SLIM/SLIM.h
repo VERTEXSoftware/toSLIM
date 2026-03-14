@@ -249,11 +249,11 @@ uint8_t COUNT_SPACE_CHANNEL(uint8_t code){
 
 void GEN_CLR_MAP(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t* size, uint8_t* idx, uint32_t pidx, uint8_t cR, uint8_t cG, uint8_t cB, uint8_t cA) {
 
-	uint32_t pos = 0;
-	uint32_t fnd = ((uint32_t)cR << 24) | ((uint32_t)cG << 16) | ((uint32_t)cB << 8) | (uint32_t)cA;
+	uint32_t pos = 0x0u;
+	uint32_t fnd = ((uint32_t)cR << 24u) | ((uint32_t)cG << 16u) | ((uint32_t)cB << 8u) | (uint32_t)cA;
 
     while (pos < *size) {
-        uint32_t cur = ((uint32_t)R[pos] << 24) |((uint32_t)G[pos] << 16) | ((uint32_t)B[pos] << 8) | (uint32_t)A[pos];
+        uint32_t cur = ((uint32_t)R[pos] << 24u) |((uint32_t)G[pos] << 16u) | ((uint32_t)B[pos] << 8u) | (uint32_t)A[pos];
         
         if (cur == fnd) {
             idx[pidx] = pos;
@@ -297,20 +297,20 @@ uint16_t ENCODE_REVOLVER(bool orig, uint8_t* src, uint8_t* dest, uint32_t size, 
 	if (size <= 0) { return 0; }
 	if (orig==false)  {return 0; }
 
-	uint8_t t_rle      [1024]{ 0 };
-	uint8_t t_rice     [1024]{ 0 };
-    uint8_t t_sldd     [1024]{ 0 };
-    uint8_t t_maskared [1024]{ 0 };
+	uint8_t t_rle      [1024u]{ 0 };
+	uint8_t t_rice     [1024u]{ 0 };
+    uint8_t t_sldd     [1024u]{ 0 };
+    uint8_t t_maskared [1024u]{ 0 };
 
-    uint32_t r_size_pack    [5]{size,size,size,size,size};
-    uint8_t* pack           [5]{src, t_rle,t_rice, t_sldd, t_maskared };
+    uint32_t r_size_pack    [5u]{size,size,size,size,size};
+    uint8_t* pack           [5u]{src, t_rle,t_rice, t_sldd, t_maskared };
 
 	uint16_t pos_mode = 0;
 
-    RLE_ENCODE(src, size, pack[1], r_size_pack[1]);
-	RICE_ENCODE(src, size, pack[2], r_size_pack[2]);
-    SLDD_ENCODE(src, size, pack[3], r_size_pack[3]);
-    MASKARED_ENCODE(src, size, pack[4], r_size_pack[4]);
+    RLE_ENCODE(src, size, pack[1u], r_size_pack[1u]);
+	RICE_ENCODE(src, size, pack[2u], r_size_pack[2u]);
+    SLDD_ENCODE(src, size, pack[3u], r_size_pack[3u]);
+    MASKARED_ENCODE(src, size, pack[4u], r_size_pack[4u]);
 
     for(uint16_t i = 1; i < 5; ++i){
         if(r_size_pack[pos_mode]>r_size_pack[i]){
@@ -389,7 +389,7 @@ uint32_t BLOCK_ANALYZER(const uint8_t level,const uint8_t* img, const uint32_t m
 	//Counting unique colors
 	//--------------------------------------------------------------//
 
-	uint32_t colors[256]{0};
+	uint32_t colors[256u]{0};
 	uint32_t colorCount = 0;
 
     for (uint32_t y = 0; y < 16; ++y)
@@ -620,10 +620,10 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 	const uint8_t  m_QUALITY = desc->quality;
 	const uint8_t* m_IMG 	 = (uint8_t*)desc->img;
 
-	uint8_t m_data		[1280]{}; 	//Old		block memory
-	uint8_t l_data		[1280]{}; 	//Curret	block memory
-	uint8_t m_write		[1280]{}; 	//Curret	block packed
-	uint8_t m_size		[5]{};		//Size 		blocks packed
+	uint8_t m_data		[1280u]{}; 	//Old		block memory
+	uint8_t l_data		[1280u]{}; 	//Curret	block memory
+	uint8_t m_write		[1280u]{}; 	//Curret	block packed
+	uint8_t m_size		[5u]{};		//Size 		blocks packed
 
 	//Pointers old block memory
 	uint8_t* m_ch0 = m_data;
@@ -643,8 +643,8 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 	{
 		for (uint32_t blcX = 0; blcX < _slim_lh._width; blcX += 16)
 		{
-			uint32_t Cout = 0;
-			uint32_t CColor = 0;
+			uint32_t Cout 			= 0x0u;
+			uint32_t CColor 		= 0x0u;
 			const uint32_t qnt_idx 	= BLOCK_ANALYZER(m_QUALITY, m_IMG, _slim_lh._width, _slim_lh._height, blcX, blcY, m_Channels);
 			const uint32_t qnt		= qnt_idx << 1;
 
@@ -727,10 +727,10 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 				}
 
 				for (uint32_t i = CColor; i < 256; ++i) {
-					if (ch0_org) { m_ch0[i] = 0;}
-					if (ch1_org) { m_ch1[i] = 0;}
-					if (ch2_org) { m_ch2[i] = 0;}
-					if (ch3_org) { m_ch3[i] = 0;}
+					if (ch0_org) { m_ch0[i] = 0x0u;}
+					if (ch1_org) { m_ch1[i] = 0x0u;}
+					if (ch2_org) { m_ch2[i] = 0x0u;}
+					if (ch3_org) { m_ch3[i] = 0x0u;}
 				}
 			}
 
@@ -739,15 +739,15 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 					m_idx[i] = l_idx[i];
 				}
 				for (uint32_t i = Cout; i < 256; ++i) {
-					m_idx[i] = 0;
+					m_idx[i] = 0x0u;
 				}
 			}
 
-			uint32_t ch0_c = 0;
-			uint32_t ch1_c = 0;
-			uint32_t ch2_c = 0;
-			uint32_t ch3_c = 0;
-			uint32_t idx_c = 0;
+			uint32_t ch0_c = 0x0u;
+			uint32_t ch1_c = 0x0u;
+			uint32_t ch2_c = 0x0u;
+			uint32_t ch3_c = 0x0u;
+			uint32_t idx_c = 0x0u;
 
 			const uint16_t v0 = ENCODE_REVOLVER(ch0_org, l_ch0, m_write, CColor, &ch0_c);
 			const uint16_t v1 = ENCODE_REVOLVER(ch1_org, l_ch1, m_write + ch0_c, CColor, &ch1_c);
@@ -758,7 +758,7 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 
 			file->write(&meta_code, sizeof(uint16_t), 1);
 
-			uint8_t cm_size = 0;
+			uint8_t cm_size = 0x0u;
 
 			if(ch0_org){ m_size[cm_size++] = uint8_t(ch0_c - 0x1u);}
 			if(ch1_org){ m_size[cm_size++] = uint8_t(ch1_c - 0x1u);}

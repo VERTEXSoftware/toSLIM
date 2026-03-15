@@ -424,7 +424,7 @@ uint32_t BLOCK_ANALYZER(const uint8_t level,const uint8_t* img, const uint32_t m
 	
 	uint32_t count = 0;
 	double sumDiff = 0;
-    const double realLevelq = (levelq == 0 ? 1.0 : (1.0 / (levelq * 2.0)));
+    const double realLevelq = (levelq == 0 ? 1.0 : (1.0 / (((double)levelq) * 2.0)));
 
 	//--------------------------------------------------------------//
 	//PSNR Analysis

@@ -145,23 +145,23 @@ struct	SLIMLayerInfoDesc
 };
 
 
-SLIMERROR SLIM_Read_Header(SLIMStream *file, SLIMHeaderDesc* desc);
-SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc);
+SLIMERROR SLIM_Read_Header		(SLIMStream *file, SLIMHeaderDesc* desc);
+SLIMERROR SLIM_Read_Layer		(SLIMStream *file, SLIMLayerDesc* desc);
 
 
-SLIMERROR SLIM_Write_Header(SLIMStream *file, const SLIMHeaderDesc* desc);
-SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc);
+SLIMERROR SLIM_Write_Header		(SLIMStream *file, const SLIMHeaderDesc* desc);
+SLIMERROR SLIM_Write_Layer		(SLIMStream *file, const SLIMLayerDesc* desc);
 
 
-SLIMERROR SLIM_Read_Layer_Map(SLIMStream *file, SLIMLayerDesc* desc);
-SLIMERROR SLIM_Read_Layer_Info(SLIMStream *file, SLIMLayerInfoDesc* desc);
+SLIMERROR SLIM_Read_Layer_Map	(SLIMStream *file, SLIMLayerDesc* desc);
+SLIMERROR SLIM_Read_Layer_Info	(SLIMStream *file, SLIMLayerInfoDesc* desc);
 
 
-void* SLIM_Malloc(const uint32_t size);
+void* SLIM_Malloc				(const uint32_t size);
 
-SLIMERROR SLIM_Free(void* data);
-SLIMERROR SLIM_Free_Layer(SLIMLayerDesc* desc);
-SLIMERROR SLIM_Free_Layer_Info(SLIMLayerInfoDesc* desc);
+SLIMERROR SLIM_Free				(void* data);
+SLIMERROR SLIM_Free_Layer		(SLIMLayerDesc* desc);
+SLIMERROR SLIM_Free_Layer_Info	(SLIMLayerInfoDesc* desc);
 
 
 #ifdef SLEP_SLIM_IMP

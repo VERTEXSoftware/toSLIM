@@ -26,18 +26,18 @@ public:
         End = 2
     };
 
-    virtual ~SLIMStream() = default;
-    virtual bool open(const char* filename, uint8_t mode) = 0;
-    virtual bool close() = 0;
-    virtual bool isOpen() const = 0;
-    virtual bool write(const void* buffer, size_t size, size_t count) = 0;
-    virtual bool read(void* buffer, size_t size, size_t count) = 0;
-    virtual bool seek(size_t offset, uint8_t origin) = 0;
-    virtual size_t getPos() const = 0;
-    virtual bool setPos(size_t t) = 0;
-    virtual size_t size() const = 0;
+    virtual ~SLIMStream     () = default;
+    virtual bool open       (const char* filename, uint8_t mode) = 0;
+    virtual bool close      () = 0;
+    virtual bool isOpen     () const = 0;
+    virtual bool write      (const void* buffer, size_t size, size_t count) = 0;
+    virtual bool read       (void* buffer, size_t size, size_t count) = 0;
+    virtual bool seek       (size_t offset, uint8_t origin) = 0;
+    virtual size_t getPos   () const = 0;
+    virtual bool setPos     (size_t t) = 0;
+    virtual size_t size     () const = 0;
     
-    uint8_t getMode() { return _mode; }
+    uint8_t getMode         () { return _mode; }
 };
 
 class IStream : public SLIMStream {

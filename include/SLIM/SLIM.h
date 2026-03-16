@@ -294,13 +294,13 @@ uint16_t ENCODE_REVOLVER(bool orig, uint8_t* src, uint8_t* dest, uint32_t size, 
 	//Encode by the revolver method
 	//--------------------------------------------------------------//
 
-	if (size <= 0) { return 0; }
-	if (orig==false)  {return 0; }
+	if (size <= 0) 		{return 0;}
+	if (orig==false)  	{return 0;}
 
-	uint8_t t_rle      [1024u]{ 0 };
-	uint8_t t_rice     [1024u]{ 0 };
-    uint8_t t_sldd     [1024u]{ 0 };
-    uint8_t t_maskared [1024u]{ 0 };
+	uint8_t t_rle      [1024u]{};
+	uint8_t t_rice     [1024u]{};
+    uint8_t t_sldd     [1024u]{};
+    uint8_t t_maskared [1024u]{};
 
     uint32_t r_size_pack    [5u]{size,size,size,size,size};
     uint8_t* pack           [5u]{src, t_rle,t_rice, t_sldd, t_maskared };
@@ -337,8 +337,8 @@ void  DECODE_REVOLVER(uint16_t mode, uint8_t* src, uint8_t* dest, uint32_t size)
 	//Decode by the revolver method
 	//--------------------------------------------------------------//
 
-	if (size<=0) { return; }
-	if (mode==0)  { return; }
+	if (size<=0) 	{return;}
+	if (mode==0)  	{return;}
 
 	uint32_t r_size = 0;
 
@@ -389,7 +389,7 @@ uint32_t BLOCK_ANALYZER(const uint8_t level,const uint8_t* img, const uint32_t m
 	//Counting unique colors
 	//--------------------------------------------------------------//
 
-	uint32_t colors[256u]{0};
+	uint32_t colors[256u]{};
 	uint32_t colorCount = 0;
 
     for (uint32_t y = 0; y < 16; ++y)
@@ -834,9 +834,9 @@ SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc){
 
 	uint8_t* m_IMG 	 	= (uint8_t*)desc->img;
 
-	uint8_t m_data		[1280u]{0};	//Curret	block memory
-	uint8_t m_read		[1280u]{0};	//Read		block memory
-	uint8_t m_size		[5u]{0};	//Size 		blocks packed
+	uint8_t m_data		[1280u]{};	//Curret	block memory
+	uint8_t m_read		[1280u]{};	//Read		block memory
+	uint8_t m_size		[5u]{};		//Size 		blocks packed
 
 	uint32_t qnt		= 0;
 	uint16_t meta_code	= 0;
@@ -1024,7 +1024,7 @@ SLIMERROR SLIM_Read_Layer_Map(SLIMStream *file, SLIMLayerDesc* desc){
 
 	uint8_t* m_IMG 	 	= (uint8_t*)desc->img;
 
-	uint8_t m_size		[5]{0};		//Size 		blocks packed
+	uint8_t m_size		[5]{};		//Size 		blocks packed
 
 	uint8_t qnt_idx		= 0;
 	uint16_t meta_code	= 0;

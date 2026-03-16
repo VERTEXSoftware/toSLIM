@@ -905,13 +905,13 @@ SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc){
 					const uint32_t index	= m_CHANNELS * (row * _slim_lh._width + column);
 					const uint32_t idxclr	= m_data[1024u + Cout];
 
-					uint8_t chn0		= m_data[idxclr];
-					uint8_t chn1 		= m_data[idxclr + 256u];
-					uint8_t chn2 		= m_data[idxclr + 512u];
-					uint8_t chn3 		= m_data[idxclr + 768u];
+					uint32_t chn0		= (uint32_t)m_data[idxclr];
+					uint32_t chn1 		= (uint32_t)m_data[idxclr + 256u];
+					uint32_t chn2 		= (uint32_t)m_data[idxclr + 512u];
+					uint32_t chn3 		= (uint32_t)m_data[idxclr + 768u];
 
 					if (qnt > 0) {
-						double level 	= 0.8673689 + 0.3571519 * qnt;
+						double level 	= 0.8673689 + 0.3571519 * ((double)qnt);
 
 						const uint32_t tchn0 	= (uint32_t)(chn0*qnt + level);
 						const uint32_t tchn1 	= (uint32_t)(chn1*qnt + level);
@@ -1024,9 +1024,9 @@ SLIMERROR SLIM_Read_Layer_Map(SLIMStream *file, SLIMLayerDesc* desc){
 
 	uint8_t* m_IMG 	 	= (uint8_t*)desc->img;
 
-	uint8_t m_size		[5]{};		//Size 		blocks packed
+	uint8_t  m_size		[5]{};		//Size blocks packed
 
-	uint8_t qnt_idx		= 0;
+	uint8_t  qnt_idx	= 0;
 	uint16_t meta_code	= 0;
 
 	for (uint32_t blcY = 0; blcY < _slim_lh._height; blcY += 16)

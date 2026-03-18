@@ -45,15 +45,15 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
             return loadotherformat(input.c_str(), data, w, h, channels);
         case ImageFormat::fSLIM:
             {
-                IStream infile(input.c_str(), SLIMStream::Mode::Read);
+                SLIM_STREAM* infile = SLIM_STREAM_OPEN(input.c_str(), SLIM_STREAM_MODE::STREAM_MODE_READ);
 
-                if(infile.isOpen()) {
+                if(SLIM_STREAM_ISOPEN(infile)) {
 
                     SLIMHeaderDesc  header{};
                     SLIMLayerDesc   layer{};
 
-                    SLIM_Read_Header(&infile, &header);
-                    SLIM_Read_Layer(&infile, &layer);
+                    SLIM_Read_Header(infile, &header);
+                    SLIM_Read_Layer(infile, &layer);
                     
                     w           = layer.width;
                     h           = layer.height;
@@ -64,7 +64,7 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
                     SLIM_Free(layer.name);
                     SLIM_Free(layer.ext);
 
-                    infile.close();
+                    SLIM_STREAM_CLOSE(infile);
                 }else{
                     return false;
                 }
@@ -163,14 +163,14 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
         SLIMCODE channels=SLIMCODE::CODE_NONE;
 
 
-        IStream infile(file.c_str(), SLIMStream::Mode::Read);
+        SLIM_STREAM* infile = SLIM_STREAM_OPEN(file.c_str(), SLIM_STREAM_MODE::STREAM_MODE_READ);
 
-        if(infile.isOpen()) {
+        if(SLIM_STREAM_ISOPEN(infile)) {
             SLIMHeaderDesc  header{};
             SLIMLayerDesc   layer{};
 
-            SLIM_Read_Header(&infile, &header);
-            SLIM_Read_Layer_Map(&infile, &layer);
+            SLIM_Read_Header(infile, &header);
+            SLIM_Read_Layer_Map(infile, &layer);
 
             w           = layer.width;
             h           = layer.height;
@@ -180,7 +180,7 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
             SLIM_Free(layer.name);
             SLIM_Free(layer.ext);
 
-            infile.close();
+            SLIM_STREAM_CLOSE(infile);
         }    
 
         ImageViewer viewer(data, w, h, channels);
@@ -229,11 +229,11 @@ void InfoOtherFormat(std::string imagePath){
 
     size_t sizefile=0;    
 
-    IStream infile(imagePath.c_str(),SLIMStream::Mode::Read);
-       
-    if(infile.isOpen()){
-        sizefile=infile.size(); 
-        infile.close();
+    SLIM_STREAM* infile = SLIM_STREAM_OPEN(imagePath.c_str(), SLIM_STREAM_MODE::STREAM_MODE_READ);
+
+    if(SLIM_STREAM_ISOPEN(infile)) {
+        SLIM_STREAM_SIZE(infile);
+        SLIM_STREAM_CLOSE(infile);
     }
 
     size_t sizefileraw = width * height * channels;
@@ -276,15 +276,15 @@ void InfoIMG(std::string imagePath){
             break;
         case ImageFormat::fSLIM:
             {
-                IStream infile(imagePath.c_str(), SLIMStream::Mode::Read);
-                
-                if(infile.isOpen()){
-                    
+                SLIM_STREAM* infile = SLIM_STREAM_OPEN(imagePath.c_str(), SLIM_STREAM_MODE::STREAM_MODE_READ);
+
+                if(SLIM_STREAM_ISOPEN(infile)) {
+  
                     SLIMHeaderDesc      header{};
                     SLIMLayerInfoDesc   layer{};
 
-                    SLIM_Read_Header(&infile, &header);
-                    SLIM_Read_Layer_Info(&infile, &layer);
+                    SLIM_Read_Header(infile, &header);
+                    SLIM_Read_Layer_Info(infile, &layer);
 
                     std::cout << "----[ INFORMATION ]----\n";
 
@@ -330,7 +330,7 @@ void InfoIMG(std::string imagePath){
                         default:
                             std::cout<<"NONE (not defined)\n";
                     }
-                    uint32_t sizefile=infile.size();
+                    uint32_t sizefile=SLIM_STREAM_SIZE(infile);
                     uint32_t sizefileraw=layer.width * layer.height * chanells;
 
 
@@ -362,7 +362,7 @@ void InfoIMG(std::string imagePath){
                     SLIM_Free(layer.name);
                     SLIM_Free(layer.ext);
 
-                    infile.close();
+                    SLIM_STREAM_CLOSE(infile);
                 }
             }
             break;
@@ -393,9 +393,9 @@ bool save_image(const std::string& output, unsigned char* data, int w, int h,  S
             return stbi_write_tga(output.c_str(), w, h, channels, data);
         case ImageFormat::fSLIM:
             {
-                IStream infile(output.c_str(), SLIMStream::Mode::Write);
-                
-                if(infile.isOpen()){
+                SLIM_STREAM* infile = SLIM_STREAM_OPEN(output.c_str(), SLIM_STREAM_MODE::STREAM_MODE_WRITE);
+
+                if(SLIM_STREAM_ISOPEN(infile)) {
 
                     SLIMHeaderDesc  header{};
                     header.width    = (uint16_t)w;
@@ -409,10 +409,10 @@ bool save_image(const std::string& output, unsigned char* data, int w, int h,  S
                     layer.quality   = quality;
                     layer.img       = data;
                                          
-                    SLIM_Write_Header(&infile, &header);
-                    SLIM_Write_Layer(&infile, &layer);
+                    SLIM_Write_Header(infile, &header);
+                    SLIM_Write_Layer(infile, &layer);
 
-                    infile.close();
+                    SLIM_STREAM_CLOSE(infile);
                 }
                 return true;
             }
@@ -501,22 +501,22 @@ void SaveMapToIMG(std::string fileA,std::string fileB){
     int w = 0;
     int h = 0;
     SLIMCODE channels;
+    
+    SLIM_STREAM* infile = SLIM_STREAM_OPEN(fileA.c_str(), SLIM_STREAM_MODE::STREAM_MODE_READ);
 
-    IStream infile(fileA.c_str(), SLIMStream::Mode::Read);
-
-    if(infile.isOpen()) {
+    if(SLIM_STREAM_ISOPEN(infile)) {
         SLIMHeaderDesc  header{};
         SLIMLayerDesc   layer{};
 
-        SLIM_Read_Header(&infile, &header);
-        SLIM_Read_Layer_Map(&infile, &layer);
+        SLIM_Read_Header(infile, &header);
+        SLIM_Read_Layer_Map(infile, &layer);
 
         w           = layer.width;
         h           = layer.height;
         channels    = (SLIMCODE)layer.code;
         data        = (unsigned char*)layer.img;
 
-        infile.close();
+        SLIM_STREAM_CLOSE(infile);
 
         if(channels!=SLIMCODE::CODE_GRAY){return;}
 

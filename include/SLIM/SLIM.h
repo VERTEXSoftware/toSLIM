@@ -19,34 +19,33 @@
 #include <cstdio>
 #include <cstdint>
 #include <cstring>
-#include "./SLIMStream.h"
 
+
+#define SLIM_STREAM_IMP
 #define SLEP_SLDD_IMP
 #define SLEP_MASKARED_IMP
 #define RLE_IMP
 #define RICE_IMP
 
+//Custom Stream
+#include "./SLIMSTREAM.h"
 //Custom Compression
 #include "./compress/SLDD.h"
 #include "./compress/MASKARED.h"
 #include "./compress/RLE.h"
 #include "./compress/RICE.h"
 
-#if defined(SLIM_MALLOC) && defined(SLIM_FREE)
-// ok
-#elif !defined(SLIM_MALLOC) && !defined(SLIM_FREE)
-// ok
-#else
-#error "Must define all or none of SLIM_MALLOC, SLIM_FREE."
-#endif
-
 #ifndef SLIM_MALLOC
-#define SLIM_MALLOC(sz)           malloc(sz)
-#define SLIM_FREE(p)              free(p)
+#include <stdlib.h>
+#define SLIM_MALLOC(sz) malloc(sz)
+#define SLIM_FREE(p) free(p)
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-enum	SLIMERROR {
+typedef enum {
 		ERROR_OK			= 0x0,
 		ERROR_FILE			= 0x1,
 		ERROR_BLOCK			= 0x2,
@@ -57,20 +56,19 @@ enum	SLIMERROR {
 		ERROR_MEM			= 0x7,
 		ERROR_ARG			= 0x8,
 		ERROR_COLORSPACE	= 0x9
-};
+} SLIMERROR;
 
-enum	SLIMCODE {
+typedef enum {
 		CODE_NONE			= 0x0,
 		CODE_GRAY			= 0x1,
 		CODE_RGB			= 0x2,
 		CODE_BGR			= 0x3,
 		CODE_RGBA			= 0x4,
 		CODE_BGRA			= 0x5,
-};
+} SLIMCODE;
 
 
-struct SLIMHeaderDesc
-{
+typedef struct{
 	uint32_t version;
 
     uint16_t width;
@@ -79,10 +77,9 @@ struct SLIMHeaderDesc
     uint16_t layers;
 
     uint8_t  code;
-};
+} SLIMHeaderDesc;
 
-struct SLIMLayerDesc
-{
+typedef struct {
 	uint16_t id;
 
     uint16_t width;
@@ -102,9 +99,9 @@ struct SLIMLayerDesc
 	void* 	 img;
 	char*	 name;
 	char* 	 ext;
-};
+} SLIMLayerDesc;
 
-struct	SLIMLayerInfoDesc 
+typedef struct
 {
 	uint16_t 				id;
 
@@ -142,19 +139,19 @@ struct	SLIMLayerInfoDesc
 	char*	 				name;
 	char* 	 				ext;
 
-};
+} SLIMLayerInfoDesc;
 
 
-SLIMERROR SLIM_Read_Header		(SLIMStream *file, SLIMHeaderDesc* desc);
-SLIMERROR SLIM_Read_Layer		(SLIMStream *file, SLIMLayerDesc* desc);
+SLIMERROR SLIM_Read_Header		(SLIM_STREAM* file, SLIMHeaderDesc* desc);
+SLIMERROR SLIM_Read_Layer		(SLIM_STREAM* file, SLIMLayerDesc* desc);
 
 
-SLIMERROR SLIM_Write_Header		(SLIMStream *file, const SLIMHeaderDesc* desc);
-SLIMERROR SLIM_Write_Layer		(SLIMStream *file, const SLIMLayerDesc* desc);
+SLIMERROR SLIM_Write_Header		(SLIM_STREAM* file, const SLIMHeaderDesc* desc);
+SLIMERROR SLIM_Write_Layer		(SLIM_STREAM* file, const SLIMLayerDesc* desc);
 
 
-SLIMERROR SLIM_Read_Layer_Map	(SLIMStream *file, SLIMLayerDesc* desc);
-SLIMERROR SLIM_Read_Layer_Info	(SLIMStream *file, SLIMLayerInfoDesc* desc);
+SLIMERROR SLIM_Read_Layer_Map	(SLIM_STREAM* file, SLIMLayerDesc* desc);
+SLIMERROR SLIM_Read_Layer_Info	(SLIM_STREAM* file, SLIMLayerInfoDesc* desc);
 
 
 void* SLIM_Malloc				(const uint32_t size);
@@ -164,8 +161,11 @@ SLIMERROR SLIM_Free_Layer		(SLIMLayerDesc* desc);
 SLIMERROR SLIM_Free_Layer_Info	(SLIMLayerInfoDesc* desc);
 
 
-#ifdef SLEP_SLIM_IMP
+#ifdef __cplusplus
+}
+#endif
 
+#ifdef SLEP_SLIM_IMP
 
 void* SLIM_Malloc(uint32_t size){
 	if(size==0){return NULL;}
@@ -487,13 +487,13 @@ uint32_t BLOCK_ANALYZER(const uint8_t level,const uint8_t* img, const uint32_t m
 
 
 
-SLIMERROR SLIM_Write_Header(SLIMStream *file, const SLIMHeaderDesc* desc){
+SLIMERROR SLIM_Write_Header(SLIM_STREAM* file, const SLIMHeaderDesc* desc){
 
 	if (file == NULL)								{return SLIMERROR::ERROR_ARG;}
 	if (desc == NULL)								{return SLIMERROR::ERROR_ARG;}
 	if (desc->height == 0 || desc->width == 0)		{return SLIMERROR::ERROR_ARG;}
 
-	if (!file->isOpen())							{return SLIMERROR::ERROR_FILE;}
+	if (!SLIM_STREAM_ISOPEN(file))					{return SLIMERROR::ERROR_FILE;}
 
 	const uint8_t m_Channels = SPACE_CHANNEL_COUNT(desc->code);
 
@@ -520,18 +520,18 @@ SLIMERROR SLIM_Write_Header(SLIMStream *file, const SLIMHeaderDesc* desc){
 	_slim_h._layers 	= desc->layers;
 	_slim_h._channels	= m_Channels;
 
-	if (!file->write(&_slim_h, sizeof(_SLIM_HEADER), 1)) { return SLIMERROR::ERROR_BLOCK; }
+	if (!SLIM_STREAM_WRITE(file, &_slim_h, sizeof(_SLIM_HEADER), 1)) { return SLIMERROR::ERROR_BLOCK; }
 	
 	return SLIMERROR::ERROR_OK;
 }
 
 
-SLIMERROR SLIM_Read_Header(SLIMStream *file, SLIMHeaderDesc* desc){
+SLIMERROR SLIM_Read_Header(SLIM_STREAM* file, SLIMHeaderDesc* desc){
 
-	if (file == NULL)		{return SLIMERROR::ERROR_ARG;}
-	if (desc == NULL)		{return SLIMERROR::ERROR_ARG;}
+	if (file == NULL)				{return SLIMERROR::ERROR_ARG;}
+	if (desc == NULL)				{return SLIMERROR::ERROR_ARG;}
 
-	if (!file->isOpen())	{return SLIMERROR::ERROR_FILE;}
+	if (!SLIM_STREAM_ISOPEN(file))	{return SLIMERROR::ERROR_FILE;}
 
 	#pragma pack(push, 1)
 	struct _SLIM_HEADER
@@ -547,7 +547,7 @@ SLIMERROR SLIM_Read_Header(SLIMStream *file, SLIMHeaderDesc* desc){
 
 	_SLIM_HEADER _slim_h{};
 
-	if (!file->read(&_slim_h, sizeof(_SLIM_HEADER), 1)) { return SLIMERROR::ERROR_END; }
+	if (!SLIM_STREAM_READ(file, &_slim_h, sizeof(_SLIM_HEADER), 1)) { return SLIMERROR::ERROR_END; }
 
 	if(_slim_h._magic != SLIM_MAGIC)					{return SLIMERROR::ERROR_BLOCK;}
 	if(_slim_h._version != SLIM_VERSION)				{return SLIMERROR::ERROR_BLOCK;}
@@ -568,14 +568,14 @@ SLIMERROR SLIM_Read_Header(SLIMStream *file, SLIMHeaderDesc* desc){
 }
 
 
-SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
+SLIMERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIMLayerDesc* desc){
 
 	if (file == NULL)							{return SLIMERROR::ERROR_ARG;}
 	if (desc == NULL)							{return SLIMERROR::ERROR_ARG;}
 	if (desc->img == NULL)						{return SLIMERROR::ERROR_ARG;}
 	if (desc->width == 0 || desc->height == 0) 	{return SLIMERROR::ERROR_ARG;}
 
-	if (!file->isOpen())						{return SLIMERROR::ERROR_FILE;}
+	if (!SLIM_STREAM_ISOPEN(file))				{return SLIMERROR::ERROR_FILE;}
 
 	const uint8_t m_Channels 	= SPACE_CHANNEL_COUNT(desc->code);
 
@@ -608,13 +608,13 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 	_slim_lh._name_size 	= (desc->name_size>0 && desc->name!=NULL) ? desc->name_size : 0;
 	_slim_lh._ext_size 		= (desc->ext_size>0 && desc->ext!=NULL) ? desc->ext_size : 0;
 
-	if(!file->write(&_slim_lh, sizeof(_SLIM_LAYER_HEADER), 1)) 				{ return SLIMERROR::ERROR_BLOCK; }
+	if(!SLIM_STREAM_WRITE(file, &_slim_lh, sizeof(_SLIM_LAYER_HEADER), 1)) 				{ return SLIMERROR::ERROR_BLOCK; }
 
 	if(_slim_lh._name_size  > 0 && desc->name != NULL){
-		if (!file->write(desc->name, sizeof(char), _slim_lh._name_size)) 	{ return SLIMERROR::ERROR_BLOCK; }
+		if (!SLIM_STREAM_WRITE(file, desc->name, sizeof(char), _slim_lh._name_size)) 	{ return SLIMERROR::ERROR_BLOCK; }
 	}
 	if(_slim_lh._ext_size > 0 && desc->ext != NULL){
-		if (!file->write(desc->ext, sizeof(char), _slim_lh._ext_size)) 		{ return SLIMERROR::ERROR_BLOCK; }
+		if (!SLIM_STREAM_WRITE(file, desc->ext, sizeof(char), _slim_lh._ext_size)) 		{ return SLIMERROR::ERROR_BLOCK; }
 	}
 
 	const uint8_t  m_QUALITY = desc->quality;
@@ -756,7 +756,7 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 			const uint16_t v4 = ENCODE_REVOLVER(idx_org, l_idx, m_write + ch0_c + ch1_c + ch2_c + ch3_c, Cout, &idx_c);
 			const uint16_t meta_code = uint16_t(((v0 * 1296u + v1 * 216u + v2 * 36u + v3 * 6u + v4) << 3u) | (qnt_idx & 0x07u));
 
-			file->write(&meta_code, sizeof(uint16_t), 1);
+			if(!SLIM_STREAM_WRITE(file, &meta_code, sizeof(uint16_t), 1)) { return SLIMERROR::ERROR_BLOCK; }
 
 			uint8_t cm_size = 0x0u;
 
@@ -766,8 +766,8 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 			if(ch3_org){ m_size[cm_size++] = uint8_t(ch3_c - 0x1u);}
 			if(idx_org){ m_size[cm_size++] = uint8_t(idx_c - 0x1u);}
 
-			if(!file->write(m_size, sizeof(uint8_t), cm_size))									{ return SLIMERROR::ERROR_BLOCK; }
-			if(!file->write(m_write, sizeof(uint8_t), ch0_c + ch1_c + ch2_c + ch3_c + idx_c))	{ return SLIMERROR::ERROR_BLOCK; }
+			if(!SLIM_STREAM_WRITE(file, m_size, sizeof(uint8_t), cm_size))									{ return SLIMERROR::ERROR_BLOCK; }
+			if(!SLIM_STREAM_WRITE(file, m_write, sizeof(uint8_t), ch0_c + ch1_c + ch2_c + ch3_c + idx_c))	{ return SLIMERROR::ERROR_BLOCK; }
 		}
 	}
 
@@ -775,12 +775,12 @@ SLIMERROR SLIM_Write_Layer(SLIMStream *file, const SLIMLayerDesc* desc){
 }
 
 
-SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc){
+SLIMERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIMLayerDesc* desc){
 
-	if(file == NULL)			{return SLIMERROR::ERROR_ARG;}
-	if(desc == NULL)			{return SLIMERROR::ERROR_ARG;}
+	if(file == NULL)				{return SLIMERROR::ERROR_ARG;}
+	if(desc == NULL)				{return SLIMERROR::ERROR_ARG;}
 
-	if(!file->isOpen())			{return SLIMERROR::ERROR_FILE;}
+	if (!SLIM_STREAM_ISOPEN(file))	{return SLIMERROR::ERROR_FILE;}
 
 	#pragma pack(push, 1)
 	struct _SLIM_LAYER_HEADER
@@ -799,11 +799,11 @@ SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc){
 
 	_SLIM_LAYER_HEADER _slim_lh{};
 
-	if(!file->read(&_slim_lh, sizeof(_SLIM_LAYER_HEADER), 1)) 	{return SLIMERROR::ERROR_BLOCK;}
+	if(!SLIM_STREAM_READ(file, &_slim_lh, sizeof(_SLIM_LAYER_HEADER), 1)) 	{return SLIMERROR::ERROR_BLOCK;}
 
-	if(_slim_lh._width == 0 || _slim_lh._height == 0) 			{return SLIMERROR::ERROR_BLOCK;}
+	if(_slim_lh._width == 0 || _slim_lh._height == 0) 						{return SLIMERROR::ERROR_BLOCK;}
 
-	if(_slim_lh._channel == 0 || _slim_lh._channel > 4)			{return SLIMERROR::ERROR_BLOCK;}
+	if(_slim_lh._channel == 0 || _slim_lh._channel > 4)						{return SLIMERROR::ERROR_BLOCK;}
 
 	const uint8_t m_CODE_CUR 		= COUNT_SPACE_CHANNEL(_slim_lh._channel);
 	const uint8_t m_CODE			= (desc->forced_code == 0) ? m_CODE_CUR : desc->forced_code;
@@ -824,12 +824,12 @@ SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc){
 
 	if(_slim_lh._name_size>0){
 		desc->name = (char*)SLIM_MALLOC(_slim_lh._name_size*sizeof(char));
-		if(!file->read(desc->name, sizeof(char), _slim_lh._name_size)) 	{return SLIMERROR::ERROR_BLOCK;}
+		if(!SLIM_STREAM_READ(file, desc->name, sizeof(char), _slim_lh._name_size)) 	{return SLIMERROR::ERROR_BLOCK;}
 	}
 
 	if(_slim_lh._ext_size>0){
 		desc->ext = (char*)SLIM_MALLOC(_slim_lh._ext_size*sizeof(char));
-		if(!file->read(desc->ext, sizeof(char), _slim_lh._ext_size)) 	{return SLIMERROR::ERROR_BLOCK;}
+		if(!SLIM_STREAM_READ(file, desc->ext, sizeof(char), _slim_lh._ext_size)) 	{return SLIMERROR::ERROR_BLOCK;}
 	}
 
 	uint8_t* m_IMG 	 	= (uint8_t*)desc->img;
@@ -846,7 +846,7 @@ SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc){
 		for (uint32_t blcX = 0; blcX < _slim_lh._width; blcX += 16)
 		{
 
-			if (!file->read(&meta_code, sizeof(uint16_t), 1)){ return SLIMERROR::ERROR_END; }
+			if (!SLIM_STREAM_READ(file, &meta_code, sizeof(uint16_t), 1)){ return SLIMERROR::ERROR_END; }
 
 			qnt 			= (meta_code & 0x07u) << 1;
 			meta_code 		>>= 0x03u;
@@ -867,7 +867,7 @@ SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc){
 
 			const uint8_t cm_size = ch0_org + ch1_org + ch2_org + ch3_org + idx_org;
 
-			if (!file->read(m_size, sizeof(uint8_t), cm_size)){ return SLIMERROR::ERROR_END; }
+			if (!SLIM_STREAM_READ(file, m_size, sizeof(uint8_t), cm_size)){ return SLIMERROR::ERROR_END; }
 
 			uint8_t  cm_pos 			= 0x0u;
 			const uint32_t cmps_ch0 	= ch0_org ? 0x1u + ((uint32_t)m_size[cm_pos++]) : 0x0u;
@@ -882,7 +882,7 @@ SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc){
 			const uint32_t st_idx		= st_ch3 + cmps_ch3;
 			const uint32_t st_size		= st_idx + cmps_idx;
 
-			if (!file->read(m_read, sizeof(uint8_t), st_size)){ return SLIMERROR::ERROR_END; }
+			if (!SLIM_STREAM_READ(file, m_read, sizeof(uint8_t), st_size)){ return SLIMERROR::ERROR_END; }
 
 			DECODE_REVOLVER(v0, m_read, m_data, cmps_ch0);
 			DECODE_REVOLVER(v1, m_read + st_ch1, m_data + 256u, cmps_ch1);
@@ -965,12 +965,12 @@ SLIMERROR SLIM_Read_Layer(SLIMStream *file, SLIMLayerDesc* desc){
 }
 
 
-SLIMERROR SLIM_Read_Layer_Map(SLIMStream *file, SLIMLayerDesc* desc){
+SLIMERROR SLIM_Read_Layer_Map(SLIM_STREAM* file, SLIMLayerDesc* desc){
 
 	if(file == NULL)							{return SLIMERROR::ERROR_ARG;}
 	if(desc == NULL)							{return SLIMERROR::ERROR_ARG;}
 
-	if(!file->isOpen())							{return SLIMERROR::ERROR_FILE;}
+	if (!SLIM_STREAM_ISOPEN(file))				{return SLIMERROR::ERROR_FILE;}
 
 	#pragma pack(push, 1)
 	struct _SLIM_LAYER_HEADER
@@ -989,7 +989,7 @@ SLIMERROR SLIM_Read_Layer_Map(SLIMStream *file, SLIMLayerDesc* desc){
 
 	_SLIM_LAYER_HEADER _slim_lh{};
 
-	if(!file->read(&_slim_lh, sizeof(_SLIM_LAYER_HEADER), 1)) 	{return SLIMERROR::ERROR_BLOCK;}
+	if(!SLIM_STREAM_READ(file, &_slim_lh, sizeof(_SLIM_LAYER_HEADER), 1)) 	{return SLIMERROR::ERROR_BLOCK;}
 
 	if(_slim_lh._width == 0 || _slim_lh._height == 0) 			{return SLIMERROR::ERROR_BLOCK;}
 
@@ -1014,12 +1014,12 @@ SLIMERROR SLIM_Read_Layer_Map(SLIMStream *file, SLIMLayerDesc* desc){
 
 	if(_slim_lh._name_size>0){
 		desc->name = (char*)SLIM_MALLOC(_slim_lh._name_size*sizeof(char));
-		if(!file->read(desc->name, sizeof(char), _slim_lh._name_size)) 	{return SLIMERROR::ERROR_BLOCK;}
+		if(!SLIM_STREAM_READ(file, desc->name, sizeof(char), _slim_lh._name_size)) 	{return SLIMERROR::ERROR_BLOCK;}
 	}
 
 	if(_slim_lh._ext_size>0){
 		desc->ext = (char*)SLIM_MALLOC(_slim_lh._ext_size*sizeof(char));
-		if(!file->read(desc->ext, sizeof(char), _slim_lh._ext_size)) 	{return SLIMERROR::ERROR_BLOCK;}
+		if(!SLIM_STREAM_READ(file, desc->ext, sizeof(char), _slim_lh._ext_size)) 	{return SLIMERROR::ERROR_BLOCK;}
 	}
 
 	uint8_t* m_IMG 	 	= (uint8_t*)desc->img;
@@ -1034,7 +1034,7 @@ SLIMERROR SLIM_Read_Layer_Map(SLIMStream *file, SLIMLayerDesc* desc){
 		for (uint32_t blcX = 0; blcX < _slim_lh._width; blcX += 16)
 		{
 
-			if (!file->read(&meta_code, sizeof(uint16_t), 1)){ return SLIMERROR::ERROR_END; }
+			if (!SLIM_STREAM_READ(file, &meta_code, sizeof(uint16_t), 1)){ return SLIMERROR::ERROR_END; }
 
 			qnt_idx 		= (meta_code & 0x07u);
 			meta_code 		>>= 0x03u;
@@ -1055,7 +1055,7 @@ SLIMERROR SLIM_Read_Layer_Map(SLIMStream *file, SLIMLayerDesc* desc){
 
 			const uint8_t cm_size = ch0_org + ch1_org + ch2_org + ch3_org + idx_org;
 
-			if (!file->read(m_size, sizeof(uint8_t), cm_size)){ return SLIMERROR::ERROR_END; }
+			if (!SLIM_STREAM_READ(file, m_size, sizeof(uint8_t), cm_size)){ return SLIMERROR::ERROR_END; }
 
 			uint8_t  cm_pos 			= 0x0u;
 			const uint32_t cmps_ch0 	= ch0_org ? 0x1u + ((uint32_t)m_size[cm_pos++]) : 0x0u;
@@ -1066,7 +1066,7 @@ SLIMERROR SLIM_Read_Layer_Map(SLIMStream *file, SLIMLayerDesc* desc){
 
 			const uint32_t st_size		= cmps_ch0 + cmps_ch1 + cmps_ch2 + cmps_ch3 + cmps_idx;
 
-			if (!file->seek(st_size, SLIMStream::Cur)){ return SLIMERROR::ERROR_END; }
+			if (!SLIM_STREAM_SEEK(file, st_size, SLIM_STREAM_SEEK_MODE::SLIM_STREAM_SEEK_CUR)){ return SLIMERROR::ERROR_END; }
 
 			for (uint32_t y = 0; y < 16; ++y)
 			{
@@ -1120,12 +1120,12 @@ SLIMERROR SLIM_Read_Layer_Map(SLIMStream *file, SLIMLayerDesc* desc){
 }
 
 
-SLIMERROR SLIM_Read_Layer_Info(SLIMStream *file, SLIMLayerInfoDesc* desc){
+SLIMERROR SLIM_Read_Layer_Info(SLIM_STREAM* file, SLIMLayerInfoDesc* desc){
 
 	if(file == NULL)							{return SLIMERROR::ERROR_ARG;}
 	if(desc == NULL)							{return SLIMERROR::ERROR_ARG;}
 
-	if(!file->isOpen())							{return SLIMERROR::ERROR_FILE;}
+	if (!SLIM_STREAM_ISOPEN(file))				{return SLIMERROR::ERROR_FILE;}
 
 	#pragma pack(push, 1)
 	struct _SLIM_LAYER_HEADER
@@ -1144,7 +1144,7 @@ SLIMERROR SLIM_Read_Layer_Info(SLIMStream *file, SLIMLayerInfoDesc* desc){
 
 	_SLIM_LAYER_HEADER _slim_lh{};
 
-	if(!file->read(&_slim_lh, sizeof(_SLIM_LAYER_HEADER), 1)) 	{return SLIMERROR::ERROR_BLOCK;}
+	if(!SLIM_STREAM_READ(file, &_slim_lh, sizeof(_SLIM_LAYER_HEADER), 1)) 	{return SLIMERROR::ERROR_BLOCK;}
 
 	if(_slim_lh._width == 0 || _slim_lh._height == 0) 			{return SLIMERROR::ERROR_BLOCK;}
 
@@ -1181,12 +1181,12 @@ SLIMERROR SLIM_Read_Layer_Info(SLIMStream *file, SLIMLayerInfoDesc* desc){
 
 	if(_slim_lh._name_size>0){
 		desc->name = (char*)SLIM_MALLOC(_slim_lh._name_size*sizeof(char));
-		if(!file->read(desc->name, sizeof(char), _slim_lh._name_size)) 	{return SLIMERROR::ERROR_BLOCK;}
+		if(!SLIM_STREAM_READ(file, desc->name, sizeof(char), _slim_lh._name_size)) 	{return SLIMERROR::ERROR_BLOCK;}
 	}
 
 	if(_slim_lh._ext_size>0){
 		desc->ext = (char*)SLIM_MALLOC(_slim_lh._ext_size*sizeof(char));
-		if(!file->read(desc->ext, sizeof(char), _slim_lh._ext_size)) 	{return SLIMERROR::ERROR_BLOCK;}
+		if(!SLIM_STREAM_READ(file, desc->ext, sizeof(char), _slim_lh._ext_size)) 	{return SLIMERROR::ERROR_BLOCK;}
 	}
 
 	uint8_t m_data		[1280]{};	//Curret	block memory
@@ -1201,7 +1201,7 @@ SLIMERROR SLIM_Read_Layer_Info(SLIMStream *file, SLIMLayerInfoDesc* desc){
 		for (uint32_t blcX = 0; blcX < _slim_lh._width; blcX += 16)
 		{
 
-			if (!file->read(&meta_code, sizeof(uint16_t), 1)){ return SLIMERROR::ERROR_END; }
+			if (!SLIM_STREAM_READ(file, &meta_code, sizeof(uint16_t), 1)){ return SLIMERROR::ERROR_END; }
 
 			qnt 			= (meta_code & 0x07u) << 1;
 			meta_code 		>>= 0x03u;
@@ -1241,7 +1241,7 @@ SLIMERROR SLIM_Read_Layer_Info(SLIMStream *file, SLIMLayerInfoDesc* desc){
 			desc->block_256_empty 	+= (cm_size==0);
 			desc->block_q_avg 		+= qnt;
 
-			if (!file->read(m_size, sizeof(uint8_t), cm_size)){ return SLIMERROR::ERROR_END; }
+			if (!SLIM_STREAM_READ(file, m_size, sizeof(uint8_t), cm_size)){ return SLIMERROR::ERROR_END; }
 
 			uint8_t  cm_pos 			= 0x0u;
 			const uint32_t cmps_ch0 	= ch0_org ? 0x1u + ((uint32_t)m_size[cm_pos++]) : 0x0u;
@@ -1256,7 +1256,7 @@ SLIMERROR SLIM_Read_Layer_Info(SLIMStream *file, SLIMLayerInfoDesc* desc){
 			const uint32_t st_idx		= st_ch3 + cmps_ch3;
 			const uint32_t st_size		= st_idx + cmps_idx;
 
-			if (!file->read(m_read, sizeof(uint8_t), st_size)){ return SLIMERROR::ERROR_END; }
+			if (!SLIM_STREAM_READ(file, m_read, sizeof(uint8_t), st_size)){ return SLIMERROR::ERROR_END; }
 
 			DECODE_REVOLVER(v0, m_read, m_data, cmps_ch0);
 			DECODE_REVOLVER(v1, m_read + st_ch1, m_data + 256, cmps_ch1);

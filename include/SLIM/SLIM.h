@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // SLIM (Sleptsov Image format) for C/C++
-// Version: 1.2.0.0
+// Version: 1.4.0.0
 // Copyright (C) 2026 Sleptsov Vladimir 
 // https://github.com/VERTEXSoftware
 
@@ -9,7 +9,7 @@
 
 #define SLIM_MAGIC 0x4D494C5373696854
 #define SLIM_VERSION_MAJOR 1
-#define SLIM_VERSION_MINOR 2
+#define SLIM_VERSION_MINOR 4
 #define SLIM_VERSION_BUGFIX 0
 #define SLIM_VERSION_HOTFIX 0
 

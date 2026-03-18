@@ -8,8 +8,8 @@
 
 #ifndef SLIM_STREAM_MALLOC
 #include <stdlib.h>
-#define SLIM_STREAM_MALLOC(sz) malloc(sz)
-#define SLIM_STREAM_FREE(p) free(p)
+#define SLIM_STREAM_MALLOC(sz)  malloc(sz)
+#define SLIM_STREAM_FREE(p)     free(p)
 #endif
 
 #ifdef __cplusplus

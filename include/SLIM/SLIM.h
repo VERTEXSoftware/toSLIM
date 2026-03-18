@@ -29,6 +29,7 @@
 
 //Custom Stream
 #include "./SLIMSTREAM.h"
+
 //Custom Compression
 #include "./compress/SLDD.h"
 #include "./compress/MASKARED.h"
@@ -38,7 +39,7 @@
 #ifndef SLIM_MALLOC
 #include <stdlib.h>
 #define SLIM_MALLOC(sz) malloc(sz)
-#define SLIM_FREE(p) free(p)
+#define SLIM_FREE(p) 	free(p)
 #endif
 
 #ifdef __cplusplus

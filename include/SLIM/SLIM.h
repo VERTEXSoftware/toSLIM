@@ -647,7 +647,7 @@ SLIMERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIMLayerDesc* desc){
 			uint32_t Cout 			= 0x0u;
 			uint32_t CColor 		= 0x0u;
 			const uint32_t qnt_idx 	= BLOCK_ANALYZER(m_QUALITY, m_IMG, _slim_lh._width, _slim_lh._height, blcX, blcY, m_Channels);
-			const uint32_t qnt		= qnt_idx << 1;
+			const uint8_t  qnt		= (uint8_t)qnt_idx << 1;
 
 			for (uint32_t y = 0; y < 16; ++y)
 			{
@@ -849,7 +849,7 @@ SLIMERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIMLayerDesc* desc){
 
 			if (!SLIM_STREAM_READ(file, &meta_code, sizeof(uint16_t), 1)){ return SLIMERROR::ERROR_END; }
 
-			qnt 			= (meta_code & 0x07u) << 1;
+			qnt 			= (uint32_t)(meta_code & 0x07u) << 1;
 			meta_code 		>>= 0x03u;
 
 			uint32_t t;

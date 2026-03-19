@@ -929,7 +929,7 @@ SLIMERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIMLayerDesc* desc){
 					switch (m_CODE)
 					{
 					case SLIMCODE::CODE_GRAY:
-						m_IMG[index]		= (chn0 + chn1 + chn2) / (_slim_lh._channel == 4 ? 3 : _slim_lh._channel);
+						m_IMG[index]		= (chn0 + chn1 + chn2) / (_slim_lh._channel >= 3 ? 3 : _slim_lh._channel);
 						break;
 					case SLIMCODE::CODE_RGB:
 						m_IMG[index]		= chn0;

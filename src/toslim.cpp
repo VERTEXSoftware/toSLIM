@@ -169,12 +169,13 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
             SLIMHeaderDesc  header{};
             SLIMLayerDesc   layer{};
 
+            layer.forced_code = SLIMCODE::CODE_GRAY;
             SLIM_Read_Header(infile, &header);
             SLIM_Read_Layer_Map(infile, &layer);
 
             w           = layer.width;
             h           = layer.height;
-            channels    = (SLIMCODE)layer.code;
+            channels    = SLIMCODE::CODE_GRAY;
             data        = (unsigned char*)layer.img;
 
             SLIM_Free(layer.name);
@@ -508,14 +509,14 @@ void SaveMapToIMG(std::string fileA,std::string fileB){
         SLIMHeaderDesc  header{};
         SLIMLayerDesc   layer{};
 
+        layer.forced_code = SLIMCODE::CODE_GRAY;
         SLIM_Read_Header(infile, &header);
         SLIM_Read_Layer_Map(infile, &layer);
 
         w           = layer.width;
         h           = layer.height;
-        channels    = (SLIMCODE)layer.code;
+        channels    = SLIMCODE::CODE_GRAY;
         data        = (unsigned char*)layer.img;
-
         SLIM_STREAM_CLOSE(infile);
 
         if(channels!=SLIMCODE::CODE_GRAY){return;}

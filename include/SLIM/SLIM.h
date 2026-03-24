@@ -669,8 +669,6 @@ SLIMERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIMLayerDesc* desc){
 					{
 					case SLIMCODE::CODE_GRAY:
 						Rc = m_IMG[index];
-						Gc = m_IMG[index];
-						Bc = m_IMG[index];
 						break;
 					case SLIMCODE::CODE_RGB:
 						Rc = m_IMG[index];

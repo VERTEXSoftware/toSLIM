@@ -308,10 +308,10 @@ uint16_t ENCODE_REVOLVER(bool orig, uint8_t* src, uint8_t* dest, uint32_t size, 
 
 	uint16_t pos_mode = 0;
 
-    RLE_ENCODE(src, 		size, pack[1u], &r_size_pack[1u]);
-	RICE_ENCODE(src, 		size, pack[2u], &r_size_pack[2u]);
-    SLDD_ENCODE(src, 		size, pack[3u], &r_size_pack[3u]);
-    MASKARED_ENCODE(src, 	size, pack[4u], &r_size_pack[4u]);
+    RLE_ENCODE(src, 		size, t_rle, 		&r_size_pack[1u]);
+	RICE_ENCODE(src, 		size, t_rice, 		&r_size_pack[2u]);
+    SLDD_ENCODE(src, 		size, t_sldd, 		&r_size_pack[3u]);
+    MASKARED_ENCODE(src, 	size, t_maskared, 	&r_size_pack[4u]);
 
     for(uint16_t i = 1; i < 5; ++i){
         if(r_size_pack[pos_mode]>r_size_pack[i]){
@@ -341,7 +341,7 @@ void  DECODE_REVOLVER(uint16_t mode, uint8_t* src, uint8_t* dest, uint32_t size)
 	if (size<=0) 	{return;}
 	if (mode==0)  	{return;}
 
-	uint32_t r_size = 0;
+	uint32_t r_size = 256;
 
 	switch (mode)
 	{
@@ -360,19 +360,16 @@ void  DECODE_REVOLVER(uint16_t mode, uint8_t* src, uint8_t* dest, uint32_t size)
 		}
 		case 3:
 		{
-			r_size = 256;
 			RICE_DECODE(src, size, dest, r_size);
 			break;
 		}
 		case 4:
 		{
-			r_size = 256;
 			SLDD_DECODE(src, size, dest, r_size);
 			break;
 		}		
 		case 5:
 		{
-			r_size = 256;
 			MASKARED_DECODE(src, size, dest, r_size);
 			break;
 		}

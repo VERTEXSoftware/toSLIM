@@ -547,8 +547,8 @@ SLIMERROR SLIM_Read_Header(SLIM_STREAM* file, SLIMHeaderDesc* desc){
 
 	if (!SLIM_STREAM_READ(file, &_slim_h, sizeof(_SLIM_HEADER), 1)) { return SLIMERROR::ERROR_END; }
 
-	if(_slim_h._magic != SLIM_MAGIC)					{return SLIMERROR::ERROR_BLOCK;}
-	if(_slim_h._version != SLIM_VERSION)				{return SLIMERROR::ERROR_BLOCK;}
+	if(_slim_h._magic != SLIM_MAGIC)					{return SLIMERROR::ERROR_NOTSUP;}
+	if(_slim_h._version != SLIM_VERSION)				{return SLIMERROR::ERROR_NOTSUP;}
 	if(_slim_h._height == 0 || _slim_h._width == 0)		{return SLIMERROR::ERROR_BLOCK;}
 	if(_slim_h._channels == 0 || _slim_h._channels > 4)	{return SLIMERROR::ERROR_NOTSUP;}
 

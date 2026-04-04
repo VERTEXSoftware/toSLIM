@@ -47,13 +47,13 @@ void ImageConsoleViewer(unsigned char* data, int w, int h, SLIMCODE code) {
             int src = i * 4;
             int dst = i * 3;
             if(data[src + 3]>1){
-            temp[dst]     = data[src];
-            temp[dst + 1] = data[src + 1];
-            temp[dst + 2] = data[src + 2];
+                temp[dst]     = data[src];
+                temp[dst + 1] = data[src + 1];
+                temp[dst + 2] = data[src + 2];
             }else{
-            temp[dst]     = 0;
-            temp[dst + 1] = 0;
-            temp[dst + 2] = 0;
+                temp[dst]     = 0;
+                temp[dst + 1] = 0;
+                temp[dst + 2] = 0;
             }
         }
 

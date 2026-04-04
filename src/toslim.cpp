@@ -140,13 +140,14 @@ void DemoIMG(std::string file){
     SLIMCODE channels;
 
 
-    load_image(file, data, w, h, channels);
+    if(load_image(file, data, w, h, channels)){
 
-    #ifdef ONLY_TERMINAL
-    ImageConsoleViewer(data, w, h, channels);
-    #else
-    ImageViewer(file, data, w, h, channels);
-    #endif
+        #ifdef ONLY_TERMINAL
+        ImageConsoleViewer(data, w, h, channels);
+        #else
+        ImageViewer(file, data, w, h, channels);
+        #endif
+    }
 
     SLIM_Free(data);
 }
@@ -428,7 +429,9 @@ void AnalizeIMG(std::vector<std::string> files){
     unsigned char* img1=NULL;
     unsigned char* img2=NULL;
 
-    load_image(orig, img1, w1, h1, c1);
+    if(load_image(orig, img1, w1, h1, c1)==false){
+        return;
+    }
 
     std::cout << "Original: " << orig << "\n";
 
@@ -436,7 +439,7 @@ void AnalizeIMG(std::vector<std::string> files){
 
         std::string file = files[i];
 
-        load_image(file, img2, w2, h2, c2);
+        if(load_image(file, img2, w2, h2, c2)==false){continue;}
 
         std::cout << "\nFile: " << file << "\n";
 
@@ -480,7 +483,7 @@ void ConvertIMG(std::string fileA,std::string fileB, uint8_t quality){
         save_image(fileB, data, w, h,channels,quality);
     }
 
-    if(data!=NULL){free(data);}
+    SLIM_Free(data);
 
 }
 

@@ -16,6 +16,7 @@ void grayToMagma(const unsigned char* grayscale, unsigned char* rgb, int width, 
 
 std::string formatSize(uint32_t size);
 std::string compressionRatio(size_t originalSize, size_t compressedSize);
+std::string getFilename(const std::string& path);
 
 static std::string getFileExtension(const std::string& filename) {
     auto pos = filename.find_last_of('.');
@@ -138,7 +139,13 @@ std::string compressionRatio(size_t originalSize, size_t compressedSize) {
 }
 
 
-
+std::string getFilename(const std::string& path) {
+    size_t pos = path.find_last_of("/\\");
+    if (pos == std::string::npos){
+        return path;
+    }
+    return path.substr(pos + 1);
+}
 
 
 void grayToMagma(const unsigned char* grayscale, unsigned char* rgb, int width, int height) {

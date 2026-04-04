@@ -665,32 +665,44 @@ SLIMERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIMLayerDesc* desc){
 					switch (desc->code)
 					{
 					case SLIMCODE::CODE_GRAY:
+					{
 						Rc = m_IMG[index];
 						break;
+					}
 					case SLIMCODE::CODE_RGB:
+					{
 						Rc = m_IMG[index];
 						Gc = m_IMG[index + 1];
 						Bc = m_IMG[index + 2];
 						break;
+					}
 					case SLIMCODE::CODE_BGR:
+					{
 						Bc = m_IMG[index];
 						Gc = m_IMG[index + 1];
 						Rc = m_IMG[index + 2];	
 						break;
+					}
 					case SLIMCODE::CODE_RGBA:
+					{
 						Ac = m_IMG[index + 3];
-						if(Ac==0){break;}
-						Rc = m_IMG[index];
-						Gc = m_IMG[index + 1];
-						Bc = m_IMG[index + 2];
+						if(Ac>0){
+							Rc = m_IMG[index];
+							Gc = m_IMG[index + 1];
+							Bc = m_IMG[index + 2];
+						}
 						break;
+					}
 					case SLIMCODE::CODE_BGRA:
+					{
 						Ac = m_IMG[index + 3];
-						if(Ac==0){break;}
-						Bc = m_IMG[index];
-						Gc = m_IMG[index + 1];
-						Rc = m_IMG[index + 2];
+						if(Ac>0){
+							Bc = m_IMG[index];
+							Gc = m_IMG[index + 1];
+							Rc = m_IMG[index + 2];
+						}
 						break;
+					}
 					default:
 						return SLIMERROR::ERROR_NOTSUP;
 					}
@@ -924,30 +936,40 @@ SLIMERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIMLayerDesc* desc){
 					switch (m_CODE)
 					{
 					case SLIMCODE::CODE_GRAY:
+					{
 						m_IMG[index]		= (chn0 + chn1 + chn2) / (_slim_lh._channel >= 3 ? 3 : _slim_lh._channel);
 						break;
+					}
 					case SLIMCODE::CODE_RGB:
+					{
 						m_IMG[index]		= chn0;
 						m_IMG[index + 1] 	= chn1;
 						m_IMG[index + 2] 	= chn2;
 						break;
+					}
 					case SLIMCODE::CODE_BGR:
+					{
 						m_IMG[index]		= chn2;
 						m_IMG[index + 1] 	= chn1;
 						m_IMG[index + 2] 	= chn0;
 						break;
+					}
 					case SLIMCODE::CODE_RGBA:
+					{
 						m_IMG[index]		= chn0;
 						m_IMG[index + 1] 	= chn1;
 						m_IMG[index + 2] 	= chn2;
 						m_IMG[index + 3] 	= (_slim_lh._channel < m_CHANNELS)? 255 : chn3;
 						break;
+					}
 					case SLIMCODE::CODE_BGRA:
+					{
 						m_IMG[index]		= chn2;
 						m_IMG[index + 1] 	= chn1;
 						m_IMG[index + 2] 	= chn0;
 						m_IMG[index + 3] 	= (_slim_lh._channel < m_CHANNELS)? 255 : chn3;
 						break;
+					}
 					default:
 						return SLIMERROR::ERROR_NOTSUP;
 					}
@@ -1079,30 +1101,40 @@ SLIMERROR SLIM_Read_Layer_Map(SLIM_STREAM* file, SLIMLayerDesc* desc){
 					switch (m_CODE)
 					{
 					case SLIMCODE::CODE_GRAY:
+					{
 						m_IMG[index]		= qnt_idx;
 						break;
+					}
 					case SLIMCODE::CODE_RGB:
+					{
 						m_IMG[index]		= qnt_idx;
 						m_IMG[index + 1] 	= qnt_idx;
 						m_IMG[index + 2] 	= qnt_idx;
 						break;
+					}
 					case SLIMCODE::CODE_BGR:
+					{
 						m_IMG[index]		= qnt_idx;
 						m_IMG[index + 1] 	= qnt_idx;
 						m_IMG[index + 2] 	= qnt_idx;
 						break;
+					}
 					case SLIMCODE::CODE_RGBA:
+					{
 						m_IMG[index]		= qnt_idx;
 						m_IMG[index + 1] 	= qnt_idx;
 						m_IMG[index + 2] 	= qnt_idx;
 						m_IMG[index + 3] 	= 255;
 						break;
+					}
 					case SLIMCODE::CODE_BGRA:
+					{
 						m_IMG[index]		= qnt_idx;
 						m_IMG[index + 1] 	= qnt_idx;
 						m_IMG[index + 2] 	= qnt_idx;
 						m_IMG[index + 3] 	= 255;
 						break;
+					}
 					default:
 						return SLIMERROR::ERROR_NOTSUP;
 					}

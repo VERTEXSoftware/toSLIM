@@ -11,8 +11,14 @@ const char* BUILD_TIME = __TIME__;
 #include <string>
 #include <filesystem>
 
+#ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
+#endif
+
+#ifndef STB_IMAGE_WRITE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+#endif
+
 #define SLEP_SLIM_IMP
 
 #include "SLIM/SLIM.h"
@@ -77,37 +83,7 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
 }
 
 
-
-#ifdef ONLY_TERMINAL
-    static void showHelp() {
-    std::cout << "SLEP IMAGE CONVERTER\n";
-    std::cout << "Copyright (C) 2026 VERTEX Software by Sleptsov Vladimir\n";
-    std::cout << "Version: "<<PROGRAM_VERSION<<"\n";
-    std::cout << "Build date: "<<BUILD_DATE<<" "<<BUILD_TIME<<"\n";
-    std::cout << "Usage:\n";
-    std::cout << "  toslim [options] <image_path_a> <image_path_b>\n";
-    std::cout << "\nOptions:\n";
-    std::cout << "  -i          Get information about an image\n";
-    std::cout << "  -c          Convert from format file to other format\n";
-    std::cout << "  -q          Image quality level for JPEG and SLIM (0..255)\n";
-    std::cout << "  -a          Comparison of images using PSNR/SSIM/PSQNR\n";
-    std::cout << "  -w          Exporting a map from SLIM\n";
-    std::cout << "  -h          Show this help message\n";
-    std::cout << "  -y          Overwrite file\n";
-    std::cout << "\nExamples:\n";
-    std::cout << "  toslim -c image.png image.SLIM                 Convert image.png to image.SLIM\n";
-    std::cout << "  toslim -c image.SLIM image.png                 Convert image.SLIM to image.png\n";
-    std::cout << "  toslim -c -q 128 image.png image.SLIM          Convert image.png to image.SLIM quality 50%\n";
-    std::cout << "  toslim -a image.png image.SLIM                 Comparing image.png with image.SLIM\n";
-    std::cout << "  toslim -w image.SLIM map.png                   Exporting a map from image.SLIM to map.png\n";
-    std::cout << "  toslim -i image.SLIM                           Information about the image.SLIM file\n";
-    std::cout << "\nDefault:\n";
-    std::cout << "  Quality: 255 (MAX)\n";
-    }
-#else
-#include "support/image_viewer.h"
-
-    static void showHelp() {
+static void showHelp() {
     std::cout << "SLEP IMAGE CONVERTER\n";
     std::cout << "Copyright (C) 2026 VERTEX Software by Sleptsov Vladimir\n";
     std::cout << "Version: "<<PROGRAM_VERSION<<"\n";
@@ -136,63 +112,14 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
     std::cout << "  toslim -i image.SLIM                           Information about the image.SLIM file\n";
     std::cout << "\nDefault:\n";
     std::cout << "  Quality: 255 (MAX)\n";
-    }
-
-    void DemoIMG(std::string file){
-
-        unsigned char* data = NULL;
-        int w = 0;
-        int h = 0;
-        SLIMCODE channels;
+}
 
 
-        load_image(file, data, w, h, channels);
-
-        ImageViewer viewer(data, w, h, channels);
-        viewer.show(file);
-
-        SLIM_Free(data);
-    }
-
-
-    void DemoMapSLIMIMG(std::string file){
-
-        unsigned char* data = NULL;
-        int w = 0;
-        int h = 0;
-        SLIMCODE channels=SLIMCODE::CODE_NONE;
-
-
-        SLIM_STREAM* infile = SLIM_STREAM_OPEN(file.c_str(), SLIM_STREAM_MODE::STREAM_MODE_READ);
-
-        if(SLIM_STREAM_ISOPEN(infile)) {
-            SLIMHeaderDesc  header{};
-            SLIMLayerDesc   layer{};
-
-            layer.forced_code = SLIMCODE::CODE_GRAY;
-            SLIM_Read_Header(infile, &header);
-            SLIM_Read_Layer_Map(infile, &layer);
-
-            w           = layer.width;
-            h           = layer.height;
-            channels    = SLIMCODE::CODE_GRAY;
-            data        = (unsigned char*)layer.img;
-
-            SLIM_Free(layer.name);
-            SLIM_Free(layer.ext);
-
-            SLIM_STREAM_CLOSE(infile);
-        }    
-
-        ImageViewer viewer(data, w, h, channels);
-        viewer.show(file);
-
-        SLIM_Free(data);
-
-    }
+#ifdef ONLY_TERMINAL
+#include "support/image_console.h"
+#else
+#include "support/image_viewer.h"
 #endif
-
-
 
 enum class Mode {
     NONE,
@@ -203,6 +130,67 @@ enum class Mode {
     VIEWMAP,
     SAVEMAP
 };
+
+
+void DemoIMG(std::string file){
+
+    unsigned char* data = NULL;
+    int w = 0;
+    int h = 0;
+    SLIMCODE channels;
+
+
+    load_image(file, data, w, h, channels);
+
+    #ifdef ONLY_TERMINAL
+    ImageConsoleViewer(data, w, h, channels);
+    #else
+    ImageViewer(file, data, w, h, channels);
+    #endif
+
+    SLIM_Free(data);
+}
+
+
+void DemoMapSLIMIMG(std::string file){
+
+    unsigned char* data = NULL;
+    int w = 0;
+    int h = 0;
+
+    SLIM_STREAM* infile = SLIM_STREAM_OPEN(file.c_str(), SLIM_STREAM_MODE::STREAM_MODE_READ);
+
+    if(SLIM_STREAM_ISOPEN(infile)) {
+        SLIMHeaderDesc  header{};
+        SLIMLayerDesc   layer{};
+
+        layer.forced_code = SLIMCODE::CODE_GRAY;
+        SLIM_Read_Header(infile, &header);
+        SLIM_Read_Layer_Map(infile, &layer);
+
+        w           = layer.width;
+        h           = layer.height;
+        data        = (unsigned char*)layer.img;
+
+        SLIM_Free(layer.name);
+        SLIM_Free(layer.ext);
+
+        SLIM_STREAM_CLOSE(infile);
+
+        unsigned char* dataimg = (unsigned char*)SLIM_MALLOC(w * h * 3);
+        grayToMagma(data, dataimg, w, h);
+
+        #ifdef ONLY_TERMINAL
+        ImageConsoleViewer(dataimg, w, h, SLIMCODE::CODE_RGB);
+        #else
+        ImageViewer(file, dataimg, w, h, SLIMCODE::CODE_RGB);
+        #endif
+
+        SLIM_Free(dataimg);
+        SLIM_Free(data);
+    }    
+}
+
 
 void InfoOtherFormat(std::string imagePath){
     int width = 0;
@@ -525,6 +513,7 @@ void SaveMapToIMG(std::string fileA,std::string fileB){
         grayToMagma(data, dataimg, w, h);
         save_image(fileB, dataimg, w, h,SLIMCODE::CODE_RGB,255);
         SLIM_Free(dataimg);
+        SLIM_Free(data);
 
         SLIM_Free(layer.name);
         SLIM_Free(layer.ext);
@@ -571,16 +560,11 @@ int main(int argc, char* argv[]) {
         if (args[i] == "-h") {
             showHelp();
             return 0;
-        } 
-        #ifdef ONLY_TERMINAL
-        #else
-        else if (args[i] == "-v") {
+        } else if (args[i] == "-v") {
             mode = Mode::VIEW;
-        }else if (args[i] == "-m") {
+        } else if (args[i] == "-m") {
             mode = Mode::VIEWMAP;
-        }
-        #endif
-        else if (args[i] == "-c") {
+        }else if (args[i] == "-c") {
             mode = Mode::CONVERT;
         } else if (args[i] == "-w") {
             mode = Mode::SAVEMAP;
@@ -612,24 +596,21 @@ int main(int argc, char* argv[]) {
     if (mode == Mode::NONE) {
         mode = Mode::VIEW;
     }
-    #ifdef ONLY_TERMINAL
-    #else
+
     if (mode == Mode::VIEW) {
         if(files.size()<1){return -1;}
         DemoIMG(files[0]);
-    }else if (mode == Mode::VIEWMAP) {
+    } else if (mode == Mode::VIEWMAP) {
         if(files.size()<1){return -1;}
         DemoMapSLIMIMG(files[0]);
-    } 
-    #endif
-    else if (mode == Mode::CONVERT) {
+    } else if (mode == Mode::CONVERT) {
         if(files.size()<2){return -1;}
         if(files[0]==files[1]){return -1;}
 
         if(!overwrite){if(!FileNotExistSave(files[1])){return 0;}}
 
         ConvertIMG(files[0],files[1],imageQuality);
-    }else if (mode == Mode::SAVEMAP) {
+    } else if (mode == Mode::SAVEMAP) {
         if(files.size()<2){return -1;}
         if(files[0]==files[1]){return -1;}
 

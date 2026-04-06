@@ -367,8 +367,6 @@ void InfoIMG(std::string imagePath){
 
 bool save_image(const std::string& output, unsigned char* data, int w, int h,  SLIMCODE chan, uint8_t quality) {
 
-
-    
     ImageFormat fmt = detect_format(output);
 
     int channels = CodeToChannel(chan);
@@ -462,10 +460,10 @@ void AnalizeIMG(std::vector<std::string> files){
             std::cout << "The image sizes do not match\n";
         }
 
-        if(img2!=NULL){free(img2);}
+        SLIM_Free(img2);
     }
 
-    if(img1!=NULL){free(img1);}
+    SLIM_Free(img1);
 }
 
 

@@ -30,7 +30,6 @@ const char* BUILD_TIME = __TIME__;
 bool loadotherformat(const std::string& input, unsigned char* &data, int &w, int &h,  SLIMCODE &channels){
     int chan=0;
     data = stbi_load(input.c_str(), &w, &h, &chan, 0);
-
     channels=ChannelToCode(chan);
 
     return data!=NULL;
@@ -398,7 +397,7 @@ bool save_image(const std::string& output, unsigned char* data, int w, int h,  S
                     layer.img       = data;
                                          
                     SLIM_Write_Header(infile, &header);
-                    SLIM_Write_Layer(infile, &layer);
+                   SLIM_Write_Layer(infile, &layer);
 
                     SLIM_STREAM_CLOSE(infile);
                 }
@@ -478,6 +477,7 @@ void ConvertIMG(std::string fileA,std::string fileB, uint8_t quality){
 
 
     if(load_image(fileA, data, w, h, channels)){
+        
         save_image(fileB, data, w, h,channels,quality);
     }
 

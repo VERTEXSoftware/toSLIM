@@ -70,6 +70,12 @@ int CodeToChannel(SLIMCODE code){
         case SLIMCODE::CODE_BGRA:
             channels = 4;
             break;
+        case SLIMCODE::CODE_ARGB:
+            channels = 4;
+            break;
+        case SLIMCODE::CODE_ABGR:
+            channels = 4;
+            break;
         default:
             channels = 0;
             break;

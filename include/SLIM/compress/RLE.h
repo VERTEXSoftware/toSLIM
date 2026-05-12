@@ -57,7 +57,7 @@ RLE_RESULT RLE_ENCODE(uint8_t* data, uint32_t Length, uint8_t* outdata, uint32_t
 		else {
 			cnt = 0;
 			while (i + cnt < Length && (i + cnt + 1 >= Length || data[i + cnt] != data[i + cnt + 1]) && cnt < 127) { ++cnt; }
-			outdata[idx++] = uint8_t(-cnt);
+			outdata[idx++] = uint8_t(~cnt + 1);
 			for (uint32_t j = 0; j < cnt; ++j) { outdata[idx++] = data[i + j]; }
 			i += cnt;
 		}
@@ -82,7 +82,7 @@ RLE_RESULT RLE_DECODE(uint8_t* data, uint32_t Length, uint8_t* outdata, uint32_t
 			++i;
 		}
 		else {
-			for (uint32_t j = 0; j < uint32_t(-cnt); ++j) {
+			for (uint32_t j = 0; j < uint32_t(~cnt + 1); ++j) {
 				outdata[idx++] = data[i++];
 			}
 		}

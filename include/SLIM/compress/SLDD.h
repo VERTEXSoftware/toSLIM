@@ -120,7 +120,7 @@ SLDD_RESULT SLDD_ENCODE(uint8_t* buffer, uint32_t size, uint8_t* buffercomp, uin
 	uint32_t total 	= size * (0x08u - leftCount - rightCount);
 	*sizecomp 		= (total + 0x0Fu) >> 0x03u;
 
-	*buffercomp		= (leftCount << 5) | (rightCount << 2) | (leftc << 1) | rightc;
+	*buffercomp = (uint8_t)((leftCount << 5) |(rightCount << 2) |(((uint8_t)leftc) << 1) | ((uint8_t)rightc));
 
 	uint8_t mstart 	= (0x80u >> leftCount);
 	uint8_t mend 	= (0x80u >> (8 - rightCount));

@@ -966,67 +966,67 @@ SLIMERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIMLayerDesc* desc){
 
 					switch (m_CHANNELS_TO)
 					{
-					case SLIMCODE::CODE_GRAY:
-					{
-						m_IMG[index]		= (uint8_t)cR;
-						break;
-					}
-					case SLIMCODE::CODE_GA:
-					{
-						m_IMG[index]		= (uint8_t)cR;
-						m_IMG[index]		= (uint8_t)cA;
-						break;
-					}
-					case SLIMCODE::CODE_RGB:
-					{
-						m_IMG[index]		= (uint8_t)cR;
-						m_IMG[index + 1] 	= (uint8_t)cG;
-						m_IMG[index + 2] 	= (uint8_t)cB;
-						break;
-					}
-					case SLIMCODE::CODE_BGR:
-					{
-						m_IMG[index]		= (uint8_t)cB;
-						m_IMG[index + 1] 	= (uint8_t)cG;
-						m_IMG[index + 2] 	= (uint8_t)cR;
-						break;
-					}
-					case SLIMCODE::CODE_RGBA:
-					{
-						m_IMG[index]		= (uint8_t)cR;
-						m_IMG[index + 1] 	= (uint8_t)cG;
-						m_IMG[index + 2] 	= (uint8_t)cB;
-						m_IMG[index + 3] 	= (uint8_t)cA;
-						break;
-					}
-					case SLIMCODE::CODE_BGRA:
-					{
-						m_IMG[index]		= (uint8_t)cB;
-						m_IMG[index + 1] 	= (uint8_t)cG;
-						m_IMG[index + 2] 	= (uint8_t)cR;
-						m_IMG[index + 3] 	= (uint8_t)cA;
-						break;
-					}					
-					case SLIMCODE::CODE_ARGB:
-					{
-						m_IMG[index] 		= (uint8_t)cA;
-						m_IMG[index + 1]	= (uint8_t)cR;
-						m_IMG[index + 2] 	= (uint8_t)cG;
-						m_IMG[index + 3] 	= (uint8_t)cB;
-						
-						break;
-					}
-					case SLIMCODE::CODE_ABGR:
-					{
-						m_IMG[index] 		= (uint8_t)cA;					
-						m_IMG[index + 1] 	= (uint8_t)cB;
-						m_IMG[index + 2] 	= (uint8_t)cG;
-						m_IMG[index + 3]	= (uint8_t)cR;
-						
-						break;
-					}
-					default:
-						return SLIMERROR::ERROR_NOTSUP;
+						case SLIMCODE::CODE_GRAY:
+						{
+							m_IMG[index]		= (uint8_t)cR;
+							break;
+						}
+						case SLIMCODE::CODE_GA:
+						{
+							m_IMG[index]		= (uint8_t)cR;
+							m_IMG[index + 1]	= (uint8_t)cA;
+							break;
+						}
+						case SLIMCODE::CODE_RGB:
+						{
+							m_IMG[index]		= (uint8_t)cR;
+							m_IMG[index + 1] 	= (uint8_t)cG;
+							m_IMG[index + 2] 	= (uint8_t)cB;
+							break;
+						}
+						case SLIMCODE::CODE_BGR:
+						{
+							m_IMG[index]		= (uint8_t)cB;
+							m_IMG[index + 1] 	= (uint8_t)cG;
+							m_IMG[index + 2] 	= (uint8_t)cR;
+							break;
+						}
+						case SLIMCODE::CODE_RGBA:
+						{
+							m_IMG[index]		= (uint8_t)cR;
+							m_IMG[index + 1] 	= (uint8_t)cG;
+							m_IMG[index + 2] 	= (uint8_t)cB;
+							m_IMG[index + 3] 	= (uint8_t)cA;
+							break;
+						}
+						case SLIMCODE::CODE_BGRA:
+						{
+							m_IMG[index]		= (uint8_t)cB;
+							m_IMG[index + 1] 	= (uint8_t)cG;
+							m_IMG[index + 2] 	= (uint8_t)cR;
+							m_IMG[index + 3] 	= (uint8_t)cA;
+							break;
+						}					
+						case SLIMCODE::CODE_ARGB:
+						{
+							m_IMG[index] 		= (uint8_t)cA;
+							m_IMG[index + 1]	= (uint8_t)cR;
+							m_IMG[index + 2] 	= (uint8_t)cG;
+							m_IMG[index + 3] 	= (uint8_t)cB;
+							
+							break;
+						}
+						case SLIMCODE::CODE_ABGR:
+						{
+							m_IMG[index] 		= (uint8_t)cA;					
+							m_IMG[index + 1] 	= (uint8_t)cB;
+							m_IMG[index + 2] 	= (uint8_t)cG;
+							m_IMG[index + 3]	= (uint8_t)cR;
+							
+							break;
+						}
+						default:
+							return SLIMERROR::ERROR_NOTSUP;
 					}
 				}
 			}

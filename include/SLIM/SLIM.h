@@ -93,6 +93,7 @@ typedef struct {
     uint16_t y;
     uint16_t z;
 
+	uint8_t	 mipmaps;
     uint8_t  code;
 	uint8_t  forced_code;
     uint8_t  quality;
@@ -565,6 +566,7 @@ SLIMERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIMLayerDesc* desc){
 		uint16_t _x;
 		uint16_t _y;
 		uint16_t _z;
+		uint8_t	 _mipmaps;
 		uint8_t  _channel;
 		uint8_t  _name_size;	
 		uint16_t _ext_size;	
@@ -579,6 +581,7 @@ SLIMERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIMLayerDesc* desc){
 	_slim_lh._x 			= desc->x;
 	_slim_lh._y 			= desc->y;
 	_slim_lh._z 			= desc->z;
+	_slim_lh._mipmaps		= desc->mipmaps;
 	_slim_lh._channel 		= m_Channels;
 	_slim_lh._name_size 	= (desc->name_size>0 && desc->name!=NULL) ? desc->name_size : 0;
 	_slim_lh._ext_size 		= (desc->ext_size>0 && desc->ext!=NULL) ? desc->ext_size : 0;
@@ -804,6 +807,7 @@ SLIMERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIMLayerDesc* desc){
 		uint16_t _x;
 		uint16_t _y;
 		uint16_t _z;
+		uint8_t	 _mipmaps;
 		uint8_t  _channel;
 		uint8_t  _name_size;
 		uint16_t _ext_size;	
@@ -832,6 +836,7 @@ SLIMERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIMLayerDesc* desc){
 	desc->x 			= _slim_lh._x;
 	desc->y 			= _slim_lh._y;
 	desc->z 			= _slim_lh._z;
+	desc->mipmaps 		= _slim_lh._mipmaps;
 	desc->code 			= m_CODE_TO;
 	desc->name_size 	= _slim_lh._name_size;
 	desc->ext_size 		= _slim_lh._ext_size;
@@ -1052,6 +1057,7 @@ SLIMERROR SLIM_Read_Layer_Map(SLIM_STREAM* file, SLIMLayerDesc* desc){
 		uint16_t _x;
 		uint16_t _y;
 		uint16_t _z;
+		uint8_t	 _mipmaps;
 		uint8_t  _channel;
 		uint8_t  _name_size;
 		uint16_t _ext_size;	
@@ -1234,6 +1240,7 @@ SLIMERROR SLIM_Read_Layer_Info(SLIM_STREAM* file, SLIMLayerInfoDesc* desc){
 		uint16_t _x;
 		uint16_t _y;
 		uint16_t _z;
+		uint8_t	 _mipmaps;
 		uint8_t  _channel;
 		uint8_t  _name_size;
 		uint16_t _ext_size;	

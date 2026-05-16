@@ -388,6 +388,7 @@ bool save_image(const std::string& output, unsigned char* data, int w, int h,  S
                     header.width    = (uint16_t)w;
                     header.height   = (uint16_t)h;
                     header.code     = (uint8_t )chan;
+                    header.layers   = 0x1u;
 
                     SLIMLayerDesc   layer{};
                     layer.width     = (uint16_t)w;

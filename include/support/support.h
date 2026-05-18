@@ -32,8 +32,14 @@ SLIMCODE ChannelToCode(int channels){
     SLIMCODE code = CODE_NONE;
 
     switch (channels) {
-        case 1:
+        case 0:
             code = CODE_NONE;
+            break;
+        case 1:
+            code = CODE_GRAY;
+            break;
+        case 2:
+            code = CODE_GA;
             break;
         case 3:
             code = CODE_RGB;
@@ -57,6 +63,9 @@ int CodeToChannel(SLIMCODE code){
             break;
         case SLIMCODE::CODE_GRAY:
             channels = 1;
+            break;
+        case SLIMCODE::CODE_GA:
+            channels = 2;
             break;
         case SLIMCODE::CODE_RGB:
             channels = 3;

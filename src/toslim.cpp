@@ -385,20 +385,18 @@ bool save_image(const std::string& output, unsigned char* data, int w, int h,  S
                 if(SLIM_STREAM_ISOPEN(infile)) {
 
                     SLIMHeaderDesc  header{};
-                    header.width    = (uint16_t)w;
-                    header.height   = (uint16_t)h;
-                    header.code     = (uint8_t )chan;
                     header.layers   = 0x1u;
 
                     SLIMLayerDesc   layer{};
-                    layer.width     = (uint16_t)w;
-                    layer.height    = (uint16_t)h;
-                    layer.code      = (uint8_t )chan;
-                    layer.quality   = quality;
-                    layer.img       = data;
+                    layer.width         = (uint16_t)w;
+                    layer.height        = (uint16_t)h;
+                    layer.code          = (uint8_t )chan;
+                    layer.gen_mipmaps   = true;
+                    layer.quality       = quality;
+                    layer.img           = data;
                                          
                     SLIM_Write_Header(infile, &header);
-                   SLIM_Write_Layer(infile, &layer);
+                    SLIM_Write_Layer(infile, &layer);
 
                     SLIM_STREAM_CLOSE(infile);
                 }

@@ -74,6 +74,9 @@ extern "C" {
 
 	typedef struct {
 		uint32_t version;
+		uint16_t canvas_width;
+		uint16_t canvas_height;
+		uint8_t  canvas_channel;
 		uint16_t layers;
 
 	} SLIMHeaderDesc;
@@ -477,15 +480,21 @@ SLIMERROR SLIM_Write_Header(SLIM_STREAM* file, const SLIMHeaderDesc* desc) {
 	{
 		uint64_t _magic;
 		uint32_t _version;
+		uint16_t _canvas_width;
+		uint16_t _canvas_height;
+		uint8_t  _canvas_channel;
 		uint16_t _layers;
 	};
 #pragma pack(pop)
 
 	_SLIM_HEADER _slim_h{};
 
-	_slim_h._magic = SLIM_MAGIC;
-	_slim_h._version = SLIM_VERSION;
-	_slim_h._layers = desc->layers;
+	_slim_h._magic 				= SLIM_MAGIC;
+	_slim_h._version 			= SLIM_VERSION;
+	_slim_h._canvas_width 		= desc->canvas_width;
+	_slim_h._canvas_height 		= desc->canvas_height;
+	_slim_h._canvas_channel 	= desc->canvas_channel;
+	_slim_h._layers 			= desc->layers;
 
 	if (!SLIM_STREAM_WRITE(file, &_slim_h, sizeof(_SLIM_HEADER), 1)) { return SLIMERROR::ERROR_BLOCK; }
 
@@ -505,8 +514,10 @@ SLIMERROR SLIM_Read_Header(SLIM_STREAM* file, SLIMHeaderDesc* desc) {
 	{
 		uint64_t _magic;
 		uint32_t _version;
+		uint16_t _canvas_width;
+		uint16_t _canvas_height;
+		uint8_t  _canvas_channel;
 		uint16_t _layers;
-
 	};
 #pragma pack(pop)
 
@@ -517,10 +528,11 @@ SLIMERROR SLIM_Read_Header(SLIM_STREAM* file, SLIMHeaderDesc* desc) {
 	if (_slim_h._magic != SLIM_MAGIC) { return SLIMERROR::ERROR_NOTSUP; }
 	if (_slim_h._version != SLIM_VERSION) { return SLIMERROR::ERROR_NOTSUP; }
 
-
-	desc->version = _slim_h._version;
-	desc->layers = _slim_h._layers;
-
+	desc->version 				= _slim_h._version;
+	desc->canvas_width 			= _slim_h._canvas_width;
+	desc->canvas_height 		= _slim_h._canvas_height;
+	desc->canvas_channel 		= _slim_h._canvas_channel;
+	desc->layers 				= _slim_h._layers;
 
 	return SLIMERROR::ERROR_OK;
 }

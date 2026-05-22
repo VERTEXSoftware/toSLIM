@@ -385,7 +385,10 @@ bool save_image(const std::string& output, unsigned char* data, int w, int h,  S
                 if(SLIM_STREAM_ISOPEN(infile)) {
 
                     SLIMHeaderDesc  header{};
-                    header.layers   = 0x1u;
+                    header.layers           = 0x1u;
+                    header.canvas_width     =(uint16_t)w;
+                    header.canvas_height    =(uint16_t)h;
+                    header.canvas_channel   =(uint8_t )chan;
 
                     SLIMLayerDesc   layer{};
                     layer.width         = (uint16_t)w;

@@ -96,8 +96,7 @@ extern "C" {
 
 
 
-	enum class FilterTexture : uint8_t
-	{
+	typedef enum{
 		Default = 0,
 		Nearest = 1,
 		Linear = 2,
@@ -105,50 +104,47 @@ extern "C" {
 		LinearMipmapNearest = 4,
 		NearestMipmapLinear = 5,
 		LinearMipmapLinear = 6
-	};
+	}FilterTexture;
 
-	enum class WrapTexture : uint8_t
-	{
-		Default = 0,
-		Repeat = 1,
-		MirroredRepeat = 2,
-		ClampToEdge = 3,
-		ClampToBorder = 4,
-		MirrorClampToEdge = 5
-	};
+	typedef enum{
+		WT_Default = 0,
+		WT_Repeat = 1,
+		WT_MirroredRepeat = 2,
+		WT_ClampToEdge = 3,
+		WT_ClampToBorder = 4,
+		WT_MirrorClampToEdge = 5
+	}WrapTexture;
 
-	enum class CompareFuncTexture : uint8_t
-	{
-		Default = 0,
-		Off = 1,
-		Less = 2,
-		Lequal = 3,
-		Greater = 4,
-		Gequal = 5,
-		Equal = 6,
-		NotEqual = 7,
-		Always = 8,
-		Never = 9
-	};
+	typedef enum{
+		CFT_Default = 0,
+		CFT_Off = 1,
+		CFT_Less = 2,
+		CFT_Lequal = 3,
+		CFT_Greater = 4,
+		CFT_Gequal = 5,
+		CFT_Equal = 6,
+		CFT_NotEqual = 7,
+		CFT_Always = 8,
+		CFT_Never = 9
+	} CompareFuncTexture ;
 
 
-	enum class AnisotropyLevel : uint8_t
-	{
-		Default = 0,
-		Off = 1,
-		X2 = 2,
-		X4 = 3,
-		X8 = 4,
-		X16 = 5
-	};
+
+	typedef enum{
+		AL_Default = 0,
+		AL_Off = 1,
+		AL_X2 = 2,
+		AL_X4 = 3,
+		AL_X8 = 4,
+		AL_X16 = 5
+	} AnisotropyLevel ;
 
 
-	enum class MipMapMode : uint8_t
-	{
-		Default = 0,
-		None = 1,
-		Generate = 2
-	};
+	typedef enum{
+		MM_Default = 0,
+		MM_None = 1,
+		MM_Generate = 2
+	} MipMapMode ;
 
 
 

@@ -36,6 +36,28 @@
 #include "./compress/RLE.h"
 #include "./compress/RICE.h"
 
+
+#define VE_DEFAULT
+
+#define VE_REPEAT
+#define VE_CLAMP_TO_EDGE
+#define VE_CLAMP_TO_BORDER
+#define VE_MIRRORED_REPEAT
+
+#define VE_NEAREST
+#define VE_LINEAR
+#define VE_NEAREST_MIPMAP_NEAREST
+#define VE_LINEAR_MIPMAP_NEAREST
+#define VE_NEAREST_MIPMAP_LINEAR
+#define VE_LINEAR_MIPMAP_LINEAR
+
+#define VE_TEXTURE_ANISOTROP_OFF
+#define VE_TEXTURE_ANISOTROP_X2
+#define VE_TEXTURE_ANISOTROP_X4
+#define VE_TEXTURE_ANISOTROP_X8
+#define VE_TEXTURE_ANISOTROP_X16
+
+
 #ifndef SLIM_MALLOC
 #include <stdlib.h>
 #define SLIM_MALLOC(sz) malloc(sz)
@@ -72,6 +94,65 @@ extern "C" {
 	} SLIMCODE;
 
 
+
+
+	enum class FilterTexture : uint8_t
+	{
+		Default = 0,
+		Nearest = 1,
+		Linear = 2,
+		NearestMipmapNearest = 3,
+		LinearMipmapNearest = 4,
+		NearestMipmapLinear = 5,
+		LinearMipmapLinear = 6
+	};
+
+	enum class WrapTexture : uint8_t
+	{
+		Default = 0,
+		Repeat = 1,
+		MirroredRepeat = 2,
+		ClampToEdge = 3,
+		ClampToBorder = 4,
+		MirrorClampToEdge = 5
+	};
+
+	enum class CompareFuncTexture : uint8_t
+	{
+		Default = 0,
+		Off = 1,
+		Less = 2,
+		Lequal = 3,
+		Greater = 4,
+		Gequal = 5,
+		Equal = 6,
+		NotEqual = 7,
+		Always = 8,
+		Never = 9
+	};
+
+
+	enum class AnisotropyLevel : uint8_t
+	{
+		Default = 0,
+		Off = 1,
+		X2 = 2,
+		X4 = 3,
+		X8 = 4,
+		X16 = 5
+	};
+
+
+	enum class MipMapMode : uint8_t
+	{
+		Default = 0,
+		None = 1,
+		Generate = 2
+	};
+
+
+
+
 	typedef struct {
 		uint32_t version;
 		uint16_t canvas_width;
@@ -91,10 +172,22 @@ extern "C" {
 		uint16_t y;
 		uint16_t z;
 
-		uint8_t	 gen_mipmaps;
+		
 		uint8_t  code;
 		uint8_t  forced_code;
 		uint8_t  quality;
+
+
+		//--------engine flags--------
+		uint8_t min_filter;
+    	uint8_t mag_filter;
+    	uint8_t wrap_s;
+    	uint8_t wrap_t;
+    	uint8_t compare_func;
+		uint8_t anisotropy_level;
+		uint8_t gen_mipmap;
+		//----------------------------
+
 
 		uint8_t  name_size;
 		uint16_t ext_size;
@@ -114,7 +207,6 @@ extern "C" {
 
 		uint16_t				width;
 		uint16_t				height;
-		uint8_t					gen_mipmaps;
 		uint8_t					code;
 
 		uint32_t 				block_256_all;
@@ -551,6 +643,7 @@ SLIMERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIMLayerDesc* desc) {
 
 	if (m_Channels < 1 || m_Channels > 4) { return SLIMERROR::ERROR_NOTSUP; }
 
+
 #pragma pack(push, 1)
 	struct _SLIM_LAYER_HEADER
 	{
@@ -560,7 +653,7 @@ SLIMERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIMLayerDesc* desc) {
 		uint16_t _x;
 		uint16_t _y;
 		uint16_t _z;
-		uint8_t	 _mipmaps;
+		uint32_t _flags;
 		uint8_t  _channel;
 		uint8_t  _name_size;
 		uint16_t _ext_size;
@@ -575,7 +668,15 @@ SLIMERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIMLayerDesc* desc) {
 	_slim_lh._x = desc->x;
 	_slim_lh._y = desc->y;
 	_slim_lh._z = desc->z;
-	_slim_lh._mipmaps = desc->gen_mipmaps ? 1 : 0;
+	
+	_slim_lh._flags =   (uint32_t(desc->min_filter)        & 0xF)       |
+						((uint32_t(desc->mag_filter)       & 0xF) << 4) |
+						((uint32_t(desc->wrap_s)           & 0xF) << 8) |
+						((uint32_t(desc->wrap_t)           & 0xF) << 12)|
+						((uint32_t(desc->compare_func)     & 0xF) << 16)|
+						((uint32_t(desc->anisotropy_level) & 0xF) << 20)|
+						((uint32_t(desc->gen_mipmap)       & 0x3) << 24);
+	
 	_slim_lh._channel = m_Channels;
 	_slim_lh._name_size = (desc->name_size > 0 && desc->name != NULL) ? desc->name_size : 0;
 	_slim_lh._ext_size = (desc->ext_size > 0 && desc->ext != NULL) ? desc->ext_size : 0;
@@ -804,7 +905,7 @@ SLIMERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIMLayerDesc* desc) {
 		uint16_t _x;
 		uint16_t _y;
 		uint16_t _z;
-		uint8_t	 _mipmaps;
+		uint32_t _flags;
 		uint8_t  _channel;
 		uint8_t  _name_size;
 		uint16_t _ext_size;
@@ -832,7 +933,15 @@ SLIMERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIMLayerDesc* desc) {
 	desc->x = _slim_lh._x;
 	desc->y = _slim_lh._y;
 	desc->z = _slim_lh._z;
-	desc->gen_mipmaps = (bool)(_slim_lh._mipmaps>0);
+
+    desc->min_filter        = (_slim_lh._flags >> 0)  & 0xF;
+    desc->mag_filter        = (_slim_lh._flags >> 4)  & 0xF;
+    desc->wrap_s            = (_slim_lh._flags >> 8)  & 0xF;
+    desc->wrap_t            = (_slim_lh._flags >> 12) & 0xF;
+    desc->compare_func      = (_slim_lh._flags >> 16) & 0xF;
+    desc->anisotropy_level  = (_slim_lh._flags >> 20) & 0xF;
+    desc->gen_mipmap        = (_slim_lh._flags >> 24) & 0x3;
+
 	desc->code = m_CODE_TO;
 	desc->name_size = _slim_lh._name_size;
 	desc->ext_size = _slim_lh._ext_size;
@@ -1056,7 +1165,7 @@ SLIMERROR SLIM_Read_Layer_Map(SLIM_STREAM* file, SLIMLayerDesc* desc) {
 		uint16_t _x;
 		uint16_t _y;
 		uint16_t _z;
-		uint8_t	 _mipmaps;
+		uint32_t _flags;
 		uint8_t  _channel;
 		uint8_t  _name_size;
 		uint16_t _ext_size;
@@ -1085,7 +1194,14 @@ SLIMERROR SLIM_Read_Layer_Map(SLIM_STREAM* file, SLIMLayerDesc* desc) {
 	desc->code = m_CODE_TO;
 	desc->name_size = _slim_lh._name_size;
 	desc->ext_size = _slim_lh._ext_size;
-	desc->gen_mipmaps = _slim_lh._mipmaps > 0 ? true:false;
+
+	desc->min_filter        = (_slim_lh._flags >> 0)  & 0xF;
+    desc->mag_filter        = (_slim_lh._flags >> 4)  & 0xF;
+    desc->wrap_s            = (_slim_lh._flags >> 8)  & 0xF;
+    desc->wrap_t            = (_slim_lh._flags >> 12) & 0xF;
+    desc->compare_func      = (_slim_lh._flags >> 16) & 0xF;
+    desc->anisotropy_level  = (_slim_lh._flags >> 20) & 0xF;
+    desc->gen_mipmap        = (_slim_lh._flags >> 24) & 0x3;
 
 	desc->img = (uint8_t*)SLIM_MALLOC(_slim_lh._width* _slim_lh._height * m_CHANNELS_TO);
 
@@ -1239,7 +1355,7 @@ SLIMERROR SLIM_Read_Layer_Info(SLIM_STREAM* file, SLIMLayerInfoDesc* desc) {
 		uint16_t _x;
 		uint16_t _y;
 		uint16_t _z;
-		uint8_t	 _mipmaps;
+		uint32_t _flags;
 		uint8_t  _channel;
 		uint8_t  _name_size;
 		uint16_t _ext_size;
@@ -1261,7 +1377,6 @@ SLIMERROR SLIM_Read_Layer_Info(SLIM_STREAM* file, SLIMLayerInfoDesc* desc) {
 	desc->x = _slim_lh._x;
 	desc->y = _slim_lh._y;
 	desc->z = _slim_lh._z;
-	desc->gen_mipmaps = _slim_lh._mipmaps > 0 ? true : false;
 	desc->code = _slim_lh._channel;
 	desc->name_size = _slim_lh._name_size;
 	desc->ext_size = _slim_lh._ext_size;

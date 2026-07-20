@@ -394,7 +394,7 @@ bool save_image(const std::string& output, unsigned char* data, int w, int h,  S
                     layer.width         = (uint16_t)w;
                     layer.height        = (uint16_t)h;
                     layer.code          = (uint8_t )chan;
-                    layer.gen_mipmaps   = true;
+                    layer.gen_mipmap    = (uint8_t )MipMapMode::Generate;
                     layer.quality       = quality;
                     layer.img           = data;
                                          

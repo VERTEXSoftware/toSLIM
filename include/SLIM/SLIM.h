@@ -330,6 +330,9 @@ inline void GEN_CLR_MAP(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t
 
 	uint32_t left = 0x0u;
     uint32_t right = *size;
+	uint32_t p = 0x0u;
+	uint32_t i = right;
+	uint32_t j = i - 1;
 
 	while (left < right) {
         uint32_t mid = left + ((right - left) >> 1);
@@ -347,15 +350,18 @@ inline void GEN_CLR_MAP(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t
         }
     }
 
-	for (uint32_t i = 0; i < pidx; ++i) {
-		if (idx[i] >= left) { ++idx[i]; }
+	while(p < pidx) {
+		if (idx[p] >= left) { ++idx[p]; }
+		++p;
 	}
 
-	for (uint32_t i = *size; i > left; --i) {
-		R[i] = R[i - 1];
-		G[i] = G[i - 1];
-		B[i] = B[i - 1];
-		A[i] = A[i - 1];
+	while (i > left) {
+		R[i] = R[j];
+		G[i] = G[j];
+		B[i] = B[j];
+		A[i] = A[j];
+		--i;
+		--j;
 	}
 
 	R[left] = cR;
@@ -364,7 +370,6 @@ inline void GEN_CLR_MAP(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t
 	A[left] = cA;
 	idx[pidx] = left;
 	++*size;
-
 }
 
 inline uint16_t ENCODE_REVOLVER(bool orig, uint8_t* src, uint8_t* dest, uint32_t size, uint32_t* r_size) {

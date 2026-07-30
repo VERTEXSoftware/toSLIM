@@ -328,11 +328,11 @@ inline void GEN_CLR_MAP(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t
 
 	uint32_t fnd = ((uint32_t)cR << 24u) | ((uint32_t)cG << 16u) | ((uint32_t)cB << 8u) | (uint32_t)cA;
 
-	uint32_t left = 0x0u;
-    uint32_t right = *size;
-	uint32_t p = 0x0u;
-	uint32_t i = right;
-	uint32_t j = i - 1;
+	uint32_t left 	= 0x0u;
+    uint32_t right 	= *size;
+	uint32_t p 		= 0x0u;
+	uint32_t i 		= right;
+	uint32_t j 		= i - 1;
 
 	while (left < right) {
         uint32_t mid = left + ((right - left) >> 1);

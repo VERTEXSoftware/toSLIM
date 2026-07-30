@@ -326,38 +326,43 @@ inline bool IS_ORIG_LINE(uint8_t* a, uint8_t* b, uint32_t count) {
 
 inline void GEN_CLR_MAP(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t* size, uint8_t* idx, uint32_t pidx, uint8_t cR, uint8_t cG, uint8_t cB, uint8_t cA) {
 
-	uint32_t pos = 0x0u;
 	uint32_t fnd = ((uint32_t)cR << 24u) | ((uint32_t)cG << 16u) | ((uint32_t)cB << 8u) | (uint32_t)cA;
 
-	while (pos < *size) {
-		uint32_t cur = ((uint32_t)R[pos] << 24u) | ((uint32_t)G[pos] << 16u) | ((uint32_t)B[pos] << 8u) | (uint32_t)A[pos];
+	uint32_t left = 0x0u;
+    uint32_t right = *size;
 
-		if (cur == fnd) {
-			idx[pidx] = pos;
-			return;
-		}
-		if (cur > fnd) {
-			break;
-		}
-		++pos;
-	}
+	while (left < right) {
+        uint32_t mid = left + ((right - left) >> 1);
+        uint32_t cur = ((uint32_t)R[mid] << 24u) | ((uint32_t)G[mid] << 16u) | ((uint32_t)B[mid] << 8u) | (uint32_t)A[mid];
+        
+        if (cur == fnd) {
+            idx[pidx] = mid;
+            return;
+        }
+        
+        if (cur < fnd) {
+            left = mid + 1;
+        } else {
+            right = mid;
+        }
+    }
 
 	for (uint32_t i = 0; i < pidx; ++i) {
-		if (idx[i] >= pos) { ++idx[i]; }
+		if (idx[i] >= left) { ++idx[i]; }
 	}
 
-	for (uint32_t i = *size; i > pos; --i) {
+	for (uint32_t i = *size; i > left; --i) {
 		R[i] = R[i - 1];
 		G[i] = G[i - 1];
 		B[i] = B[i - 1];
 		A[i] = A[i - 1];
 	}
 
-	R[pos] = cR;
-	G[pos] = cG;
-	B[pos] = cB;
-	A[pos] = cA;
-	idx[pidx] = pos;
+	R[left] = cR;
+	G[left] = cG;
+	B[left] = cB;
+	A[left] = cA;
+	idx[pidx] = left;
 	++*size;
 
 }

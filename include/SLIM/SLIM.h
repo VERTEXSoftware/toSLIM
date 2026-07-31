@@ -309,21 +309,6 @@ inline SLIMCODE CHANNELS_TO_SLIM_CODE(uint8_t channels)
 	return (SLIMCODE)channels;
 }
 
-inline bool IS_ORIG_LINE(uint8_t* a, uint8_t* b, uint32_t count) {
-
-	uint8_t* _a = a;
-	uint8_t* _b = b;
-	uint32_t num = count;
-
-	while (num--) {
-		if (*_a++ != *_b++) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
 inline void GEN_CLR_MAP(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t* size, uint8_t* idx, uint32_t pidx, uint8_t cR, uint8_t cG, uint8_t cB, uint8_t cA) {
 
 	uint32_t fnd = ((uint32_t)cR << 24u) | ((uint32_t)cG << 16u) | ((uint32_t)cB << 8u) | (uint32_t)cA;
@@ -830,21 +815,24 @@ SLIMERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIMLayerDesc* desc) {
 				}
 			}
 
-			const bool ch0_org = IS_ORIG_LINE(m_ch0, l_ch0, CColor);
-			const bool ch1_org = IS_ORIG_LINE(m_ch1, l_ch1, CColor);
-			const bool ch2_org = IS_ORIG_LINE(m_ch2, l_ch2, CColor);
-			const bool ch3_org = IS_ORIG_LINE(m_ch3, l_ch3, CColor);
-			const bool idx_org = IS_ORIG_LINE(m_idx, l_idx, Cout);
+			bool ch0_org = false;
+			bool ch1_org = false;
+			bool ch2_org = false;
+			bool ch3_org = false;
+			bool idx_org = false;
 
-			if (ch0_org || ch1_org || ch2_org || ch3_org) {
+			for (uint32_t i = 0; i < CColor; ++i) {
+				if (m_ch0[i] != l_ch0[i]) { m_ch0[i] = l_ch0[i];ch0_org=true; }
+				if (m_ch1[i] != l_ch1[i]) { m_ch1[i] = l_ch1[i];ch1_org=true; }
+				if (m_ch2[i] != l_ch2[i]) { m_ch2[i] = l_ch2[i];ch2_org=true; }
+				if (m_ch3[i] != l_ch3[i]) { m_ch3[i] = l_ch3[i];ch3_org=true; }
+			}
 
-				for (uint32_t i = 0; i < CColor; ++i) {
-					if (ch0_org) { m_ch0[i] = l_ch0[i]; }
-					if (ch1_org) { m_ch1[i] = l_ch1[i]; }
-					if (ch2_org) { m_ch2[i] = l_ch2[i]; }
-					if (ch3_org) { m_ch3[i] = l_ch3[i]; }
-				}
+			for (uint32_t i = 0; i < Cout; ++i) {
+				if (m_idx[i] != l_idx[i]) { m_idx[i] = l_idx[i];idx_org=true; }
+			}
 
+			if (ch0_org || ch1_org || ch2_org || ch3_org) {	
 				for (uint32_t i = CColor; i < 256; ++i) {
 					if (ch0_org) { m_ch0[i] = 0x0u; }
 					if (ch1_org) { m_ch1[i] = 0x0u; }
@@ -854,9 +842,6 @@ SLIMERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIMLayerDesc* desc) {
 			}
 
 			if (idx_org) {
-				for (uint32_t i = 0; i < Cout; ++i) {
-					m_idx[i] = l_idx[i];
-				}
 				for (uint32_t i = Cout; i < 256; ++i) {
 					m_idx[i] = 0x0u;
 				}

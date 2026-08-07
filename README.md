@@ -17,7 +17,7 @@
 - ✅ Alpha channel and blending modes
 - ✅ Support for 4K and 8K resolution images
 - ✅ Multilayer support
-- ❌ MIP mapping support
+- ❌ MIP mapping support (generation only graphics application side)
 
 ## Usage
 

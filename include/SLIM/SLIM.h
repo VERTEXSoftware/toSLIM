@@ -558,7 +558,7 @@ SLIMERROR SLIM_Write_Header(SLIM_STREAM* file, const SLIMHeaderDesc* desc) {
 	if (!SLIM_STREAM_ISOPEN(file)) { return SLIMERROR::ERROR_FILE; }
 
 
-#pragma pack(push, 1)
+	#pragma pack(push, 1)
 	struct _SLIM_HEADER
 	{
 		uint64_t _magic;
@@ -568,7 +568,7 @@ SLIMERROR SLIM_Write_Header(SLIM_STREAM* file, const SLIMHeaderDesc* desc) {
 		uint8_t  _canvas_channel;
 		uint16_t _layers;
 	};
-#pragma pack(pop)
+	#pragma pack(pop)
 
 	_SLIM_HEADER _slim_h{};
 
@@ -592,7 +592,7 @@ SLIMERROR SLIM_Read_Header(SLIM_STREAM* file, SLIMHeaderDesc* desc) {
 
 	if (!SLIM_STREAM_ISOPEN(file)) { return SLIMERROR::ERROR_FILE; }
 
-#pragma pack(push, 1)
+	#pragma pack(push, 1)
 	struct _SLIM_HEADER
 	{
 		uint64_t _magic;
@@ -602,7 +602,7 @@ SLIMERROR SLIM_Read_Header(SLIM_STREAM* file, SLIMHeaderDesc* desc) {
 		uint8_t  _canvas_channel;
 		uint16_t _layers;
 	};
-#pragma pack(pop)
+	#pragma pack(pop)
 
 	_SLIM_HEADER _slim_h{};
 
@@ -635,7 +635,7 @@ SLIMERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIMLayerDesc* desc) {
 	if (m_Channels < 1 || m_Channels > 4) { return SLIMERROR::ERROR_NOTSUP; }
 
 
-#pragma pack(push, 1)
+	#pragma pack(push, 1)
 	struct _SLIM_LAYER_HEADER
 	{
 		uint16_t _id;
@@ -649,7 +649,7 @@ SLIMERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIMLayerDesc* desc) {
 		uint8_t  _name_size;
 		uint16_t _ext_size;
 	};
-#pragma pack(pop)
+	#pragma pack(pop)
 
 	_SLIM_LAYER_HEADER _slim_lh{};
 
@@ -887,7 +887,7 @@ SLIMERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIMLayerDesc* desc) {
 
 	if (!SLIM_STREAM_ISOPEN(file)) { return SLIMERROR::ERROR_FILE; }
 
-#pragma pack(push, 1)
+	#pragma pack(push, 1)
 	struct _SLIM_LAYER_HEADER
 	{
 		uint16_t _id;
@@ -901,7 +901,7 @@ SLIMERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIMLayerDesc* desc) {
 		uint8_t  _name_size;
 		uint16_t _ext_size;
 	};
-#pragma pack(pop)
+	#pragma pack(pop)
 
 	_SLIM_LAYER_HEADER _slim_lh{};
 
@@ -1147,7 +1147,7 @@ SLIMERROR SLIM_Read_Layer_Map(SLIM_STREAM* file, SLIMLayerDesc* desc) {
 
 	if (!SLIM_STREAM_ISOPEN(file)) { return SLIMERROR::ERROR_FILE; }
 
-#pragma pack(push, 1)
+	#pragma pack(push, 1)
 	struct _SLIM_LAYER_HEADER
 	{
 		uint16_t _id;
@@ -1161,7 +1161,7 @@ SLIMERROR SLIM_Read_Layer_Map(SLIM_STREAM* file, SLIMLayerDesc* desc) {
 		uint8_t  _name_size;
 		uint16_t _ext_size;
 	};
-#pragma pack(pop)
+	#pragma pack(pop)
 
 	_SLIM_LAYER_HEADER _slim_lh{};
 
@@ -1337,7 +1337,7 @@ SLIMERROR SLIM_Read_Layer_Info(SLIM_STREAM* file, SLIMLayerInfoDesc* desc) {
 
 	if (!SLIM_STREAM_ISOPEN(file)) { return SLIMERROR::ERROR_FILE; }
 
-#pragma pack(push, 1)
+	#pragma pack(push, 1)
 	struct _SLIM_LAYER_HEADER
 	{
 		uint16_t _id;
@@ -1351,7 +1351,7 @@ SLIMERROR SLIM_Read_Layer_Info(SLIM_STREAM* file, SLIMLayerInfoDesc* desc) {
 		uint8_t  _name_size;
 		uint16_t _ext_size;
 	};
-#pragma pack(pop)
+	#pragma pack(pop)
 
 	_SLIM_LAYER_HEADER _slim_lh{};
 

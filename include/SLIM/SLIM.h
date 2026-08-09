@@ -104,7 +104,7 @@ extern "C" {
 		LinearMipmapNearest = 4,
 		NearestMipmapLinear = 5,
 		LinearMipmapLinear = 6
-	}FilterTexture;
+	} FilterTexture;
 
 	typedef enum{
 		WT_Default = 0,
@@ -113,7 +113,7 @@ extern "C" {
 		WT_ClampToEdge = 3,
 		WT_ClampToBorder = 4,
 		WT_MirrorClampToEdge = 5
-	}WrapTexture;
+	} WrapTexture;
 
 	typedef enum{
 		CFT_Default = 0,

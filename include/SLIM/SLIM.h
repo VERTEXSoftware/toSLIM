@@ -15,12 +15,11 @@
 
 #define SLIM_VERSION ((SLIM_VERSION_MAJOR << 24) | (SLIM_VERSION_MINOR << 16) | (SLIM_VERSION_BUGFIX << 8) | (SLIM_VERSION_HOTFIX))
 
-#include <cmath>
 #include <cstdio>
 #include <cstdint>
 #include <cstring>
 
-
+//Custom Compression Defines
 #define SLIM_STREAM_IMP
 #define SLEP_SLDD_IMP
 #define SLEP_MASKARED_IMP
@@ -36,28 +35,7 @@
 #include "./compress/RLE.h"
 #include "./compress/RICE.h"
 
-
-#define VE_DEFAULT
-
-#define VE_REPEAT
-#define VE_CLAMP_TO_EDGE
-#define VE_CLAMP_TO_BORDER
-#define VE_MIRRORED_REPEAT
-
-#define VE_NEAREST
-#define VE_LINEAR
-#define VE_NEAREST_MIPMAP_NEAREST
-#define VE_LINEAR_MIPMAP_NEAREST
-#define VE_NEAREST_MIPMAP_LINEAR
-#define VE_LINEAR_MIPMAP_LINEAR
-
-#define VE_TEXTURE_ANISOTROP_OFF
-#define VE_TEXTURE_ANISOTROP_X2
-#define VE_TEXTURE_ANISOTROP_X4
-#define VE_TEXTURE_ANISOTROP_X8
-#define VE_TEXTURE_ANISOTROP_X16
-
-
+//Define MALLOC
 #ifndef SLIM_MALLOC
 #include <stdlib.h>
 #define SLIM_MALLOC(sz) malloc(sz)
@@ -1439,8 +1417,6 @@ SLIMERROR SLIM_Read_Layer_Info(SLIM_STREAM* file, SLIMLayerInfoDesc* desc) {
 			desc->rice_c += (v0 == 3) + (v1 == 3) + (v2 == 3) + (v3 == 3) + (v4 == 3);
 			desc->sldd_c += (v0 == 4) + (v1 == 4) + (v2 == 4) + (v3 == 4) + (v4 == 4);
 			desc->maskared_c += (v0 == 5) + (v1 == 5) + (v2 == 5) + (v3 == 5) + (v4 == 5);
-
-
 
 			if (ch0_org || ch1_org || ch2_org || ch3_org) {
 				if (desc->block_q_max < qnt) { desc->block_q_max = qnt; }

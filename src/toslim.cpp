@@ -8,7 +8,6 @@ const char* BUILD_TIME = __TIME__;
 
 #include <iostream>
 #include <string>
-#include <string>
 #include <filesystem>
 
 #ifndef STB_IMAGE_IMPLEMENTATION

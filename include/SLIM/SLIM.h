@@ -662,10 +662,10 @@ SLIMERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIMLayerDesc* desc) {
 	const uint32_t HEIGHT		= _slim_lh._height;
 	const uint32_t WIDTH		= _slim_lh._width;
 
-	uint8_t m_data[1280u]{}; 	//Old		block memory
-	uint8_t l_data[1280u]{}; 	//Curret	block memory
-	uint8_t m_write[1280u]{}; 	//Curret	block packed
-	uint8_t m_size[5u]{};		//Size 		blocks packed
+	uint8_t m_data	[1280u]{}; 	//Old		block memory
+	uint8_t l_data	[1280u]{}; 	//Curret	block memory
+	uint8_t m_write	[1280u]{}; 	//Curret	block packed
+	uint8_t m_size	[5u]{};		//Size 		blocks packed
 
 	//Pointers old block memory
 	uint8_t* m_ch0 = m_data;
@@ -928,9 +928,9 @@ SLIMERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIMLayerDesc* desc) {
 	const uint32_t HEIGHT 	= _slim_lh._height;
 	const uint32_t WIDTH 	= _slim_lh._width;
 
-	uint8_t m_data[1280u]{};	//Curret	block memory
-	uint8_t m_read[1280u]{};	//Read		block memory
-	uint8_t m_size[5u]{};		//Size 		blocks packed
+	uint8_t m_data	[1280u]{};	//Curret	block memory
+	uint8_t m_read	[1280u]{};	//Read		block memory
+	uint8_t m_size	[5u]{};		//Size 		blocks packed
 
 	uint32_t qnt 		= 0;
 	uint16_t meta_code 	= 0;
@@ -1184,7 +1184,7 @@ SLIMERROR SLIM_Read_Layer_Map(SLIM_STREAM* file, SLIMLayerDesc* desc) {
 	const uint32_t HEIGHT 	= _slim_lh._height;
 	const uint32_t WIDTH 	= _slim_lh._width;
 
-	uint8_t  m_size[5]{};		//Size blocks packed
+	uint8_t  m_size	[5u]{};		//Size blocks packed
 
 	uint8_t  qnt_idx 	= 0;
 	uint16_t meta_code 	= 0;
@@ -1376,9 +1376,9 @@ SLIMERROR SLIM_Read_Layer_Info(SLIM_STREAM* file, SLIMLayerInfoDesc* desc) {
 	const uint32_t HEIGHT 	= _slim_lh._height;
 	const uint32_t WIDTH 	= _slim_lh._width;
 
-	uint8_t m_data[1280]{};	//Curret	block memory
-	uint8_t m_read[1280]{};	//Read		block memory
-	uint8_t m_size[5]{};	//Size 		blocks packed
+	uint8_t m_data	[1280u]{};	//Curret	block memory
+	uint8_t m_read	[1280u]{};	//Read		block memory
+	uint8_t m_size	[5u]{};		//Size 		blocks packed
 
 	uint32_t qnt 		= 0;
 	uint16_t meta_code 	= 0;

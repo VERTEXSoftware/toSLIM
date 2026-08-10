@@ -12,7 +12,7 @@ SLIMCODE ChannelToCode(int channels);
 double calcPSNR(const unsigned char* img1, const unsigned char* img2, int width, int height, int channels);
 double calcPSQNR(const unsigned char* img1, const unsigned char* img2, int width, int height, int channels);
 double calcSSIM(const unsigned char* img1, const unsigned char* img2, int width, int height, int channels);
-void grayToMagma(const unsigned char* grayscale, unsigned char* rgb, int width, int height);
+void grayToInferno(const unsigned char* grayscale, unsigned char* rgb, int width, int height);
 
 std::string formatSize(uint32_t size);
 std::string compressionRatio(size_t originalSize, size_t compressedSize);
@@ -163,26 +163,25 @@ std::string getFilename(const std::string& path) {
 }
 
 
-void grayToMagma(const unsigned char* grayscale, unsigned char* rgb, int width, int height) {
+void grayToInferno(const unsigned char* grayscale, unsigned char* rgb, int width, int height) {
     
     const int total = width * height;
 
-    static const uint8_t magma_lut[8][3] = {
-        {  0,   0,   4 },
-        { 36,   0,  68 },
-        { 80,  18, 100 },
-        { 140,  40, 120 },
-        { 191,  65,  90 },
-        { 220, 100,  60 },
-        { 246, 180,  80 },
-        { 255, 245, 220 }
+    static const uint8_t inferno_lut[8][3] = {
+        {   0,   0,   4 },
+        {  31,  12,  72 },
+        {  85,  15, 109 },
+        { 141,  40, 124 },
+        { 187,  71, 100 },
+        { 218, 109,  64 },
+        { 239, 160,  40 },
+        { 252, 225,  91 }
     };
 
     for (int i = 0; i < total; ++i)
     {
-
         unsigned int idx = grayscale[i];
-        const uint8_t* color = magma_lut[idx];
+        const uint8_t* color = inferno_lut[idx];
 
         rgb[i*3 + 0] = color[0];
         rgb[i*3 + 1] = color[1];

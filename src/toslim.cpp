@@ -177,7 +177,7 @@ void DemoMapSLIMIMG(std::string file){
         SLIM_STREAM_CLOSE(infile);
 
         unsigned char* dataimg = (unsigned char*)SLIM_MALLOC(w * h * 3);
-        grayToMagma(data, dataimg, w, h);
+        grayToInferno(data, dataimg, w, h);
 
         #ifdef ONLY_TERMINAL
         ImageConsoleViewer(dataimg, w, h, SLIMCODE::CODE_RGB);
@@ -512,7 +512,7 @@ void SaveMapToIMG(std::string fileA,std::string fileB){
         if(channels!=SLIMCODE::CODE_GRAY){return;}
 
         unsigned char* dataimg = (unsigned char*)SLIM_Malloc(w * h * 3);
-        grayToMagma(data, dataimg, w, h);
+        grayToInferno(data, dataimg, w, h);
         save_image(fileB, dataimg, w, h,SLIMCODE::CODE_RGB,255);
         SLIM_Free(dataimg);
         SLIM_Free(data);

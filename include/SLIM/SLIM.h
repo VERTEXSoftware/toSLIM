@@ -26,14 +26,14 @@
 #define RLE_IMP
 #define RICE_IMP
 
-//Custom Stream
-#include "./SLIMSTREAM.h"
-
 //Custom Compression
 #include "./compress/SLDD.h"
 #include "./compress/MASKARED.h"
 #include "./compress/RLE.h"
 #include "./compress/RICE.h"
+
+//Custom Stream
+#include "./SLIMSTREAM.h"
 
 //Define MALLOC
 #ifndef SLIM_MALLOC

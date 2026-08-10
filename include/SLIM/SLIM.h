@@ -19,20 +19,18 @@
 #include <cstdint>
 #include <cstring>
 
-//Custom Compression Defines
-#define SLIM_STREAM_IMP
+//Custom Compression
 #define SLEP_SLDD_IMP
 #define SLEP_MASKARED_IMP
 #define RLE_IMP
 #define RICE_IMP
-
-//Custom Compression
 #include "./compress/SLDD.h"
 #include "./compress/MASKARED.h"
 #include "./compress/RLE.h"
 #include "./compress/RICE.h"
 
 //Custom Stream
+#define SLIM_STREAM_IMP
 #include "./SLIMSTREAM.h"
 
 //Define MALLOC

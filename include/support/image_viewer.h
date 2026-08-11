@@ -6,7 +6,7 @@
 #include "SLIM/SLIM.h"
 #include "support/support.h"
 
-SDL_PixelFormatEnum convertSLIMCODEToSDLPixelFormat(SLIMCODE code) {
+SDL_PixelFormatEnum convertSLIMCODEToSDLPixelFormat(SLIM_CODE code) {
     switch (code) {
         case CODE_RGB:  return SDL_PIXELFORMAT_RGB24;
         case CODE_RGBA: return SDL_PIXELFORMAT_RGBA32;
@@ -15,7 +15,7 @@ SDL_PixelFormatEnum convertSLIMCODEToSDLPixelFormat(SLIMCODE code) {
     }
 }
 
-void ImageViewer(const std::string& name, unsigned char* data, int w, int h, SLIMCODE code) {
+void ImageViewer(const std::string& name, unsigned char* data, int w, int h, SLIM_CODE code) {
     
     if (!data || w <= 0 || h <= 0) {
         std::cerr << "Invalid image data\n";

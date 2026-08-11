@@ -26,7 +26,7 @@ const char* BUILD_TIME = __TIME__;
 #include "../external/stb/stb_image_write.h"
 
 
-bool loadotherformat(const std::string& input, unsigned char* &data, int &w, int &h,  SLIMCODE &channels){
+bool loadotherformat(const std::string& input, unsigned char* &data, int &w, int &h,  SLIM_CODE &channels){
     int chan=0;
     data = stbi_load(input.c_str(), &w, &h, &chan, 0);
     channels=ChannelToCode(chan);
@@ -34,7 +34,7 @@ bool loadotherformat(const std::string& input, unsigned char* &data, int &w, int
     return data!=NULL;
 }
 
-bool load_image(const std::string& input, unsigned char* &data, int &w, int &h,  SLIMCODE &channels) {
+bool load_image(const std::string& input, unsigned char* &data, int &w, int &h,  SLIM_CODE &channels) {
     ImageFormat fmt = detect_format(input);
 
 
@@ -53,15 +53,15 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
 
                 if(SLIM_STREAM_ISOPEN(infile)) {
 
-                    SLIMHeaderDesc  header{};
-                    SLIMLayerDesc   layer{};
+                    SLIM_HEADER_DESC  header{};
+                    SLIM_LAYER_DESC   layer{};
 
                     SLIM_Read_Header(infile, &header);
                     SLIM_Read_Layer(infile, &layer);
                     
                     w           = layer.width;
                     h           = layer.height;
-                    channels    = (SLIMCODE)layer.code;
+                    channels    = (SLIM_CODE)layer.code;
                     data        = (unsigned char*)layer.img;
 
 
@@ -135,7 +135,7 @@ void DemoIMG(std::string file){
     unsigned char* data = NULL;
     int w = 0;
     int h = 0;
-    SLIMCODE channels;
+    SLIM_CODE channels;
 
 
     if(load_image(file, data, w, h, channels)){
@@ -160,10 +160,10 @@ void DemoMapSLIMIMG(std::string file){
     SLIM_STREAM* infile = SLIM_STREAM_OPEN(file.c_str(), SLIM_STREAM_MODE::STREAM_MODE_READ);
 
     if(SLIM_STREAM_ISOPEN(infile)) {
-        SLIMHeaderDesc  header{};
-        SLIMLayerDesc   layer{};
+        SLIM_HEADER_DESC  header{};
+        SLIM_LAYER_DESC   layer{};
 
-        layer.forced_code = SLIMCODE::CODE_GRAY;
+        layer.forced_code = SLIM_CODE::CODE_GRAY;
         SLIM_Read_Header(infile, &header);
         SLIM_Read_Layer_Map(infile, &layer);
 
@@ -182,7 +182,7 @@ void DemoMapSLIMIMG(std::string file){
         #ifdef ONLY_TERMINAL
         ImageConsoleViewer(dataimg, w, h, SLIMCODE::CODE_RGB);
         #else
-        ImageViewer(file, dataimg, w, h, SLIMCODE::CODE_RGB);
+        ImageViewer(file, dataimg, w, h, SLIM_CODE::CODE_RGB);
         #endif
 
         SLIM_Free(dataimg);
@@ -268,8 +268,8 @@ void InfoIMG(std::string imagePath){
 
                 if(SLIM_STREAM_ISOPEN(infile)) {
   
-                    SLIMHeaderDesc      header{};
-                    SLIMLayerInfoDesc   layer{};
+                    SLIM_HEADER_DESC        header{};
+                    SLIM_LAYER_INFO_DESC    layer{};
 
                     SLIM_Read_Header(infile, &header);
                     SLIM_Read_Layer_Info(infile, &layer);
@@ -295,23 +295,23 @@ void InfoIMG(std::string imagePath){
 
                     switch (layer.code)
                     {
-                        case SLIMCODE::CODE_GRAY:
+                        case SLIM_CODE::CODE_GRAY:
                             std::cout<<"Gray (1 channels)\n";
                             chanells =1;
                             break;
-                        case SLIMCODE::CODE_RGB:
+                        case SLIM_CODE::CODE_RGB:
                             std::cout<<"RGB (3 channels)\n";
                             chanells =3;
                             break;
-                        case SLIMCODE::CODE_BGR:
+                        case SLIM_CODE::CODE_BGR:
                             std::cout<<"BGR (3 channels)\n";
                             chanells =3;
                             break;
-                        case SLIMCODE::CODE_RGBA:
+                        case SLIM_CODE::CODE_RGBA:
                             std::cout<<"RGBA (4 channels)\n";
                             chanells =4;
                             break;
-                        case SLIMCODE::CODE_BGRA:
+                        case SLIM_CODE::CODE_BGRA:
                             std::cout<<"BGRA (4 channels)\n";
                             chanells =4;
                             break;
@@ -363,7 +363,7 @@ void InfoIMG(std::string imagePath){
 
 
 
-bool save_image(const std::string& output, unsigned char* data, int w, int h,  SLIMCODE chan, uint8_t quality) {
+bool save_image(const std::string& output, unsigned char* data, int w, int h,  SLIM_CODE chan, uint8_t quality) {
 
     ImageFormat fmt = detect_format(output);
 
@@ -383,19 +383,19 @@ bool save_image(const std::string& output, unsigned char* data, int w, int h,  S
 
                 if(SLIM_STREAM_ISOPEN(infile)) {
 
-                    SLIMHeaderDesc  header{};
+                    SLIM_HEADER_DESC        header{};
                     header.layers           = 0x1u;
                     header.canvas_width     =(uint16_t)w;
                     header.canvas_height    =(uint16_t)h;
                     header.canvas_channel   =(uint8_t )chan;
 
-                    SLIMLayerDesc   layer{};
-                    layer.width         = (uint16_t)w;
-                    layer.height        = (uint16_t)h;
-                    layer.code          = (uint8_t )chan;
-                    layer.gen_mipmap    = (uint8_t )MipMapMode::MM_Generate;
-                    layer.quality       = quality;
-                    layer.img           = data;
+                    SLIM_LAYER_DESC         layer{};
+                    layer.width             = (uint16_t)w;
+                    layer.height            = (uint16_t)h;
+                    layer.code              = (uint8_t )chan;
+                    layer.gen_mipmap        = (uint8_t )SLIM_MIPMAP_MODE::MM_GENERATE;
+                    layer.quality           = quality;
+                    layer.img               = data;
                                          
                     SLIM_Write_Header(infile, &header);
                     SLIM_Write_Layer(infile, &layer);
@@ -418,11 +418,11 @@ void AnalizeIMG(std::vector<std::string> files){
 
     int w1=0;
     int h1=0;
-    SLIMCODE c1;
+    SLIM_CODE c1;
 
     int w2=0;
     int h2=0;
-    SLIMCODE c2;
+    SLIM_CODE c2;
 
     unsigned char* img1=NULL;
     unsigned char* img2=NULL;
@@ -474,7 +474,7 @@ void ConvertIMG(std::string fileA,std::string fileB, uint8_t quality){
     unsigned char* data = NULL;
     int w = 0;
     int h = 0;
-    SLIMCODE channels;
+    SLIM_CODE channels;
 
 
     if(load_image(fileA, data, w, h, channels)){
@@ -491,29 +491,29 @@ void SaveMapToIMG(std::string fileA,std::string fileB){
     unsigned char* data = NULL;
     int w = 0;
     int h = 0;
-    SLIMCODE channels;
+    SLIM_CODE channels;
     
     SLIM_STREAM* infile = SLIM_STREAM_OPEN(fileA.c_str(), SLIM_STREAM_MODE::STREAM_MODE_READ);
 
     if(SLIM_STREAM_ISOPEN(infile)) {
-        SLIMHeaderDesc  header{};
-        SLIMLayerDesc   layer{};
+        SLIM_HEADER_DESC  header{};
+        SLIM_LAYER_DESC   layer{};
 
-        layer.forced_code = SLIMCODE::CODE_GRAY;
+        layer.forced_code = SLIM_CODE::CODE_GRAY;
         SLIM_Read_Header(infile, &header);
         SLIM_Read_Layer_Map(infile, &layer);
 
         w           = layer.width;
         h           = layer.height;
-        channels    = SLIMCODE::CODE_GRAY;
+        channels    = SLIM_CODE::CODE_GRAY;
         data        = (unsigned char*)layer.img;
         SLIM_STREAM_CLOSE(infile);
 
-        if(channels!=SLIMCODE::CODE_GRAY){return;}
+        if(channels!=SLIM_CODE::CODE_GRAY){return;}
 
         unsigned char* dataimg = (unsigned char*)SLIM_Malloc(w * h * 3);
         grayToInferno(data, dataimg, w, h);
-        save_image(fileB, dataimg, w, h,SLIMCODE::CODE_RGB,255);
+        save_image(fileB, dataimg, w, h,SLIM_CODE::CODE_RGB,255);
         SLIM_Free(dataimg);
         SLIM_Free(data);
 

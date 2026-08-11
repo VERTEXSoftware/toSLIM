@@ -7,7 +7,8 @@
 #include <vector>
 #include <algorithm>
 
-SLIMCODE ChannelToCode(int channels);
+SLIM_CODE ChannelToCode(int channels);
+int CodeToChannel(SLIM_CODE code);
 
 double calcPSNR(const unsigned char* img1, const unsigned char* img2, int width, int height, int channels);
 double calcPSQNR(const unsigned char* img1, const unsigned char* img2, int width, int height, int channels);
@@ -27,9 +28,9 @@ static std::string getFileExtension(const std::string& filename) {
 }
 
 
-SLIMCODE ChannelToCode(int channels){
+SLIM_CODE ChannelToCode(int channels){
 
-    SLIMCODE code = CODE_NONE;
+    SLIM_CODE code = CODE_NONE;
 
     switch (channels) {
         case 0:
@@ -54,35 +55,35 @@ SLIMCODE ChannelToCode(int channels){
     return code;
 }
 
-int CodeToChannel(SLIMCODE code){
+int CodeToChannel(SLIM_CODE code){
     int channels = 0;
 
     switch (code) {
-        case SLIMCODE::CODE_NONE:
+        case SLIM_CODE::CODE_NONE:
             channels = 0;
             break;
-        case SLIMCODE::CODE_GRAY:
+        case SLIM_CODE::CODE_GRAY:
             channels = 1;
             break;
-        case SLIMCODE::CODE_GA:
+        case SLIM_CODE::CODE_GA:
             channels = 2;
             break;
-        case SLIMCODE::CODE_RGB:
+        case SLIM_CODE::CODE_RGB:
             channels = 3;
             break;
-        case SLIMCODE::CODE_BGR:
+        case SLIM_CODE::CODE_BGR:
             channels = 3;
             break;
-        case SLIMCODE::CODE_RGBA:
+        case SLIM_CODE::CODE_RGBA:
             channels = 4;
             break;
-        case SLIMCODE::CODE_BGRA:
+        case SLIM_CODE::CODE_BGRA:
             channels = 4;
             break;
-        case SLIMCODE::CODE_ARGB:
+        case SLIM_CODE::CODE_ARGB:
             channels = 4;
             break;
-        case SLIMCODE::CODE_ABGR:
+        case SLIM_CODE::CODE_ABGR:
             channels = 4;
             break;
         default:

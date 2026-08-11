@@ -69,9 +69,6 @@ extern "C" {
 		CODE_ABGR = 0x34u
 	} SLIMCODE;
 
-
-
-
 	typedef enum{
 		Default = 0,
 		Nearest = 1,
@@ -104,8 +101,6 @@ extern "C" {
 		CFT_Never = 9
 	} CompareFuncTexture ;
 
-
-
 	typedef enum{
 		AL_Default = 0,
 		AL_Off = 1,
@@ -115,14 +110,11 @@ extern "C" {
 		AL_X16 = 5
 	} AnisotropyLevel ;
 
-
 	typedef enum{
 		MM_Default = 0,
 		MM_None = 1,
 		MM_Generate = 2
 	} MipMapMode ;
-
-
 
 
 	typedef struct {
@@ -435,19 +427,19 @@ inline uint32_t BLOCK_ANALYZER(const uint8_t level, const uint8_t* img, const ui
 	{
 		for (uint32_t x = 0; x < 16; ++x)
 		{
-			uint32_t row = blocksY + y;
-			uint32_t column = blocksX + x;
+			const uint32_t row 		= blocksY + y;
+			const uint32_t column 	= blocksX + x;
 
 			if (column >= m_WIDTH || row >= m_HEIGHT) { continue; }
 
-			uint32_t idx = channels * (row * m_WIDTH + column);
+			const uint32_t idx = channels * (row * m_WIDTH + column);
 
 			uint8_t r = channels > 0 ? img[idx] : 0;
 			uint8_t g = channels > 1 ? img[idx + 1] : 0;
 			uint8_t b = channels > 2 ? img[idx + 2] : 0;
 			uint8_t a = channels > 3 ? img[idx + 3] : 0;
 
-			uint32_t color = (r << 24) | (g << 16) | (b << 8) | a;
+			const uint32_t color = (r << 24) | (g << 16) | (b << 8) | a;
 			bool found = false;
 
 			for (uint32_t i = 0; i < colorCount; ++i)
@@ -459,22 +451,22 @@ inline uint32_t BLOCK_ANALYZER(const uint8_t level, const uint8_t* img, const ui
 		}
 	}
 
-	uint32_t levelq = colorCount * 0.0274509803;  // (7 / 255)
-
-	uint32_t count = 0;
-	double sumDiff = 0;
-	const double realLevelq = (levelq == 0 ? 1.0 : (1.0 / (((double)levelq) * 2.0)));
+	const uint32_t 	levelq 		= colorCount * 0.0274509803;  // (7 / 255)
+	const double 	realLevelq 	= (levelq == 0 ? 1.0 : (1.0 / (((double)levelq) * 2.0)));
 
 	//--------------------------------------------------------------//
 	//PSNR Analysis
 	//--------------------------------------------------------------//
 
+	uint32_t count = 0;
+	double sumDiff = 0;
+
 	for (uint32_t y = 0; y < 16; ++y)
 	{
 		for (uint32_t x = 0; x < 16; ++x)
 		{
-			uint32_t column = blocksX + x;
-			uint32_t row = blocksY + y;
+			const uint32_t column 	= blocksX + x;
+			const uint32_t row 		= blocksY + y;
 
 			if (column >= m_WIDTH || row >= m_HEIGHT) { continue; }
 
@@ -694,8 +686,8 @@ SLIMERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIMLayerDesc* desc) {
 			{
 				for (uint32_t x = 0; x < 16; ++x)
 				{
-					const uint32_t column = blcX + x;
-					const uint32_t row = blcY + y;
+					const uint32_t column 	= blcX + x;
+					const uint32_t row 		= blcY + y;
 
 					if (column >= WIDTH || row >= HEIGHT) { continue; }
 

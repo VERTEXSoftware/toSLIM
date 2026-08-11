@@ -280,7 +280,7 @@ inline SLIM_CODE CHANNELS_TO_SLIM_CODE(uint8_t channels)
 
 inline void GEN_CLR_MAP(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t* size, uint8_t* idx, uint32_t pidx, uint8_t cR, uint8_t cG, uint8_t cB, uint8_t cA) {
 
-	uint32_t fnd = ((uint32_t)cR << 24u) | ((uint32_t)cG << 16u) | ((uint32_t)cB << 8u) | (uint32_t)cA;
+	const uint32_t fnd 	= ((uint32_t)cR << 24u) | ((uint32_t)cG << 16u) | ((uint32_t)cB << 8u) | (uint32_t)cA;
 
 	uint32_t left 	= 0x0u;
     uint32_t right 	= *size;
@@ -289,8 +289,8 @@ inline void GEN_CLR_MAP(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t
 	uint32_t j 		= i - 1;
 
 	while (left < right) {
-        uint32_t mid = left + ((right - left) >> 1);
-        uint32_t cur = ((uint32_t)R[mid] << 24u) | ((uint32_t)G[mid] << 16u) | ((uint32_t)B[mid] << 8u) | (uint32_t)A[mid];
+        const uint32_t mid = left + ((right - left) >> 1);
+        const uint32_t cur = ((uint32_t)R[mid] << 24u) | ((uint32_t)G[mid] << 16u) | ((uint32_t)B[mid] << 8u) | (uint32_t)A[mid];
         
         if (cur == fnd) {
             idx[pidx] = mid;
@@ -379,38 +379,38 @@ inline void  DECODE_REVOLVER(uint16_t mode, uint8_t* src, uint8_t* dest, uint32_
 
 	switch (mode)
 	{
-	case 1:
-	{
-		uint8_t* d = dest;
-		uint8_t* s = src;
-		uint8_t* e = s + size;
-		while (s < e) { *d++ = *s++; }
-		break;
-	}
-	case 2:
-	{
-		RLE_DECODE(src, size, dest, &r_size);
-		break;
-	}
-	case 3:
-	{
-		RICE_DECODE(src, size, dest, r_size);
-		break;
-	}
-	case 4:
-	{
-		SLDD_DECODE(src, size, dest, r_size);
-		break;
-	}
-	case 5:
-	{
-		MASKARED_DECODE(src, size, dest, r_size);
-		break;
-	}
-	default:
-	{
-		return;
-	}
+		case 1:
+		{
+			uint8_t* d = dest;
+			uint8_t* s = src;
+			uint8_t* e = s + size;
+			while (s < e) { *d++ = *s++; }
+			break;
+		}
+		case 2:
+		{
+			RLE_DECODE(src, size, dest, &r_size);
+			break;
+		}
+		case 3:
+		{
+			RICE_DECODE(src, size, dest, r_size);
+			break;
+		}
+		case 4:
+		{
+			SLDD_DECODE(src, size, dest, r_size);
+			break;
+		}
+		case 5:
+		{
+			MASKARED_DECODE(src, size, dest, r_size);
+			break;
+		}
+		default:
+		{
+			return;
+		}
 	}
 }
 
@@ -433,14 +433,13 @@ inline uint32_t BLOCK_ANALYZER(const uint8_t level, const uint8_t* img, const ui
 
 			if (column >= m_WIDTH || row >= m_HEIGHT) { continue; }
 
-			const uint32_t idx = channels * (row * m_WIDTH + column);
+			const uint32_t index 	= channels * (row * m_WIDTH + column);
+			const uint8_t r 		= channels > 0 ? img[index] : 0;
+			const uint8_t g 		= channels > 1 ? img[index + 1] : 0;
+			const uint8_t b 		= channels > 2 ? img[index + 2] : 0;
+			const uint8_t a 		= channels > 3 ? img[index + 3] : 0;
+			const uint32_t color 	= (r << 24) | (g << 16) | (b << 8) | a;
 
-			uint8_t r = channels > 0 ? img[idx] : 0;
-			uint8_t g = channels > 1 ? img[idx + 1] : 0;
-			uint8_t b = channels > 2 ? img[idx + 2] : 0;
-			uint8_t a = channels > 3 ? img[idx + 3] : 0;
-
-			const uint32_t color = (r << 24) | (g << 16) | (b << 8) | a;
 			bool found = false;
 
 			for (uint32_t i = 0; i < colorCount; ++i)
@@ -471,26 +470,26 @@ inline uint32_t BLOCK_ANALYZER(const uint8_t level, const uint8_t* img, const ui
 
 			if (column >= m_WIDTH || row >= m_HEIGHT) { continue; }
 
-			uint32_t idx = channels * (row * m_WIDTH + column);
+			const uint32_t index	= channels * (row * m_WIDTH + column);
 
 			if (channels > 0) {
-				double c = (double)img[idx];
-				double d = c - (c * realLevelq);
+				const double c = (double)img[index];
+				const double d = c - (c * realLevelq);
 				sumDiff += d * d;
 			}
 			if (channels > 1) {
-				double c = (double)img[idx + 1];
-				double d = c - (c * realLevelq);
+				const double c = (double)img[index + 1];
+				const double d = c - (c * realLevelq);
 				sumDiff += d * d;
 			}
 			if (channels > 2) {
-				double c = (double)img[idx + 2];
-				double d = c - (c * realLevelq);
+				const double c = (double)img[index + 2];
+				const double d = c - (c * realLevelq);
 				sumDiff += d * d;
 			}
 			if (channels > 3) {
-				double c = (double)img[idx + 3];
-				double d = c - (c * realLevelq);
+				const double c = (double)img[index + 3];
+				const double d = c - (c * realLevelq);
 				sumDiff += d * d;
 			}
 			count += channels;
@@ -525,7 +524,6 @@ SLIM_ERROR SLIM_Write_Header(SLIM_STREAM* file, const SLIM_HEADER_DESC* desc) {
 	if (desc == NULL) 				{ return SLIM_ERROR::ERROR_ARG; }
 
 	if (!SLIM_STREAM_ISOPEN(file)) 	{ return SLIM_ERROR::ERROR_FILE; }
-
 
 	#pragma pack(push, 1)
 	struct _SLIM_HEADER
@@ -577,7 +575,7 @@ SLIM_ERROR SLIM_Read_Header(SLIM_STREAM* file, SLIM_HEADER_DESC* desc) {
 
 	if (!SLIM_STREAM_READ(file, &_slim_h, sizeof(_SLIM_HEADER), 1)) { return SLIM_ERROR::ERROR_END; }
 
-	if (_slim_h._magic != SLIM_MAGIC) 								{ return SLIM_ERROR::ERROR_NOTSUP; }
+	if (_slim_h._magic 	!= SLIM_MAGIC) 								{ return SLIM_ERROR::ERROR_NOTSUP; }
 	if (_slim_h._version != SLIM_VERSION) 							{ return SLIM_ERROR::ERROR_NOTSUP; }
 
 	desc->version 				= _slim_h._version;
@@ -602,7 +600,6 @@ SLIM_ERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIM_LAYER_DESC* desc) {
 	const uint8_t m_Channels = SLIM_CODE_TO_CHANNELS((SLIM_CODE)desc->code);
 
 	if (m_Channels < 1 || m_Channels > 4) 		{ return SLIM_ERROR::ERROR_NOTSUP; }
-
 
 	#pragma pack(push, 1)
 	struct _SLIM_LAYER_HEADER

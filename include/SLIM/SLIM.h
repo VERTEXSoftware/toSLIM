@@ -45,75 +45,75 @@ extern "C" {
 #endif
 
 	typedef enum {
-		ERROR_OK = 0x00u,
-		ERROR_FILE = 0x01u,
-		ERROR_BLOCK = 0x02u,
-		ERROR_DATA = 0x03u,
-		ERROR_END = 0x04u,
-		ERROR_NOTSUP = 0x05u,
-		ERROR_NONE = 0x06u,
-		ERROR_MEM = 0x07u,
-		ERROR_ARG = 0x08u,
-		ERROR_COLORSPACE = 0x09u
+		ERROR_OK 				= 0x00u,
+		ERROR_FILE 				= 0x01u,
+		ERROR_BLOCK 			= 0x02u,
+		ERROR_DATA 				= 0x03u,
+		ERROR_END 				= 0x04u,
+		ERROR_NOTSUP 			= 0x05u,
+		ERROR_NONE 				= 0x06u,
+		ERROR_MEM 				= 0x07u,
+		ERROR_ARG 				= 0x08u,
+		ERROR_COLORSPACE 		= 0x09u
 	} SLIMERROR;
 
 	typedef enum {
-		CODE_NONE = 0x00u,
-		CODE_GRAY = 0x01u,
-		CODE_GA = 0x12u,
-		CODE_RGB = 0x03u,
-		CODE_BGR = 0x13u,
-		CODE_RGBA = 0x04u,
-		CODE_BGRA = 0x14u,
-		CODE_ARGB = 0x24u,
-		CODE_ABGR = 0x34u
+		CODE_NONE 				= 0x00u,
+		CODE_GRAY 				= 0x01u,
+		CODE_GA 				= 0x12u,
+		CODE_RGB 				= 0x03u,
+		CODE_BGR 				= 0x13u,
+		CODE_RGBA 				= 0x04u,
+		CODE_BGRA 				= 0x14u,
+		CODE_ARGB 				= 0x24u,
+		CODE_ABGR 				= 0x34u
 	} SLIMCODE;
 
 	typedef enum{
-		Default = 0,
-		Nearest = 1,
-		Linear = 2,
-		NearestMipmapNearest = 3,
-		LinearMipmapNearest = 4,
-		NearestMipmapLinear = 5,
-		LinearMipmapLinear = 6
+		Default 				= 0x00u,
+		Nearest 				= 0x01u,
+		Linear 					= 0x02u,
+		NearestMipmapNearest 	= 0x03u,
+		LinearMipmapNearest 	= 0x04u,
+		NearestMipmapLinear 	= 0x05u,
+		LinearMipmapLinear 		= 0x06u
 	} FilterTexture;
 
 	typedef enum{
-		WT_Default = 0,
-		WT_Repeat = 1,
-		WT_MirroredRepeat = 2,
-		WT_ClampToEdge = 3,
-		WT_ClampToBorder = 4,
-		WT_MirrorClampToEdge = 5
+		WT_Default 				= 0x00u,
+		WT_Repeat 				= 0x01u,
+		WT_MirroredRepeat 		= 0x02u,
+		WT_ClampToEdge 			= 0x03u,
+		WT_ClampToBorder 		= 0x04u,
+		WT_MirrorClampToEdge 	= 0x05u
 	} WrapTexture;
 
 	typedef enum{
-		CFT_Default = 0,
-		CFT_Off = 1,
-		CFT_Less = 2,
-		CFT_Lequal = 3,
-		CFT_Greater = 4,
-		CFT_Gequal = 5,
-		CFT_Equal = 6,
-		CFT_NotEqual = 7,
-		CFT_Always = 8,
-		CFT_Never = 9
+		CFT_Default 			= 0x00u,
+		CFT_Off 				= 0x01u,
+		CFT_Less 				= 0x02u,
+		CFT_Lequal 				= 0x03u,
+		CFT_Greater 			= 0x04u,
+		CFT_Gequal 				= 0x05u,
+		CFT_Equal 				= 0x06u,
+		CFT_NotEqual 			= 0x07u,
+		CFT_Always 				= 0x08u,
+		CFT_Never 				= 0x09u
 	} CompareFuncTexture;
 
 	typedef enum{
-		AL_Default = 0,
-		AL_Off = 1,
-		AL_X2 = 2,
-		AL_X4 = 3,
-		AL_X8 = 4,
-		AL_X16 = 5
+		AL_Default 				= 0x00u,
+		AL_Off 					= 0x01u,
+		AL_X2 					= 0x02u,
+		AL_X4 					= 0x03u,
+		AL_X8 					= 0x04u,
+		AL_X16 					= 0x05u
 	} AnisotropyLevel;
 
 	typedef enum{
-		MM_Default = 0,
-		MM_None = 1,
-		MM_Generate = 2
+		MM_Default 				= 0x00u,
+		MM_None 				= 0x01u,
+		MM_Generate 			= 0x02u
 	} MipMapMode;
 
 

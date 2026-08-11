@@ -99,7 +99,7 @@ extern "C" {
 		CFT_NotEqual = 7,
 		CFT_Always = 8,
 		CFT_Never = 9
-	} CompareFuncTexture ;
+	} CompareFuncTexture;
 
 	typedef enum{
 		AL_Default = 0,
@@ -108,13 +108,13 @@ extern "C" {
 		AL_X4 = 3,
 		AL_X8 = 4,
 		AL_X16 = 5
-	} AnisotropyLevel ;
+	} AnisotropyLevel;
 
 	typedef enum{
 		MM_Default = 0,
 		MM_None = 1,
 		MM_Generate = 2
-	} MipMapMode ;
+	} MipMapMode;
 
 
 	typedef struct {

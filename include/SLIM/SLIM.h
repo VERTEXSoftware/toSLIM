@@ -581,7 +581,7 @@ inline uint16_t ENCODE_REVOLVER(bool orig, uint8_t* src, uint8_t* dest, uint32_t
 	//Encode by the revolver method
 	//--------------------------------------------------------------//
 
-	if (size <= 0) { return 0; }
+	if (size == 0) { return 0; }
 	if (orig == false) { return 0; }
 
 	uint8_t t_rle[1024u]{};
@@ -621,7 +621,7 @@ inline void  DECODE_REVOLVER(uint16_t mode, uint8_t* src, uint8_t* dest, uint32_
 	//Decode by the revolver method
 	//--------------------------------------------------------------//
 
-	if (size <= 0) { return; }
+	if (size == 0) { return; }
 	if (mode == 0) { return; }
 
 	uint32_t r_size = 256;

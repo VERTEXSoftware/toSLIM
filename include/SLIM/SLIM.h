@@ -60,7 +60,7 @@ extern "C" {
 	typedef enum {
 		CODE_NONE 					= 0x00u,
 		CODE_GRAY 					= 0x01u,
-		CODE_GA 					= 0x12u,
+		CODE_GA 					= 0x02u,
 		CODE_RGB 					= 0x03u,
 		CODE_BGR 					= 0x13u,
 		CODE_RGBA 					= 0x04u,
@@ -507,26 +507,6 @@ SLIM_ERROR SLIM_Free_Layer_Info(SLIM_LAYER_INFO_DESC* desc) {
 	return SLIM_ERROR::ERROR_OK;
 }
 
-inline uint8_t SLIM_CODE_TO_CHANNELS(SLIM_CODE code)
-{
-	uint8_t channels = code & 0x0F;
-
-	if (channels < 1 || channels > 4) { return 0; }
-
-	return channels;
-}
-
-inline uint8_t SLIM_CODE_TO_ORDER(SLIM_CODE code)
-{
-	return (code >> 4) & 0x0F;
-}
-
-inline SLIM_CODE CHANNELS_TO_SLIM_CODE(uint8_t channels)
-{
-	if (channels < 1 || channels > 4) { return SLIM_CODE::CODE_NONE; }
-	return (SLIM_CODE)channels;
-}
-
 inline void GEN_CLR_MAP(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t* size, uint8_t* idx, uint32_t pidx, uint8_t cR, uint8_t cG, uint8_t cB, uint8_t cA) {
 
 	const uint32_t fnd 	= ((uint32_t)cR << 24u) | ((uint32_t)cG << 16u) | ((uint32_t)cB << 8u) | (uint32_t)cA;
@@ -845,7 +825,7 @@ SLIM_ERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIM_LAYER_DESC* desc) {
 
 	if (!SLIM_STREAM_ISOPEN(file)) 				{ return SLIM_ERROR::ERROR_FILE; }
 
-	const uint8_t m_Channels = SLIM_CODE_TO_CHANNELS((SLIM_CODE)desc->code);
+	const uint8_t m_Channels = desc->code & 0x0F;
 
 	if (m_Channels < 1 || m_Channels > 4) 		{ return SLIM_ERROR::ERROR_NOTSUP; }
 
@@ -1126,8 +1106,8 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 
 	const uint8_t m_CODE_TO = (desc->forced_code == 0 || desc->forced_code == _slim_lh._channel) ? _slim_lh._channel : desc->forced_code;
 
-	const uint8_t  m_CHANNELS 		= SLIM_CODE_TO_CHANNELS((SLIM_CODE)_slim_lh._channel);
-	const uint8_t  m_CHANNELS_TO 	= SLIM_CODE_TO_CHANNELS((SLIM_CODE)m_CODE_TO);
+	const uint8_t  m_CHANNELS 		= _slim_lh._channel & 0x0F;
+	const uint8_t  m_CHANNELS_TO 	= m_CODE_TO  & 0x0F;
 
 	if (m_CHANNELS < 1 || m_CHANNELS > 4) 			{ return SLIM_ERROR::ERROR_BLOCK; }
 	if (m_CHANNELS_TO < 1 || m_CHANNELS_TO > 4) 	{ return SLIM_ERROR::ERROR_BLOCK; }
@@ -1382,7 +1362,7 @@ SLIM_ERROR SLIM_Read_Layer_Map(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 	if (_slim_lh._channel == 0 || _slim_lh._channel > 4) 					{ return SLIM_ERROR::ERROR_BLOCK; }
 
 	const uint8_t m_CODE_TO 	= (desc->forced_code == 0 || desc->forced_code == _slim_lh._channel) ? _slim_lh._channel : desc->forced_code;
-	const uint8_t m_CHANNELS_TO = SLIM_CODE_TO_CHANNELS((SLIM_CODE)m_CODE_TO);
+	const uint8_t m_CHANNELS_TO = m_CODE_TO & 0x0F;
 
 	if (m_CHANNELS_TO < 1 || m_CHANNELS_TO > 4) { return SLIM_ERROR::ERROR_BLOCK; }
 

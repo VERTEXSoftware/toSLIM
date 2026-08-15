@@ -1054,8 +1054,6 @@ SLIM_ERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIM_LAYER_DESC* desc) {
 			const uint16_t v4 = ENCODE_REVOLVER(idx_org, l_idx, m_write + ch0_c + ch1_c + ch2_c + ch3_c, Cout, &idx_c);
 			const uint16_t meta_code = uint16_t(((v0 * 1296u + v1 * 216u + v2 * 36u + v3 * 6u + v4) << 3u) | (qnt_idx & 0x07u));
 
-			if (!SLIM_STREAM_WRITE(file, &meta_code, sizeof(uint16_t), 1)) { return SLIM_ERROR::ERROR_BLOCK; }
-
 			uint8_t cm_size = 0x0u;
 
 			if (ch0_org) { m_size[cm_size++] = uint8_t(ch0_c - 0x1u); }
@@ -1064,8 +1062,9 @@ SLIM_ERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIM_LAYER_DESC* desc) {
 			if (ch3_org) { m_size[cm_size++] = uint8_t(ch3_c - 0x1u); }
 			if (idx_org) { m_size[cm_size++] = uint8_t(idx_c - 0x1u); }
 
-			if (!SLIM_STREAM_WRITE(file, m_size, sizeof(uint8_t), cm_size)) { return SLIM_ERROR::ERROR_BLOCK; }
-			if (!SLIM_STREAM_WRITE(file, m_write, sizeof(uint8_t), ch0_c + ch1_c + ch2_c + ch3_c + idx_c)) { return SLIM_ERROR::ERROR_BLOCK; }
+			if (!SLIM_STREAM_WRITE(file, &meta_code, sizeof(uint16_t), 1)) 									{ return SLIM_ERROR::ERROR_BLOCK; }
+			if (!SLIM_STREAM_WRITE(file, m_size, sizeof(uint8_t), cm_size)) 								{ return SLIM_ERROR::ERROR_BLOCK; }
+			if (!SLIM_STREAM_WRITE(file, m_write, sizeof(uint8_t), ch0_c + ch1_c + ch2_c + ch3_c + idx_c)) 	{ return SLIM_ERROR::ERROR_BLOCK; }
 		}
 	}
 
@@ -1152,6 +1151,7 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 
 	uint32_t qnt 		= 0;
 	uint16_t meta_code 	= 0;
+	double   level_qnt 	= 0;
 
 	for (uint32_t blcY = 0; blcY < HEIGHT; blcY += 16)
 	{
@@ -1161,6 +1161,7 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 			if (!SLIM_STREAM_READ(file, &meta_code, sizeof(uint16_t), 1)) { return SLIM_ERROR::ERROR_END; }
 
 			qnt 		= uint32_t((meta_code & 0x07u) << 1);
+			level_qnt 	= 0.8673689 + 0.3571519 * ((double)qnt);
 			meta_code >>= 0x03u;
 
 			const uint16_t packed 	= SLIM_META_CODE_LUT[meta_code];
@@ -1247,11 +1248,10 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 					}
 
 					if (qnt > 0) {
-						const double   level 	= 0.8673689 + 0.3571519 * ((double)qnt);
-						const uint32_t tchn0 	= (uint32_t)(cR * qnt + level);
-						const uint32_t tchn1 	= (uint32_t)(cG * qnt + level);
-						const uint32_t tchn2 	= (uint32_t)(cB * qnt + level);
-						const uint32_t tchn3 	= (uint32_t)(cA * qnt + level);
+						const uint32_t tchn0 	= (uint32_t)(cR * qnt + level_qnt);
+						const uint32_t tchn1 	= (uint32_t)(cG * qnt + level_qnt);
+						const uint32_t tchn2 	= (uint32_t)(cB * qnt + level_qnt);
+						const uint32_t tchn3 	= (uint32_t)(cA * qnt + level_qnt);
 
 						cR = (uint8_t)(tchn0 > 255 ? 255 : tchn0);
 						cG = (uint8_t)(tchn1 > 255 ? 255 : tchn1);

@@ -17,7 +17,7 @@
     #include <unistd.h>
 #endif
 
-void ImageConsoleViewer(unsigned char* data, int w, int h, SLIMCODE code) {
+void ImageConsoleViewer(unsigned char* data, int w, int h, SLIM_CODE code) {
     std::ios_base::sync_with_stdio(false);
     std::cout.tie(nullptr);
 

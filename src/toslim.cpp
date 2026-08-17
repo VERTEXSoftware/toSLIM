@@ -182,7 +182,7 @@ void DemoMapSLIMIMG(std::string file){
         #ifdef ONLY_TERMINAL
         ImageConsoleViewer(dataimg, w, h, SLIMCODE::CODE_RGB);
         #else
-        ImageViewer(file, dataimg, w, h, SLIM_CODE::CODE_RGB);
+        ImageViewer(file, dataimg, w, h, SLIM_CODE::CODE_RGB,false);
         #endif
 
         SLIM_Free(dataimg);

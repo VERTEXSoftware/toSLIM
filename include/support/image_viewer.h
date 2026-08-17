@@ -15,7 +15,7 @@ SDL_PixelFormatEnum convertSLIMCODEToSDLPixelFormat(SLIM_CODE code) {
     }
 }
 
-void ImageViewer(const std::string& name, unsigned char* data, int w, int h, SLIM_CODE code) {
+void ImageViewer(const std::string& name, unsigned char* data, int w, int h, SLIM_CODE code,bool smoothing = true) {
     
     if (!data || w <= 0 || h <= 0) {
         std::cerr << "Invalid image data\n";
@@ -30,7 +30,9 @@ void ImageViewer(const std::string& name, unsigned char* data, int w, int h, SLI
         return;
     }
 
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
+    if(smoothing==true){
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
+    }
 
     const std::string& namef = getFilename(name);
 
@@ -69,7 +71,10 @@ void ImageViewer(const std::string& name, unsigned char* data, int w, int h, SLI
         w, h
     );
 
-    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    if(smoothing==true){
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    }
+
     SDL_UpdateTexture(texture, nullptr, data, w * ch);
 
     float zoom = 1.0f;

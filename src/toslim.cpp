@@ -515,7 +515,6 @@ void SaveMapToIMG(std::string fileA,std::string fileB){
         grayToInferno(data, dataimg, w, h);
         save_image(fileB, dataimg, w, h,SLIM_CODE::CODE_RGB,255);
         SLIM_Free(dataimg);
-        SLIM_Free(data);
 
         SLIM_Free(layer.name);
         SLIM_Free(layer.ext);

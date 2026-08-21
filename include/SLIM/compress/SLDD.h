@@ -136,9 +136,11 @@ SLDD_RESULT SLDD_ENCODE(uint8_t* buffer, uint32_t size, uint8_t* buffercomp, uin
 		}
 	}
 	//Tails remover
-	while (*sizecomp > 1 && buffercomp[*sizecomp - 1] == 0) {
-		--*sizecomp;
-	}
+	uint32_t pos_tail = *sizecomp;
+    while (pos_tail > 1 && buffercomp[pos_tail - 1] == 0) {
+        --pos_tail;
+    }
+    *sizecomp = pos_tail;
 
     return SLDD_RESULT::SLDD_OK;
 }

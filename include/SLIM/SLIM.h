@@ -1470,7 +1470,7 @@ SLIM_ERROR SLIM_Read_Layer_MapIDX(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 					if (column >= WIDTH || row >= HEIGHT) { continue; }
 
 					const uint32_t index 	= m_CHANNELS_TO * (row * WIDTH + column);
-					const uint8_t idxclr 	= (uint32_t)m_data[1024u + Cout];
+					const uint8_t idxclr 	= m_data[1024u + Cout];
 
 					++Cout;
 

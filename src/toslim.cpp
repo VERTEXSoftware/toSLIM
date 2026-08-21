@@ -96,6 +96,8 @@ static void showHelp() {
     std::cout << "  -m          Display map image (only SLIM is supported)\n";
     std::cout << "  -a          Comparison of images using PSNR/SSIM/PSQNR\n";
     std::cout << "  -w          Exporting a map from SLIM\n";
+    std::cout << "  -x          Display index map image (only SLIM is supported)\n";
+    std::cout << "  -z          Exporting a index map from SLIM\n";
     std::cout << "  -h          Show this help message\n";
     std::cout << "  -y          Overwrite file\n";
     std::cout << "\nExamples:\n";
@@ -126,7 +128,9 @@ enum class Mode {
     ANALIZE,
     INFO,
     VIEWMAP,
-    SAVEMAP
+    SAVEMAP,
+    VIEWMAPIDX,
+    SAVEMAPIDX
 };
 
 
@@ -151,7 +155,7 @@ void DemoIMG(std::string file){
 }
 
 
-void DemoMapSLIMIMG(std::string file){
+void DemoMapSLIMIMG(std::string file,bool idxmap = false){
 
     unsigned char* data = NULL;
     int w = 0;
@@ -163,9 +167,15 @@ void DemoMapSLIMIMG(std::string file){
         SLIM_HEADER_DESC  header{};
         SLIM_LAYER_DESC   layer{};
 
-        layer.forced_code = SLIM_CODE::CODE_GRAY;
         SLIM_Read_Header(infile, &header);
-        SLIM_Read_Layer_Map(infile, &layer);
+
+        if(idxmap){
+            layer.forced_code = SLIM_CODE::CODE_RGB;
+            SLIM_Read_Layer_MapIDX(infile, &layer);
+        }else{
+            layer.forced_code = SLIM_CODE::CODE_GRAY;
+            SLIM_Read_Layer_Map(infile, &layer);
+        }
 
         w           = layer.width;
         h           = layer.height;
@@ -176,16 +186,24 @@ void DemoMapSLIMIMG(std::string file){
 
         SLIM_STREAM_CLOSE(infile);
 
-        unsigned char* dataimg = (unsigned char*)SLIM_MALLOC(w * h * 3);
-        grayToInferno(data, dataimg, w, h);
+        if(idxmap){
+            #ifdef ONLY_TERMINAL
+            ImageConsoleViewer(data, w, h, SLIMCODE::CODE_RGB);
+            #else
+            ImageViewer(file, data, w, h, SLIM_CODE::CODE_RGB,false);
+            #endif
+        }else{
+            unsigned char* dataimg = (unsigned char*)SLIM_MALLOC(w * h * 3);
+            grayToInferno(data, dataimg, w, h);
+            #ifdef ONLY_TERMINAL
+            ImageConsoleViewer(dataimg, w, h, SLIMCODE::CODE_RGB);
+            #else
+            ImageViewer(file, dataimg, w, h, SLIM_CODE::CODE_RGB,false);
+            #endif
+            SLIM_Free(dataimg);
+        }
 
-        #ifdef ONLY_TERMINAL
-        ImageConsoleViewer(dataimg, w, h, SLIMCODE::CODE_RGB);
-        #else
-        ImageViewer(file, dataimg, w, h, SLIM_CODE::CODE_RGB,false);
-        #endif
 
-        SLIM_Free(dataimg);
         SLIM_Free(data);
     }    
 }
@@ -486,7 +504,7 @@ void ConvertIMG(std::string fileA,std::string fileB, uint8_t quality){
 
 }
 
-void SaveMapToIMG(std::string fileA,std::string fileB){
+void SaveMapToIMG(std::string fileA,std::string fileB,bool idxmap = false){
 
     unsigned char* data = NULL;
     int w = 0;
@@ -499,9 +517,15 @@ void SaveMapToIMG(std::string fileA,std::string fileB){
         SLIM_HEADER_DESC  header{};
         SLIM_LAYER_DESC   layer{};
 
-        layer.forced_code = SLIM_CODE::CODE_GRAY;
+        
         SLIM_Read_Header(infile, &header);
-        SLIM_Read_Layer_Map(infile, &layer);
+        if(idxmap){
+            layer.forced_code = SLIM_CODE::CODE_RGB;
+            SLIM_Read_Layer_MapIDX(infile, &layer);
+        }else{
+            layer.forced_code = SLIM_CODE::CODE_GRAY;
+            SLIM_Read_Layer_Map(infile, &layer);
+        }
 
         w           = layer.width;
         h           = layer.height;
@@ -511,10 +535,16 @@ void SaveMapToIMG(std::string fileA,std::string fileB){
 
         if(channels!=SLIM_CODE::CODE_GRAY){return;}
 
-        unsigned char* dataimg = (unsigned char*)SLIM_Malloc(w * h * 3);
-        grayToInferno(data, dataimg, w, h);
-        save_image(fileB, dataimg, w, h,SLIM_CODE::CODE_RGB,255);
-        SLIM_Free(dataimg);
+       
+        if(idxmap){
+            save_image(fileB, data, w, h,SLIM_CODE::CODE_RGB,255);
+        }else{
+            unsigned char* dataimg = (unsigned char*)SLIM_Malloc(w * h * 3);
+            grayToInferno(data, dataimg, w, h);
+            save_image(fileB, dataimg, w, h,SLIM_CODE::CODE_RGB,255);
+            SLIM_Free(dataimg);
+        }
+
 
         SLIM_Free(layer.name);
         SLIM_Free(layer.ext);
@@ -569,6 +599,10 @@ int main(int argc, char* argv[]) {
             mode = Mode::CONVERT;
         } else if (args[i] == "-w") {
             mode = Mode::SAVEMAP;
+        } else if (args[i] == "-x") {
+            mode = Mode::VIEWMAPIDX;
+        } else if (args[i] == "-z") {
+            mode = Mode::SAVEMAPIDX;
         } else if (args[i] == "-i") {
             mode = Mode::INFO;
         } else if (args[i] == "-a") {
@@ -603,7 +637,21 @@ int main(int argc, char* argv[]) {
         DemoIMG(files[0]);
     } else if (mode == Mode::VIEWMAP) {
         if(files.size()<1){return -1;}
+        if(detect_format(files[0]) != ImageFormat::fSLIM){std::cout << "You can only export a map from the SLIM format!\n";return 0;}
         DemoMapSLIMIMG(files[0]);
+    } else if (mode == Mode::VIEWMAPIDX) {
+        if(files.size()<1){return -1;}
+        if(detect_format(files[0]) != ImageFormat::fSLIM){std::cout << "You can only export a map from the SLIM format!\n";return 0;}
+        DemoMapSLIMIMG(files[0],true);
+    } else if (mode == Mode::SAVEMAPIDX) {
+        if(files.size()<2){return -1;}
+        if(files[0]==files[1]){return -1;}
+
+        if(detect_format(files[0]) != ImageFormat::fSLIM){std::cout << "You can only export a map from the SLIM format!\n";return 0;}
+        if(!overwrite){if(!FileNotExistSave(files[1])){return 0;}}
+        
+        SaveMapToIMG(files[0],files[1],true);
+    
     } else if (mode == Mode::CONVERT) {
         if(files.size()<2){return -1;}
         if(files[0]==files[1]){return -1;}

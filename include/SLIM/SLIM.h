@@ -1216,7 +1216,7 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 					if (column >= WIDTH || row >= HEIGHT) { continue; }
 
 					const uint32_t index 	= m_CHANNELS_TO * (row * WIDTH + column);
-					const uint32_t idxclr 	= (uint32_t)m_data[1024u + Cout];
+					const uint8_t* pix 		= m_data + m_data[1024u + Cout];
 
 					++Cout;
 
@@ -1227,22 +1227,22 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 
 					switch (m_CHANNELS) {
 					case SLIM_CODE::CODE_GRAY:
-						cR = cG = cB = (uint32_t)m_data[idxclr];
+						cR = cG = cB = (uint32_t)*pix;
 						break;
 					case SLIM_CODE::CODE_GA:
-						cR = cG = cB = (uint32_t)m_data[idxclr];
-						cA = (uint32_t)m_data[idxclr + 768u];
+						cR = cG = cB = (uint32_t)*pix;
+						cA = (uint32_t)*(pix+768u);
 						break;
 					case SLIM_CODE::CODE_RGB:
-						cR = (uint32_t)m_data[idxclr];
-						cG = (uint32_t)m_data[idxclr + 256u];
-						cB = (uint32_t)m_data[idxclr + 512u];
+						cR = (uint32_t)*pix;
+						cG = (uint32_t)*(pix+256u);
+						cB = (uint32_t)*(pix+512u);
 						break;
 					case SLIM_CODE::CODE_RGBA:
-						cR = (uint32_t)m_data[idxclr];
-						cG = (uint32_t)m_data[idxclr + 256u];
-						cB = (uint32_t)m_data[idxclr + 512u];
-						cA = (uint32_t)m_data[idxclr + 768u];
+						cR = (uint32_t)*pix;
+						cG = (uint32_t)*(pix+256u);
+						cB = (uint32_t)*(pix+512u);
+						cA = (uint32_t)*(pix+768u);
 						break;
 					default:
 						return SLIM_ERROR::ERROR_NOTSUP;

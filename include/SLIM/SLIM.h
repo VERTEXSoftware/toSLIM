@@ -662,11 +662,11 @@ inline uint32_t BLOCK_ANALYZER(const uint8_t level, const uint8_t* img, const ui
 
 			if (column >= m_WIDTH || row >= m_HEIGHT) { continue; }
 
-			const uint32_t index 	= channels * (row * m_WIDTH + column);
-			const uint8_t r 		= channels > 0 ? img[index] : 0;
-			const uint8_t g 		= channels > 1 ? img[index + 1] : 0;
-			const uint8_t b 		= channels > 2 ? img[index + 2] : 0;
-			const uint8_t a 		= channels > 3 ? img[index + 3] : 0;
+			const uint8_t* pix 		= img + channels * (row * m_WIDTH + column);
+			const uint8_t r 		= channels > 0 ? *pix : 0;
+			const uint8_t g 		= channels > 1 ? *(pix + 1) : 0;
+			const uint8_t b 		= channels > 2 ? *(pix + 2) : 0;
+			const uint8_t a 		= channels > 3 ? *(pix + 3) : 0;
 			const uint32_t color 	= (r << 24) | (g << 16) | (b << 8) | a;
 
 			bool found = false;
@@ -699,25 +699,25 @@ inline uint32_t BLOCK_ANALYZER(const uint8_t level, const uint8_t* img, const ui
 
 			if (column >= m_WIDTH || row >= m_HEIGHT) { continue; }
 
-			const uint32_t index	= channels * (row * m_WIDTH + column);
+			const uint8_t* pix 		= img + channels * (row * m_WIDTH + column);
 
 			if (channels > 0) {
-				const double c = (double)img[index];
+				const double c = (double)*pix;
 				const double d = c - (c * realLevelq);
 				sumDiff += d * d;
 			}
 			if (channels > 1) {
-				const double c = (double)img[index + 1];
+				const double c = (double)*(pix+1);
 				const double d = c - (c * realLevelq);
 				sumDiff += d * d;
 			}
 			if (channels > 2) {
-				const double c = (double)img[index + 2];
+				const double c = (double)*(pix+2);
 				const double d = c - (c * realLevelq);
 				sumDiff += d * d;
 			}
 			if (channels > 3) {
-				const double c = (double)img[index + 3];
+				const double c = (double)*(pix+3);
 				const double d = c - (c * realLevelq);
 				sumDiff += d * d;
 			}

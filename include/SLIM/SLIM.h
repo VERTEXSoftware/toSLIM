@@ -918,7 +918,7 @@ SLIM_ERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIM_LAYER_DESC* desc) {
 
 					if (column >= WIDTH || row >= HEIGHT) { continue; }
 
-					const uint32_t index = m_Channels * (row * WIDTH + column);
+					const uint8_t* pix = m_IMG + m_Channels * (row * WIDTH + column);
 
 					uint8_t ch0 = 0;
 					uint8_t ch1 = 0;
@@ -929,68 +929,68 @@ SLIM_ERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIM_LAYER_DESC* desc) {
 					{
 					case SLIM_CODE::CODE_GRAY:
 					{
-						ch0 = m_IMG[index];
+						ch0 = *pix;
 						break;
 					}
 					case SLIM_CODE::CODE_GA:
 					{
-						ch3 = m_IMG[index + 3];
+						ch3 = *(pix+3);
 						if (ch3 > 0) {
-							ch0 = m_IMG[index];
+							ch0 = *pix;
 						}
 						break;
 					}
 					case SLIM_CODE::CODE_RGB:
 					{
-						ch0 = m_IMG[index];
-						ch1 = m_IMG[index + 1];
-						ch2 = m_IMG[index + 2];
+						ch0 = *pix;
+						ch1 = *(pix+1);
+						ch2 = *(pix+2);
 						break;
 					}
 					case SLIM_CODE::CODE_BGR:
 					{
-						ch2 = m_IMG[index];
-						ch1 = m_IMG[index + 1];
-						ch0 = m_IMG[index + 2];
+						ch2 = *pix;
+						ch1 = *(pix+1);
+						ch0 = *(pix+2);
 						break;
 					}
 					case SLIM_CODE::CODE_RGBA:
 					{
-						ch3 = m_IMG[index + 3];
+						ch3 = *(pix+3);
 						if (ch3 > 0) {
-							ch0 = m_IMG[index];
-							ch1 = m_IMG[index + 1];
-							ch2 = m_IMG[index + 2];
+							ch0 = *pix;
+							ch1 = *(pix+1);
+							ch2 = *(pix+2);
 						}
 						break;
 					}
 					case SLIM_CODE::CODE_BGRA:
 					{
-						ch3 = m_IMG[index + 3];
+						ch3 = *(pix+3);
 						if (ch3 > 0) {
-							ch2 = m_IMG[index];
-							ch1 = m_IMG[index + 1];
-							ch0 = m_IMG[index + 2];
+							ch2 = *pix;
+							ch1 = *(pix+1);
+							ch0 = *(pix+2);
 						}
 						break;
 					}
 					case SLIM_CODE::CODE_ARGB:
 					{
-						ch0 = m_IMG[index];
+						ch0 = *pix;
 						if (ch0 > 0) {
-							ch1 = m_IMG[index + 1];
-							ch2 = m_IMG[index + 2];
-							ch3 = m_IMG[index + 3];
+							ch1 = *(pix+1);
+							ch2 = *(pix+2);
+							ch3 = *(pix+3);
 						}
 						break;
 					}
 					case SLIM_CODE::CODE_ABGR:
 					{
-						ch0 = m_IMG[index];
+						ch0 = *pix;
 						if (ch0 > 0) {
-							ch3 = m_IMG[index + 1];
-							ch2 = m_IMG[index + 2];
-							ch1 = m_IMG[index + 3];
+							ch3 = *(pix+1);
+							ch2 = *(pix+2);
+							ch1 = *(pix+3);
 						}
 						break;
 					}
@@ -1215,7 +1215,7 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 
 					if (column >= WIDTH || row >= HEIGHT) { continue; }
 
-					const uint32_t index 	= m_CHANNELS_TO * (row * WIDTH + column);
+					uint8_t* outpix 		= m_IMG  + m_CHANNELS_TO * (row * WIDTH + column);
 					const uint8_t* pix 		= m_data + m_data[1024u + Cout];
 
 					++Cout;
@@ -1264,60 +1264,60 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 					{
 					case SLIM_CODE::CODE_GRAY:
 					{
-						m_IMG[index] 		= (uint8_t)cR;
+						*outpix 		= (uint8_t)cR;
 						break;
 					}
 					case SLIM_CODE::CODE_GA:
 					{
-						m_IMG[index] 		= (uint8_t)cR;
-						m_IMG[index + 1] 	= (uint8_t)cA;
+						*outpix 		= (uint8_t)cR;
+						*(outpix+1) 	= (uint8_t)cA;
 						break;
 					}
 					case SLIM_CODE::CODE_RGB:
 					{
-						m_IMG[index] 		= (uint8_t)cR;
-						m_IMG[index + 1] 	= (uint8_t)cG;
-						m_IMG[index + 2] 	= (uint8_t)cB;
+						*outpix 		= (uint8_t)cR;
+						*(outpix+1)		= (uint8_t)cG;
+						*(outpix+2) 	= (uint8_t)cB;
 						break;
 					}
 					case SLIM_CODE::CODE_BGR:
 					{
-						m_IMG[index] 		= (uint8_t)cB;
-						m_IMG[index + 1] 	= (uint8_t)cG;
-						m_IMG[index + 2] 	= (uint8_t)cR;
+						*outpix 		= (uint8_t)cB;
+						*(outpix+1) 	= (uint8_t)cG;
+						*(outpix+2) 	= (uint8_t)cR;
 						break;
 					}
 					case SLIM_CODE::CODE_RGBA:
 					{
-						m_IMG[index] 		= (uint8_t)cR;
-						m_IMG[index + 1] 	= (uint8_t)cG;
-						m_IMG[index + 2] 	= (uint8_t)cB;
-						m_IMG[index + 3] 	= (uint8_t)cA;
+						*outpix 		= (uint8_t)cR;
+						*(outpix+1)		= (uint8_t)cG;
+						*(outpix+2) 	= (uint8_t)cB;
+						*(outpix+3) 	= (uint8_t)cA;
 						break;
 					}
 					case SLIM_CODE::CODE_BGRA:
 					{
-						m_IMG[index] 		= (uint8_t)cB;
-						m_IMG[index + 1] 	= (uint8_t)cG;
-						m_IMG[index + 2] 	= (uint8_t)cR;
-						m_IMG[index + 3] 	= (uint8_t)cA;
+						*outpix 		= (uint8_t)cB;
+						*(outpix+1) 	= (uint8_t)cG;
+						*(outpix+2) 	= (uint8_t)cR;
+						*(outpix+3) 	= (uint8_t)cA;
 						break;
 					}
 					case SLIM_CODE::CODE_ARGB:
 					{
-						m_IMG[index] 		= (uint8_t)cA;
-						m_IMG[index + 1] 	= (uint8_t)cR;
-						m_IMG[index + 2] 	= (uint8_t)cG;
-						m_IMG[index + 3] 	= (uint8_t)cB;
+						*outpix 		= (uint8_t)cA;
+						*(outpix+1) 	= (uint8_t)cR;
+						*(outpix+2) 	= (uint8_t)cG;
+						*(outpix+3) 	= (uint8_t)cB;
 
 						break;
 					}
 					case SLIM_CODE::CODE_ABGR:
 					{
-						m_IMG[index] 		= (uint8_t)cA;
-						m_IMG[index + 1] 	= (uint8_t)cB;
-						m_IMG[index + 2] 	= (uint8_t)cG;
-						m_IMG[index + 3] 	= (uint8_t)cR;
+						*outpix 		= (uint8_t)cA;
+						*(outpix+1) 	= (uint8_t)cB;
+						*(outpix+2) 	= (uint8_t)cG;
+						*(outpix+3) 	= (uint8_t)cR;
 
 						break;
 					}

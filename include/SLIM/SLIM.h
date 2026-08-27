@@ -1220,36 +1220,36 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 
 					++Cout;
 
-					uint32_t cR = 255;
-					uint32_t cG = 255;
-					uint32_t cB = 255;
-					uint32_t cA = 255;
+					uint8_t cR = 255;
+					uint8_t cG = 255;
+					uint8_t cB = 255;
+					uint8_t cA = 255;
 
 					switch (m_CHANNELS) {
 					case SLIM_CODE::CODE_GRAY:
 					{
-						cR = cG = cB = (uint32_t)*pix;
+						cR = cG = cB = *pix;
 						break;
 					}
 					case SLIM_CODE::CODE_GA:
 					{
-						cR = cG = cB = (uint32_t)*pix;
-						cA = (uint32_t)*(pix+768u);
+						cR = cG = cB = *pix;
+						cA = *(pix+768u);
 						break;
 					}
 					case SLIM_CODE::CODE_RGB:
 					{
-						cR = (uint32_t)*pix;
-						cG = (uint32_t)*(pix+256u);
-						cB = (uint32_t)*(pix+512u);
+						cR = *pix;
+						cG = *(pix+256u);
+						cB = *(pix+512u);
 						break;
 					}
 					case SLIM_CODE::CODE_RGBA:
 					{
-						cR = (uint32_t)*pix;
-						cG = (uint32_t)*(pix+256u);
-						cB = (uint32_t)*(pix+512u);
-						cA = (uint32_t)*(pix+768u);
+						cR = *pix;
+						cG = *(pix+256u);
+						cB = *(pix+512u);
+						cA = *(pix+768u);
 						break;
 					}
 					default:
@@ -1257,10 +1257,10 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 					}
 
 					if (qnt > 0) {
-						const uint32_t tchn0 	= (uint32_t)(cR * qnt + level_qnt);
-						const uint32_t tchn1 	= (uint32_t)(cG * qnt + level_qnt);
-						const uint32_t tchn2 	= (uint32_t)(cB * qnt + level_qnt);
-						const uint32_t tchn3 	= (uint32_t)(cA * qnt + level_qnt);
+						const uint32_t tchn0 	= (uint32_t(cR) * qnt + level_qnt);
+						const uint32_t tchn1 	= (uint32_t(cG) * qnt + level_qnt);
+						const uint32_t tchn2 	= (uint32_t(cB) * qnt + level_qnt);
+						const uint32_t tchn3 	= (uint32_t(cA) * qnt + level_qnt);
 
 						cR = (uint8_t)(tchn0 > 255 ? 255 : tchn0);
 						cG = (uint8_t)(tchn1 > 255 ? 255 : tchn1);

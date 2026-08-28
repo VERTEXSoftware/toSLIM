@@ -927,75 +927,77 @@ SLIM_ERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIM_LAYER_DESC* desc) {
 
 					switch (desc->code)
 					{
-					case SLIM_CODE::CODE_GRAY:
-					{
-						ch0 = *pix;
-						break;
-					}
-					case SLIM_CODE::CODE_GA:
-					{
-						ch3 = *(pix+3);
-						if (ch3 > 0) {
+						case SLIM_CODE::CODE_GRAY:
+						{
 							ch0 = *pix;
+							break;
 						}
-						break;
-					}
-					case SLIM_CODE::CODE_RGB:
-					{
-						ch0 = *pix;
-						ch1 = *(pix+1);
-						ch2 = *(pix+2);
-						break;
-					}
-					case SLIM_CODE::CODE_BGR:
-					{
-						ch2 = *pix;
-						ch1 = *(pix+1);
-						ch0 = *(pix+2);
-						break;
-					}
-					case SLIM_CODE::CODE_RGBA:
-					{
-						ch3 = *(pix+3);
-						if (ch3 > 0) {
+						case SLIM_CODE::CODE_GA:
+						{
+							ch3 = *(pix+3);
+							if (ch3 > 0) {
+								ch0 = *pix;
+							}
+							break;
+						}
+						case SLIM_CODE::CODE_RGB:
+						{
 							ch0 = *pix;
 							ch1 = *(pix+1);
 							ch2 = *(pix+2);
+							break;
 						}
-						break;
-					}
-					case SLIM_CODE::CODE_BGRA:
-					{
-						ch3 = *(pix+3);
-						if (ch3 > 0) {
+						case SLIM_CODE::CODE_BGR:
+						{
 							ch2 = *pix;
 							ch1 = *(pix+1);
 							ch0 = *(pix+2);
+							break;
 						}
-						break;
-					}
-					case SLIM_CODE::CODE_ARGB:
-					{
-						ch0 = *pix;
-						if (ch0 > 0) {
-							ch1 = *(pix+1);
-							ch2 = *(pix+2);
+						case SLIM_CODE::CODE_RGBA:
+						{
 							ch3 = *(pix+3);
+							if (ch3 > 0) {
+								ch0 = *pix;
+								ch1 = *(pix+1);
+								ch2 = *(pix+2);
+							}
+							break;
 						}
-						break;
-					}
-					case SLIM_CODE::CODE_ABGR:
-					{
-						ch0 = *pix;
-						if (ch0 > 0) {
-							ch3 = *(pix+1);
-							ch2 = *(pix+2);
-							ch1 = *(pix+3);
+						case SLIM_CODE::CODE_BGRA:
+						{
+							ch3 = *(pix+3);
+							if (ch3 > 0) {
+								ch2 = *pix;
+								ch1 = *(pix+1);
+								ch0 = *(pix+2);
+							}
+							break;
 						}
-						break;
-					}
-					default:
-						return SLIM_ERROR::ERROR_NOTSUP;
+						case SLIM_CODE::CODE_ARGB:
+						{
+							ch0 = *pix;
+							if (ch0 > 0) {
+								ch1 = *(pix+1);
+								ch2 = *(pix+2);
+								ch3 = *(pix+3);
+							}
+							break;
+						}
+						case SLIM_CODE::CODE_ABGR:
+						{
+							ch0 = *pix;
+							if (ch0 > 0) {
+								ch3 = *(pix+1);
+								ch2 = *(pix+2);
+								ch1 = *(pix+3);
+							}
+							break;
+						}
+						default:
+						{
+							return SLIM_ERROR::ERROR_NOTSUP;
+						}
 					}
 
 					if (qnt > 0) {
@@ -1225,35 +1227,38 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 					uint8_t cB = 255;
 					uint8_t cA = 255;
 
-					switch (m_CHANNELS) {
-					case SLIM_CODE::CODE_GRAY:
+					switch (m_CHANNELS) 
 					{
-						cR = cG = cB = *pix;
-						break;
-					}
-					case SLIM_CODE::CODE_GA:
-					{
-						cR = cG = cB = *pix;
-						cA = *(pix+768u);
-						break;
-					}
-					case SLIM_CODE::CODE_RGB:
-					{
-						cR = *pix;
-						cG = *(pix+256u);
-						cB = *(pix+512u);
-						break;
-					}
-					case SLIM_CODE::CODE_RGBA:
-					{
-						cR = *pix;
-						cG = *(pix+256u);
-						cB = *(pix+512u);
-						cA = *(pix+768u);
-						break;
-					}
-					default:
-						return SLIM_ERROR::ERROR_NOTSUP;
+						case SLIM_CODE::CODE_GRAY:
+						{
+							cR = cG = cB = *pix;
+							break;
+						}
+						case SLIM_CODE::CODE_GA:
+						{
+							cR = cG = cB = *pix;
+							cA = *(pix+768u);
+							break;
+						}
+						case SLIM_CODE::CODE_RGB:
+						{
+							cR = *pix;
+							cG = *(pix+256u);
+							cB = *(pix+512u);
+							break;
+						}
+						case SLIM_CODE::CODE_RGBA:
+						{
+							cR = *pix;
+							cG = *(pix+256u);
+							cB = *(pix+512u);
+							cA = *(pix+768u);
+							break;
+						}
+						default:
+						{
+							return SLIM_ERROR::ERROR_NOTSUP;
+						}
 					}
 
 					if (qnt > 0) {
@@ -1270,65 +1275,67 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 
 					switch (m_CODE_TO)
 					{
-					case SLIM_CODE::CODE_GRAY:
-					{
-						*outpix 		= (uint8_t)cR;
-						break;
-					}
-					case SLIM_CODE::CODE_GA:
-					{
-						*outpix 		= (uint8_t)cR;
-						*(outpix+1) 	= (uint8_t)cA;
-						break;
-					}
-					case SLIM_CODE::CODE_RGB:
-					{
-						*outpix 		= (uint8_t)cR;
-						*(outpix+1)		= (uint8_t)cG;
-						*(outpix+2) 	= (uint8_t)cB;
-						break;
-					}
-					case SLIM_CODE::CODE_BGR:
-					{
-						*outpix 		= (uint8_t)cB;
-						*(outpix+1) 	= (uint8_t)cG;
-						*(outpix+2) 	= (uint8_t)cR;
-						break;
-					}
-					case SLIM_CODE::CODE_RGBA:
-					{
-						*outpix 		= (uint8_t)cR;
-						*(outpix+1)		= (uint8_t)cG;
-						*(outpix+2) 	= (uint8_t)cB;
-						*(outpix+3) 	= (uint8_t)cA;
-						break;
-					}
-					case SLIM_CODE::CODE_BGRA:
-					{
-						*outpix 		= (uint8_t)cB;
-						*(outpix+1) 	= (uint8_t)cG;
-						*(outpix+2) 	= (uint8_t)cR;
-						*(outpix+3) 	= (uint8_t)cA;
-						break;
-					}
-					case SLIM_CODE::CODE_ARGB:
-					{
-						*outpix 		= (uint8_t)cA;
-						*(outpix+1) 	= (uint8_t)cR;
-						*(outpix+2) 	= (uint8_t)cG;
-						*(outpix+3) 	= (uint8_t)cB;
-						break;
-					}
-					case SLIM_CODE::CODE_ABGR:
-					{
-						*outpix 		= (uint8_t)cA;
-						*(outpix+1) 	= (uint8_t)cB;
-						*(outpix+2) 	= (uint8_t)cG;
-						*(outpix+3) 	= (uint8_t)cR;
-						break;
-					}
-					default:
-						return SLIM_ERROR::ERROR_NOTSUP;
+						case SLIM_CODE::CODE_GRAY:
+						{
+							*outpix 		= (uint8_t)cR;
+							break;
+						}
+						case SLIM_CODE::CODE_GA:
+						{
+							*outpix 		= (uint8_t)cR;
+							*(outpix+1) 	= (uint8_t)cA;
+							break;
+						}
+						case SLIM_CODE::CODE_RGB:
+						{
+							*outpix 		= (uint8_t)cR;
+							*(outpix+1)		= (uint8_t)cG;
+							*(outpix+2) 	= (uint8_t)cB;
+							break;
+						}
+						case SLIM_CODE::CODE_BGR:
+						{
+							*outpix 		= (uint8_t)cB;
+							*(outpix+1) 	= (uint8_t)cG;
+							*(outpix+2) 	= (uint8_t)cR;
+							break;
+						}
+						case SLIM_CODE::CODE_RGBA:
+						{
+							*outpix 		= (uint8_t)cR;
+							*(outpix+1)		= (uint8_t)cG;
+							*(outpix+2) 	= (uint8_t)cB;
+							*(outpix+3) 	= (uint8_t)cA;
+							break;
+						}
+						case SLIM_CODE::CODE_BGRA:
+						{
+							*outpix 		= (uint8_t)cB;
+							*(outpix+1) 	= (uint8_t)cG;
+							*(outpix+2) 	= (uint8_t)cR;
+							*(outpix+3) 	= (uint8_t)cA;
+							break;
+						}
+						case SLIM_CODE::CODE_ARGB:
+						{
+							*outpix 		= (uint8_t)cA;
+							*(outpix+1) 	= (uint8_t)cR;
+							*(outpix+2) 	= (uint8_t)cG;
+							*(outpix+3) 	= (uint8_t)cB;
+							break;
+						}
+						case SLIM_CODE::CODE_ABGR:
+						{
+							*outpix 		= (uint8_t)cA;
+							*(outpix+1) 	= (uint8_t)cB;
+							*(outpix+2) 	= (uint8_t)cG;
+							*(outpix+3) 	= (uint8_t)cR;
+							break;
+						}
+						default:
+						{
+							return SLIM_ERROR::ERROR_NOTSUP;
+						}
 					}
 				}
 			}
@@ -1482,65 +1489,67 @@ SLIM_ERROR SLIM_Read_Layer_MapIDX(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 
 					switch (m_CODE_TO)
 					{
-					case SLIM_CODE::CODE_GRAY:
-					{
-						*outpix 		= idxclr;
-						break;
-					}
-					case SLIM_CODE::CODE_GA:
-					{
-						*outpix 		= idxclr;
-						*(outpix+1)		= idxclr;
-						break;
-					}
-					case SLIM_CODE::CODE_RGB:
-					{
-						*outpix 		= idxclr;
-						*(outpix+1) 	= idxclr;
-						*(outpix+2) 	= idxclr;
-						break;
-					}
-					case SLIM_CODE::CODE_BGR:
-					{
-						*outpix 		= idxclr;
-						*(outpix+1) 	= idxclr;
-						*(outpix+2) 	= idxclr;
-						break;
-					}
-					case SLIM_CODE::CODE_RGBA:
-					{
-						*outpix 		= idxclr;
-						*(outpix+1)		= idxclr;
-						*(outpix+2) 	= idxclr;
-						*(outpix+3) 	= 255;
-						break;
-					}
-					case SLIM_CODE::CODE_BGRA:
-					{
-						*outpix 		= idxclr;
-						*(outpix+1)		= idxclr;
-						*(outpix+2) 	= idxclr;
-						*(outpix+3) 	= 255;
-						break;
-					}
-					case SLIM_CODE::CODE_ARGB:
-					{
-						*outpix			= 255;
-						*(outpix+1) 	= idxclr;
-						*(outpix+2)		= idxclr;
-						*(outpix+3) 	= idxclr;
-						break;
-					}
-					case SLIM_CODE::CODE_ABGR:
-					{
-						*outpix			= 255;
-						*(outpix+1) 	= idxclr;
-						*(outpix+2)		= idxclr;
-						*(outpix+3) 	= idxclr;
-						break;
-					}
-					default:
-						return SLIM_ERROR::ERROR_NOTSUP;
+						case SLIM_CODE::CODE_GRAY:
+						{
+							*outpix 		= idxclr;
+							break;
+						}
+						case SLIM_CODE::CODE_GA:
+						{
+							*outpix 		= idxclr;
+							*(outpix+1)		= idxclr;
+							break;
+						}
+						case SLIM_CODE::CODE_RGB:
+						{
+							*outpix 		= idxclr;
+							*(outpix+1) 	= idxclr;
+							*(outpix+2) 	= idxclr;
+							break;
+						}
+						case SLIM_CODE::CODE_BGR:
+						{
+							*outpix 		= idxclr;
+							*(outpix+1) 	= idxclr;
+							*(outpix+2) 	= idxclr;
+							break;
+						}
+						case SLIM_CODE::CODE_RGBA:
+						{
+							*outpix 		= idxclr;
+							*(outpix+1)		= idxclr;
+							*(outpix+2) 	= idxclr;
+							*(outpix+3) 	= 255;
+							break;
+						}
+						case SLIM_CODE::CODE_BGRA:
+						{
+							*outpix 		= idxclr;
+							*(outpix+1)		= idxclr;
+							*(outpix+2) 	= idxclr;
+							*(outpix+3) 	= 255;
+							break;
+						}
+						case SLIM_CODE::CODE_ARGB:
+						{
+							*outpix			= 255;
+							*(outpix+1) 	= idxclr;
+							*(outpix+2)		= idxclr;
+							*(outpix+3) 	= idxclr;
+							break;
+						}
+						case SLIM_CODE::CODE_ABGR:
+						{
+							*outpix			= 255;
+							*(outpix+1) 	= idxclr;
+							*(outpix+2)		= idxclr;
+							*(outpix+3) 	= idxclr;
+							break;
+						}
+						default:
+						{
+							return SLIM_ERROR::ERROR_NOTSUP;
+						}
 					}
 				}
 			}
@@ -1677,59 +1686,61 @@ SLIM_ERROR SLIM_Read_Layer_Map(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 
 					switch (m_CODE_TO)
 					{
-					case SLIM_CODE::CODE_GRAY:
-					{
-						*outpix 		= qnt_idx;
-						break;
-					}
-					case SLIM_CODE::CODE_RGB:
-					{
-						*outpix 		= qnt_idx;
-						*(outpix+1)		= qnt_idx;
-						*(outpix+2)		= qnt_idx;
-						break;
-					}
-					case SLIM_CODE::CODE_BGR:
-					{
-						*outpix 		= qnt_idx;
-						*(outpix+1)		= qnt_idx;
-						*(outpix+2)		= qnt_idx;
-						break;
-					}
-					case SLIM_CODE::CODE_RGBA:
-					{
-						*outpix 		= qnt_idx;
-						*(outpix+1)		= qnt_idx;
-						*(outpix+2)		= qnt_idx;
-						*(outpix+3) 	= 255;
-						break;
-					}
-					case SLIM_CODE::CODE_BGRA:
-					{
-						*outpix 		= qnt_idx;
-						*(outpix+1)		= qnt_idx;
-						*(outpix+2)		= qnt_idx;
-						*(outpix+3) 	= 255;
-						break;
-					}
-					case SLIM_CODE::CODE_ARGB:
-					{
-						*outpix 		= 255;
-						*(outpix+1)		= qnt_idx;
-						*(outpix+2)		= qnt_idx;
-						*(outpix+3) 	= qnt_idx;
-						break;
-					}
-					case SLIM_CODE::CODE_ABGR:
-					{
-						*outpix 		= 255;
-						*(outpix+1)		= qnt_idx;
-						*(outpix+2)		= qnt_idx;
-						*(outpix+3) 	= qnt_idx;
-						break;
-					}
-					default:
-						return SLIM_ERROR::ERROR_NOTSUP;
+						case SLIM_CODE::CODE_GRAY:
+						{
+							*outpix 		= qnt_idx;
+							break;
+						}
+						case SLIM_CODE::CODE_RGB:
+						{
+							*outpix 		= qnt_idx;
+							*(outpix+1)		= qnt_idx;
+							*(outpix+2)		= qnt_idx;
+							break;
+						}
+						case SLIM_CODE::CODE_BGR:
+						{
+							*outpix 		= qnt_idx;
+							*(outpix+1)		= qnt_idx;
+							*(outpix+2)		= qnt_idx;
+							break;
+						}
+						case SLIM_CODE::CODE_RGBA:
+						{
+							*outpix 		= qnt_idx;
+							*(outpix+1)		= qnt_idx;
+							*(outpix+2)		= qnt_idx;
+							*(outpix+3) 	= 255;
+							break;
+						}
+						case SLIM_CODE::CODE_BGRA:
+						{
+							*outpix 		= qnt_idx;
+							*(outpix+1)		= qnt_idx;
+							*(outpix+2)		= qnt_idx;
+							*(outpix+3) 	= 255;
+							break;
+						}
+						case SLIM_CODE::CODE_ARGB:
+						{
+							*outpix 		= 255;
+							*(outpix+1)		= qnt_idx;
+							*(outpix+2)		= qnt_idx;
+							*(outpix+3) 	= qnt_idx;
+							break;
+						}
+						case SLIM_CODE::CODE_ABGR:
+						{
+							*outpix 		= 255;
+							*(outpix+1)		= qnt_idx;
+							*(outpix+2)		= qnt_idx;
+							*(outpix+3) 	= qnt_idx;
+							break;
+						}
+						default:
+						{
+							return SLIM_ERROR::ERROR_NOTSUP;
+						}
 					}
 				}
 			}

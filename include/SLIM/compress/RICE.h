@@ -81,7 +81,7 @@ RICE_RESULT RICE_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint32_t* si
 
         ++bitPos;
 
-        for (int b = (int)k - 1; b >= 0; --b)
+        for (int8_t b = (int8_t)k - 1; b >= 0; --b)
         {         
             if ((r >> b) & 1u){
                 *(bufc + (bitPos >> 3)) |= (1u << (7 - (bitPos & 7)));

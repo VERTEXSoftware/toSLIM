@@ -188,7 +188,7 @@ void DemoMapSLIMIMG(std::string file,bool idxmap = false){
 
         if(idxmap){
             #ifdef ONLY_TERMINAL
-            ImageConsoleViewer(data, w, h, SLIMCODE::CODE_RGB);
+            ImageConsoleViewer(data, w, h, SLIM_CODE::CODE_RGB);
             #else
             ImageViewer(file, data, w, h, SLIM_CODE::CODE_RGB,false);
             #endif
@@ -196,7 +196,7 @@ void DemoMapSLIMIMG(std::string file,bool idxmap = false){
             unsigned char* dataimg = (unsigned char*)SLIM_MALLOC(w * h * 3);
             grayToInferno(data, dataimg, w, h);
             #ifdef ONLY_TERMINAL
-            ImageConsoleViewer(dataimg, w, h, SLIMCODE::CODE_RGB);
+            ImageConsoleViewer(dataimg, w, h, SLIM_CODE::CODE_RGB);
             #else
             ImageViewer(file, dataimg, w, h, SLIM_CODE::CODE_RGB,false);
             #endif

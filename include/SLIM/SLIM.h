@@ -1183,11 +1183,11 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 			if (!SLIM_STREAM_READ(file, m_size, sizeof(uint8_t), cm_size)) { return SLIM_ERROR::ERROR_END; }
 
 			uint8_t  cm_pos = 0x0u;
-			const uint32_t cmps_ch0 = ch0_org ? 0x1u + ((uint32_t)m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_ch1 = ch1_org ? 0x1u + ((uint32_t)m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_ch2 = ch2_org ? 0x1u + ((uint32_t)m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_ch3 = ch3_org ? 0x1u + ((uint32_t)m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_idx = idx_org ? 0x1u + ((uint32_t)m_size[cm_pos++]) : 0x0u;
+			const uint32_t cmps_ch0 = ch0_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
+			const uint32_t cmps_ch1 = ch1_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
+			const uint32_t cmps_ch2 = ch2_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
+			const uint32_t cmps_ch3 = ch3_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
+			const uint32_t cmps_idx = idx_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
 
 			const uint32_t st_ch1 	= cmps_ch0;
 			const uint32_t st_ch2 	= st_ch1 + cmps_ch1;

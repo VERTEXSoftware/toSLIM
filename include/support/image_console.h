@@ -21,18 +21,19 @@ void ImageConsoleViewer(unsigned char* data, int w, int h, SLIM_CODE code) {
     std::ios_base::sync_with_stdio(false);
     std::cout.tie(nullptr);
 
-    int ch = CodeToChannel(code);  // количество каналов: 1, 2, 3 или 4
+    int ch = CodeToChannel(code);
 
     int term_width = 120;
-#ifdef _WIN32
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi))
-        term_width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-#else
-    struct winsize wline{};
-    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &wline) == 0)
-        term_width = wline.ws_col;
-#endif
+    
+    #ifdef _WIN32
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi))
+            term_width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+    #else
+        struct winsize wline{};
+        if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &wline) == 0)
+            term_width = wline.ws_col;
+    #endif
 
     int new_w = (std::max)(40, term_width - 4);
     int new_h = (static_cast<long long>(h) * new_w) / w;

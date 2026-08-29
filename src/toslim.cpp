@@ -94,10 +94,10 @@ static void showHelp() {
     std::cout << "  -q          Image quality level for JPEG and SLIM (0..255)\n";
     std::cout << "  -v          Display image (default behavior)\n";
     std::cout << "  -m          Display map image (only SLIM is supported)\n";
-    std::cout << "  -a          Comparison of images using PSNR/SSIM/PSQNR\n";
-    std::cout << "  -w          Exporting a map from SLIM\n";
+    std::cout << "  -w          Exporting a map from SLIM (only SLIM is supported)\n";
     std::cout << "  -x          Display index map image (only SLIM is supported)\n";
-    std::cout << "  -z          Exporting a index map from SLIM\n";
+    std::cout << "  -z          Exporting a index map from SLIM (only SLIM is supported)\n";
+    std::cout << "  -a          Comparison of images using PSNR/SSIM/PSQNR\n";
     std::cout << "  -h          Show this help message\n";
     std::cout << "  -y          Overwrite file\n";
     std::cout << "\nExamples:\n";
@@ -287,10 +287,9 @@ void InfoIMG(std::string imagePath){
                 if(SLIM_STREAM_ISOPEN(infile)) {
   
                     SLIM_HEADER_DESC        header{};
-                    SLIM_LAYER_INFO_DESC    layer{};
+                    
 
                     SLIM_Read_Header(infile, &header);
-                    SLIM_Read_Layer_Info(infile, &layer);
 
                     std::cout << "----[ INFORMATION ]----\n";
 
@@ -301,17 +300,19 @@ void InfoIMG(std::string imagePath){
                     uint8_t patch = (header.version >> 8) & 0xFF;
                     uint8_t build = header.version & 0xFF;
 
+                    uint16_t m_layer = header.layers==0 ? 1 : header.layers;
+
                     std::cout<<"VERSION: "<<(int)major <<"."<<(int)minor<<"."<<(int)patch<<"."<<(int)build<< "\n";
-                    
-                    std::cout<<"NAME: "<<(layer.name==NULL?"[NULL]":layer.name)<< "\n";
-                    std::cout<<"ID: "<<layer.id<< "\n";
-                    std::cout<<"WIDTH: "<<layer.width<< "\n";
-                    std::cout<<"HEIGHT: "<<layer.height<< "\n";
-                    std::cout<<"CODE: ";
 
-                    uint32_t chanells =1;
 
-                    switch (layer.code)
+
+                    std::cout << "------[ CANVAS ]-------\n";
+                    std::cout<<"WIDTH: "<<header.canvas_width<< "\n";
+                    std::cout<<"HEIGHT: "<<header.canvas_height<< "\n";
+                    std::cout<<"CANVAS CODE: ";
+
+                    uint32_t chanells = 1;
+                    switch (header.canvas_code)
                     {
                         case SLIM_CODE::CODE_GRAY:
                             std::cout<<"Gray (1 channels)\n";
@@ -336,42 +337,91 @@ void InfoIMG(std::string imagePath){
                         default:
                             std::cout<<"NONE (not defined)\n";
                     }
+
                     uint32_t sizefile=SLIM_STREAM_SIZE(infile);
-                    uint32_t sizefileraw=layer.width * layer.height * chanells;
+                    uint32_t sizefileraw=header.canvas_width * header.canvas_height * chanells*m_layer;
 
 
                     std::cout<<compressionRatio(sizefileraw,sizefile)<<"\n";
                     std::cout<<"SIZE COMP: "<<sizefile<<" ("<<formatSize(sizefile)<<")\n";
                     std::cout<<"SIZE RAW: "<<sizefileraw<<" ("<<formatSize(sizefileraw)<<")\n";
 
-                    const auto totalpix = layer.block_256_all;
+                    std::cout<<"LAYER COUNT: "<<(int)m_layer<< "\n";
 
-                    std::cout << "\n----[ BLOCKS " << totalpix << " ]----\n";
-                    std::cout << "COLOR MIN: "<< layer.block_color_table_min<< "\n";
-                    std::cout << "COLOR MAX: "<< layer.block_color_table_max<< "\n";
-                    std::cout << "COLOR AVG: "<< layer.block_color_table_avg<< "\n";
-                    std::cout << "\n----[ BLOCKS " << totalpix << " ]----\n";
-                    std::cout << "DELTA MIN: "<< layer.block_q_min<< "\n";
-                    std::cout << "DELTA MAX: "<< layer.block_q_max<< "\n";
-                    std::cout << "DELTA AVG: "<< layer.block_q_avg<< "\n";
+                    std::cout << "------[ LAYERS ]-------\n";
 
-                    const uint32_t total = layer.all_c;
+                    for(uint16_t i=0;i<m_layer;++i){
 
-                    std::cout << "\n----[ LINES " << total << " ]----\n";
-                    std::cout << "REUSE: "<< layer.reuse_c<< " (" << Percent(layer.reuse_c, total) << "%)\n";
-                    std::cout << "ORIGINAL: "<< layer.origin_c<< " (" << Percent(layer.origin_c, total) << "%)\n";
-                    std::cout << "RLE: "<< layer.rle_c<< " (" << Percent(layer.rle_c, total) << "%)\n";
-                    std::cout << "RICE: "<< layer.rice_c<< " (" << Percent(layer.rice_c, total) << "%)\n";
-                    std::cout << "SLDD: "<< layer.sldd_c<< " (" << Percent(layer.sldd_c, total) << "%)\n";
-                    std::cout << "MASKARED: "<< layer.maskared_c<< " (" << Percent(layer.maskared_c, total) << "%)\n";
 
-                    SLIM_Free(layer.name);
-                    SLIM_Free(layer.ext);
+                        SLIM_LAYER_INFO_DESC    layer{};
 
+                        SLIM_Read_Layer_Info(infile, &layer);
+
+                        std::cout<<"ID: "<<layer.id<< "\n";
+                        std::cout<<"NAME: "<<(layer.name==NULL?"[NULL]":layer.name)<< "\n";
+                        std::cout<<"WIDTH: "<<layer.width<< "\n";
+                        std::cout<<"HEIGHT: "<<layer.height<< "\n";
+                        std::cout<<"CODE: ";
+
+                        chanells =1;
+
+                        switch (layer.code)
+                        {
+                            case SLIM_CODE::CODE_GRAY:
+                                std::cout<<"Gray (1 channels)\n";
+                                chanells =1;
+                                break;
+                            case SLIM_CODE::CODE_RGB:
+                                std::cout<<"RGB (3 channels)\n";
+                                chanells =3;
+                                break;
+                            case SLIM_CODE::CODE_BGR:
+                                std::cout<<"BGR (3 channels)\n";
+                                chanells =3;
+                                break;
+                            case SLIM_CODE::CODE_RGBA:
+                                std::cout<<"RGBA (4 channels)\n";
+                                chanells =4;
+                                break;
+                            case SLIM_CODE::CODE_BGRA:
+                                std::cout<<"BGRA (4 channels)\n";
+                                chanells =4;
+                                break;
+                            default:
+                                std::cout<<"NONE (not defined)\n";
+                        }
+
+                        const auto totalpix = layer.block_256_all;
+
+                        std::cout << "\n----[ BLOCKS " << totalpix << " ]----\n";
+                        std::cout << "COLOR MIN: "<< layer.block_color_table_min<< "\n";
+                        std::cout << "COLOR MAX: "<< layer.block_color_table_max<< "\n";
+                        std::cout << "COLOR AVG: "<< layer.block_color_table_avg<< "\n";
+                        std::cout << "\n----[ BLOCKS " << totalpix << " ]----\n";
+                        std::cout << "DELTA MIN: "<< layer.block_q_min<< "\n";
+                        std::cout << "DELTA MAX: "<< layer.block_q_max<< "\n";
+                        std::cout << "DELTA AVG: "<< layer.block_q_avg<< "\n";
+
+                        const uint32_t total = layer.all_c;
+
+                        std::cout << "\n----[ LINES " << total << " ]----\n";
+                        std::cout << "REUSE: "<< layer.reuse_c<< " (" << Percent(layer.reuse_c, total) << "%)\n";
+                        std::cout << "ORIGINAL: "<< layer.origin_c<< " (" << Percent(layer.origin_c, total) << "%)\n";
+                        std::cout << "RLE: "<< layer.rle_c<< " (" << Percent(layer.rle_c, total) << "%)\n";
+                        std::cout << "RICE: "<< layer.rice_c<< " (" << Percent(layer.rice_c, total) << "%)\n";
+                        std::cout << "SLDD: "<< layer.sldd_c<< " (" << Percent(layer.sldd_c, total) << "%)\n";
+                        std::cout << "MASKARED: "<< layer.maskared_c<< " (" << Percent(layer.maskared_c, total) << "%)\n";
+
+                        SLIM_Free(layer.name);
+                        SLIM_Free(layer.ext);
+
+                       
+                    }
+                    std::cout << "-------[ END ]---------\n";
                     SLIM_STREAM_CLOSE(infile);
                 }
-            }
-            break;
+                break;
+            }  
         default:
             std::cerr << "Unknown type of format\n";
             break;
@@ -405,7 +455,7 @@ bool save_image(const std::string& output, unsigned char* data, int w, int h,  S
                     header.layers           = 0x1u;
                     header.canvas_width     =(uint16_t)w;
                     header.canvas_height    =(uint16_t)h;
-                    header.canvas_channel   =(uint8_t )chan;
+                    header.canvas_code      =(uint8_t )chan;
 
                     SLIM_LAYER_DESC         layer{};
                     layer.width             = (uint16_t)w;

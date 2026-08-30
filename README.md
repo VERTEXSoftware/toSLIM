@@ -41,7 +41,7 @@
 |:-------------------------------------------|:------------------------------------------|
 | `toslim image.png`                         | Show the image                            |
 | `toslim -v image.SLIM`                     | Show image (flag explicitly specified)    |
-| `toslim -m image.SLIM`                     | Display map image\n";                     |
+| `toslim -m image.SLIM`                     | Display map image                         |
 | `toslim -x image.SLIM`                     | Display index map image                   |
 | `toslim -c image.png image.SLIM`           | Convert PNG → SLIM                        |
 | `toslim -c image.SLIM image.png`           | Convert SLIM → PNG                        |

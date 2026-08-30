@@ -104,11 +104,13 @@ static void showHelp() {
     std::cout << "  toslim image.png                               Display image\n";
     std::cout << "  toslim -v image.SLIM                           Display image\n";
     std::cout << "  toslim -m image.SLIM                           Display map image\n";
+    std::cout << "  toslim -x image.SLIM                           Display index map image\n";
     std::cout << "  toslim -c image.png image.SLIM                 Convert image.png to image.SLIM\n";
     std::cout << "  toslim -c image.SLIM image.png                 Convert image.SLIM to image.png\n";
     std::cout << "  toslim -c -q 128 image.png image.SLIM          Convert image.png to image.SLIM quality 50%\n";
     std::cout << "  toslim -a image.png image.SLIM                 Comparing image.png with image.SLIM\n";
     std::cout << "  toslim -w image.SLIM map.png                   Exporting a map from image.SLIM to map.png\n";
+    std::cout << "  toslim -z image.SLIM map.png                   Exporting a index map from image.SLIM to map.png\n";
     std::cout << "  toslim -i image.SLIM                           Information about the image.SLIM file\n";
     std::cout << "\nDefault:\n";
     std::cout << "  Quality: 255 (MAX)\n";
@@ -398,9 +400,9 @@ void InfoIMG(std::string imagePath){
                         std::cout << "COLOR MAX: "<< layer.block_color_table_max<< "\n";
                         std::cout << "COLOR AVG: "<< layer.block_color_table_avg<< "\n";
                         std::cout << "\n----[ BLOCKS " << totalpix << " ]----\n";
-                        std::cout << "DELTA MIN: "<< layer.block_q_min<< "\n";
-                        std::cout << "DELTA MAX: "<< layer.block_q_max<< "\n";
-                        std::cout << "DELTA AVG: "<< layer.block_q_avg<< "\n";
+                        std::cout << "QUANT MIN: "<< layer.block_q_min<< "\n";
+                        std::cout << "QUANT MAX: "<< layer.block_q_max<< "\n";
+                        std::cout << "QUANT AVG: "<< layer.block_q_avg<< "\n";
 
                         const uint32_t total = layer.all_c;
 

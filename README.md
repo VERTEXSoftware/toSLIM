@@ -29,6 +29,8 @@
 | `-v`   | Display the image (default behavior if no other action) | can be omitted              |
 | `-m`   | Display map image (only SLIM is supported)     | returns the grayscale color space    |
 | `-w`   | Exporting a map from SLIM                      | saves the grayscale color space to a file  |
+| `-x`   | Display index map image (only SLIM is supported)| returns the grayscale color space |
+| `-z`   | Exporting a index map from SLIM (only SLIM is supported)| saves the grayscale color space to a file |
 | `-a`   | Compare two images using PSNR and SSIM metrics | requires two files                   |
 | `-h`   | Show this help message                         |                                      |
 | `-y`   | Overwrite output file without asking           |                                      |
@@ -40,11 +42,13 @@
 | `toslim image.png`                         | Show the image                            |
 | `toslim -v image.SLIM`                     | Show image (flag explicitly specified)    |
 | `toslim -m image.SLIM`                     | Display map image\n";                     |
+| `toslim -x image.SLIM`                     | Display index map image                   |
 | `toslim -c image.png image.SLIM`           | Convert PNG → SLIM                        |
 | `toslim -c image.SLIM image.png`           | Convert SLIM → PNG                        |
 | `toslim -c -q 128 image.SLIM image.png`    | Convert with specified quality (~50%)     |
 | `toslim -a image.png image.SLIM`           | Compare two images ( PSNR / SSIM / PSQNR )|
 | `toslim -w image.SLIM map.png`             | Exporting a map from image.SLIM to map.png|
+| `toslim -z image.SLIM map.png`             | Exporting a index map from image.SLIM to map.png |
 | `toslim -i image.SLIM`                     | Information about the image.SLIM file     |
 
 ## Build

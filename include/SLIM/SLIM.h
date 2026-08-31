@@ -612,7 +612,8 @@ inline void  DECODE_REVOLVER(uint16_t mode, uint8_t* src, uint8_t* dest, uint32_
 			uint8_t* d = dest;
 			uint8_t* s = src;
 			uint8_t* e = s + size;
-			while (s < e) { *d++ = *s++; }
+			while (s < e) 			{ *d++ = *s++; 	}
+			while (d < dest + 256) 	{ *d++ = 0; 	} 
 			return;
 		}
 		case 2:
@@ -1152,6 +1153,12 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 	uint8_t m_read	[1280u]{};	//Read		block memory
 	uint8_t m_size	[5u]{};		//Size 		blocks packed
 
+	uint8_t* m_ch0 = m_data;
+	uint8_t* m_ch1 = m_data + 256u;
+	uint8_t* m_ch2 = m_data + 512u;
+	uint8_t* m_ch3 = m_data + 768u;
+	uint8_t* m_idx = m_data + 1024u;
+
 	uint32_t qnt 		= 0;
 	uint16_t meta_code 	= 0;
 	double   level_qnt 	= 0;
@@ -1199,11 +1206,11 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 
 			if (!SLIM_STREAM_READ(file, m_read, sizeof(uint8_t), st_size)) { return SLIM_ERROR::ERROR_END; }
 
-			DECODE_REVOLVER(v0, m_read, m_data, cmps_ch0);
-			DECODE_REVOLVER(v1, m_read + st_ch1, m_data + 256u, cmps_ch1);
-			DECODE_REVOLVER(v2, m_read + st_ch2, m_data + 512u, cmps_ch2);
-			DECODE_REVOLVER(v3, m_read + st_ch3, m_data + 768u, cmps_ch3);
-			DECODE_REVOLVER(v4, m_read + st_idx, m_data + 1024u, cmps_idx);
+			DECODE_REVOLVER(v0, m_read, m_ch0, cmps_ch0);
+			DECODE_REVOLVER(v1, m_read + st_ch1, m_ch1, cmps_ch1);
+			DECODE_REVOLVER(v2, m_read + st_ch2, m_ch2, cmps_ch2);
+			DECODE_REVOLVER(v3, m_read + st_ch3, m_ch3, cmps_ch3);
+			DECODE_REVOLVER(v4, m_read + st_idx, m_idx, cmps_idx);
 
 			uint32_t Cout = 0x0u;
 
@@ -1218,7 +1225,7 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 					if (column >= WIDTH || row >= HEIGHT) { continue; }
 
 					uint8_t* outpix 		= m_IMG  + m_CHANNELS_TO * (row * WIDTH + column);
-					const uint8_t* pix 		= m_data + m_data[1024u + Cout];
+					const uint32_t idx 		= *(m_idx + Cout);
 
 					++Cout;
 
@@ -1231,28 +1238,28 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 					{
 						case SLIM_CODE::CODE_GRAY:
 						{
-							cR = cG = cB = *pix;
+							cR = cG = cB = *(m_ch0+idx);
 							break;
 						}
 						case SLIM_CODE::CODE_GA:
 						{
-							cR = cG = cB = *pix;
-							cA = *(pix+768u);
+							cR = cG = cB = *(m_ch0+idx);
+							cA = *(m_ch3+idx);
 							break;
 						}
 						case SLIM_CODE::CODE_RGB:
 						{
-							cR = *pix;
-							cG = *(pix+256u);
-							cB = *(pix+512u);
+							cR = *(m_ch0+idx);
+							cG = *(m_ch1+idx);
+							cB = *(m_ch2+idx);
 							break;
 						}
 						case SLIM_CODE::CODE_RGBA:
 						{
-							cR = *pix;
-							cG = *(pix+256u);
-							cB = *(pix+512u);
-							cA = *(pix+768u);
+							cR = *(m_ch0+idx);
+							cG = *(m_ch1+idx);
+							cB = *(m_ch2+idx);
+							cA = *(m_ch3+idx);
 							break;
 						}
 						default:
@@ -1421,6 +1428,12 @@ SLIM_ERROR SLIM_Read_Layer_MapIDX(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 	uint8_t m_read	[1280u]{};	//Read		block memory
 	uint8_t m_size	[5u]{};		//Size 		blocks packed
 
+	uint8_t* m_ch0 = m_data;
+	uint8_t* m_ch1 = m_data + 256u;
+	uint8_t* m_ch2 = m_data + 512u;
+	uint8_t* m_ch3 = m_data + 768u;
+	uint8_t* m_idx = m_data + 1024u;
+
 	uint16_t meta_code 	= 0;
 
 	for (uint32_t blcY = 0; blcY < HEIGHT; blcY += 16)
@@ -1464,11 +1477,11 @@ SLIM_ERROR SLIM_Read_Layer_MapIDX(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 
 			if (!SLIM_STREAM_READ(file, m_read, sizeof(uint8_t), st_size)) { return SLIM_ERROR::ERROR_END; }
 
-			DECODE_REVOLVER(v0, m_read, m_data, cmps_ch0);
-			DECODE_REVOLVER(v1, m_read + st_ch1, m_data + 256u, cmps_ch1);
-			DECODE_REVOLVER(v2, m_read + st_ch2, m_data + 512u, cmps_ch2);
-			DECODE_REVOLVER(v3, m_read + st_ch3, m_data + 768u, cmps_ch3);
-			DECODE_REVOLVER(v4, m_read + st_idx, m_data + 1024u, cmps_idx);
+			DECODE_REVOLVER(v0, m_read, m_ch0, cmps_ch0);
+			DECODE_REVOLVER(v1, m_read + st_ch1, m_ch1, cmps_ch1);
+			DECODE_REVOLVER(v2, m_read + st_ch2, m_ch2, cmps_ch2);
+			DECODE_REVOLVER(v3, m_read + st_ch3, m_ch3, cmps_ch3);
+			DECODE_REVOLVER(v4, m_read + st_idx, m_idx, cmps_idx);
 
 			uint32_t Cout = 0x0u;
 
@@ -1483,7 +1496,7 @@ SLIM_ERROR SLIM_Read_Layer_MapIDX(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 					if (column >= WIDTH || row >= HEIGHT) { continue; }
 
 					uint8_t* outpix			= m_IMG + m_CHANNELS_TO * (row * WIDTH + column);
-					const uint8_t idxclr 	= m_data[1024u + Cout];
+					const uint8_t idxclr 	= *(m_idx + Cout);
 
 					++Cout;
 

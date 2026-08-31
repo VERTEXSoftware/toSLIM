@@ -1225,9 +1225,7 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 					if (column >= WIDTH || row >= HEIGHT) { continue; }
 
 					uint8_t* outpix 		= m_IMG  + m_CHANNELS_TO * (row * WIDTH + column);
-					const uint32_t idx 		= *(m_idx + Cout);
-
-					++Cout;
+					const uint32_t idxclr 	= *(m_idx + Cout++);
 
 					uint8_t cR = 255;
 					uint8_t cG = 255;
@@ -1238,28 +1236,28 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 					{
 						case SLIM_CODE::CODE_GRAY:
 						{
-							cR = cG = cB = *(m_ch0+idx);
+							cR = cG = cB = *(m_ch0+idxclr);
 							break;
 						}
 						case SLIM_CODE::CODE_GA:
 						{
-							cR = cG = cB = *(m_ch0+idx);
-							cA = *(m_ch3+idx);
+							cR = cG = cB = *(m_ch0+idxclr);
+							cA = *(m_ch3+idxclr);
 							break;
 						}
 						case SLIM_CODE::CODE_RGB:
 						{
-							cR = *(m_ch0+idx);
-							cG = *(m_ch1+idx);
-							cB = *(m_ch2+idx);
+							cR = *(m_ch0+idxclr);
+							cG = *(m_ch1+idxclr);
+							cB = *(m_ch2+idxclr);
 							break;
 						}
 						case SLIM_CODE::CODE_RGBA:
 						{
-							cR = *(m_ch0+idx);
-							cG = *(m_ch1+idx);
-							cB = *(m_ch2+idx);
-							cA = *(m_ch3+idx);
+							cR = *(m_ch0+idxclr);
+							cG = *(m_ch1+idxclr);
+							cB = *(m_ch2+idxclr);
+							cA = *(m_ch3+idxclr);
 							break;
 						}
 						default:
@@ -1496,9 +1494,7 @@ SLIM_ERROR SLIM_Read_Layer_MapIDX(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 					if (column >= WIDTH || row >= HEIGHT) { continue; }
 
 					uint8_t* outpix			= m_IMG + m_CHANNELS_TO * (row * WIDTH + column);
-					const uint8_t idxclr 	= *(m_idx + Cout);
-
-					++Cout;
+					const uint8_t idxclr 	= *(m_idx + Cout++);
 
 					switch (m_CODE_TO)
 					{
@@ -1839,6 +1835,12 @@ SLIM_ERROR SLIM_Read_Layer_Info(SLIM_STREAM* file, SLIM_LAYER_INFO_DESC* desc) {
 	uint8_t m_read	[1280u]{};	//Read		block memory
 	uint8_t m_size	[5u]{};		//Size 		blocks packed
 
+	uint8_t* m_ch0 = m_data;
+	uint8_t* m_ch1 = m_data + 256u;
+	uint8_t* m_ch2 = m_data + 512u;
+	uint8_t* m_ch3 = m_data + 768u;
+	uint8_t* m_idx = m_data + 1024u;
+
 	uint32_t qnt 		= 0;
 	uint16_t meta_code 	= 0;
 
@@ -1901,17 +1903,17 @@ SLIM_ERROR SLIM_Read_Layer_Info(SLIM_STREAM* file, SLIM_LAYER_INFO_DESC* desc) {
 
 			if (!SLIM_STREAM_READ(file, m_read, sizeof(uint8_t), st_size)) { return SLIM_ERROR::ERROR_END; }
 
-			DECODE_REVOLVER(v0, m_read, m_data, cmps_ch0);
-			DECODE_REVOLVER(v1, m_read + st_ch1, m_data + 256, cmps_ch1);
-			DECODE_REVOLVER(v2, m_read + st_ch2, m_data + 512, cmps_ch2);
-			DECODE_REVOLVER(v3, m_read + st_ch3, m_data + 768, cmps_ch3);
-			DECODE_REVOLVER(v4, m_read + st_idx, m_data + 1024, cmps_idx);
+			DECODE_REVOLVER(v0, m_read, m_ch0, cmps_ch0);
+			DECODE_REVOLVER(v1, m_read + st_ch1, m_ch1, cmps_ch1);
+			DECODE_REVOLVER(v2, m_read + st_ch2, m_ch2, cmps_ch2);
+			DECODE_REVOLVER(v3, m_read + st_ch3, m_ch3, cmps_ch3);
+			DECODE_REVOLVER(v4, m_read + st_idx, m_idx, cmps_idx);
 
 			uint32_t lc_blk_max = 0;
 			uint32_t lc_blk_min = 0xFFFFFFFFu;
 			if (idx_org) {
 				for (uint32_t idx = 0; idx < 256; ++idx) {
-					uint32_t idxclr = m_data[1024 + idx] + 1;
+					const uint32_t idxclr = *(m_idx + idx) + 1;
 					if (desc->block_color_table_min > idxclr) { desc->block_color_table_min = idxclr; }
 					if (desc->block_color_table_max < idxclr) { desc->block_color_table_max = idxclr; }
 					if (lc_blk_min > idxclr) { lc_blk_min = idxclr; }

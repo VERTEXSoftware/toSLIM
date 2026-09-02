@@ -1061,11 +1061,11 @@ SLIM_ERROR SLIM_Write_Layer(SLIM_STREAM* file, const SLIM_LAYER_DESC* desc) {
 
 			uint8_t cm_size = 0x0u;
 
-			if (ch0_org) { m_size[cm_size++] = uint8_t(ch0_c - 0x1u); }
-			if (ch1_org) { m_size[cm_size++] = uint8_t(ch1_c - 0x1u); }
-			if (ch2_org) { m_size[cm_size++] = uint8_t(ch2_c - 0x1u); }
-			if (ch3_org) { m_size[cm_size++] = uint8_t(ch3_c - 0x1u); }
-			if (idx_org) { m_size[cm_size++] = uint8_t(idx_c - 0x1u); }
+			if (ch0_org) { *(m_size + cm_size++) = uint8_t(ch0_c - 0x1u); }
+			if (ch1_org) { *(m_size + cm_size++) = uint8_t(ch1_c - 0x1u); }
+			if (ch2_org) { *(m_size + cm_size++) = uint8_t(ch2_c - 0x1u); }
+			if (ch3_org) { *(m_size + cm_size++) = uint8_t(ch3_c - 0x1u); }
+			if (idx_org) { *(m_size + cm_size++) = uint8_t(idx_c - 0x1u); }
 
 			if (!SLIM_STREAM_WRITE(file, &meta_code, sizeof(uint16_t), 1)) 									{ return SLIM_ERROR::ERROR_BLOCK; }
 			if (!SLIM_STREAM_WRITE(file, m_size, sizeof(uint8_t), cm_size)) 								{ return SLIM_ERROR::ERROR_BLOCK; }
@@ -1175,7 +1175,7 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 			level_qnt 	= 0.8673689 + 0.3571519 * ((double)qnt);
 			meta_code >>= 0x03u;
 
-			const uint16_t packed 	= SLIM_META_CODE_LUT[meta_code];
+			const uint16_t packed 	= *(SLIM_META_CODE_LUT + meta_code);
     		const uint16_t v0 		= (packed >> 12) & 0x07u;
     		const uint16_t v1 		= (packed >> 9)  & 0x07u;
     		const uint16_t v2 		= (packed >> 6)  & 0x07u;
@@ -1192,12 +1192,12 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 
 			if (!SLIM_STREAM_READ(file, m_size, sizeof(uint8_t), cm_size)) { return SLIM_ERROR::ERROR_END; }
 
-			uint8_t  cm_pos = 0x0u;
-			const uint32_t cmps_ch0 = ch0_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_ch1 = ch1_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_ch2 = ch2_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_ch3 = ch3_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_idx = idx_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
+			uint8_t cm_pos = 0x0u;
+			const uint32_t cmps_ch0 = ch0_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
+			const uint32_t cmps_ch1 = ch1_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
+			const uint32_t cmps_ch2 = ch2_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
+			const uint32_t cmps_ch3 = ch3_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
+			const uint32_t cmps_idx = idx_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
 
 			const uint32_t st_ch1 	= cmps_ch0;
 			const uint32_t st_ch2 	= st_ch1 + cmps_ch1;
@@ -1444,7 +1444,7 @@ SLIM_ERROR SLIM_Read_Layer_MapIDX(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 
 			meta_code >>= 0x03u;
 
-			const uint16_t packed 	= SLIM_META_CODE_LUT[meta_code];
+			const uint16_t packed 	= *(SLIM_META_CODE_LUT + meta_code);
     		const uint16_t v0 		= (packed >> 12) & 0x07u;
     		const uint16_t v1 		= (packed >> 9)  & 0x07u;
     		const uint16_t v2 		= (packed >> 6)  & 0x07u;
@@ -1461,12 +1461,12 @@ SLIM_ERROR SLIM_Read_Layer_MapIDX(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 
 			if (!SLIM_STREAM_READ(file, m_size, sizeof(uint8_t), cm_size)) { return SLIM_ERROR::ERROR_END; }
 
-			uint8_t  cm_pos = 0x0u;
-			const uint32_t cmps_ch0 = ch0_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_ch1 = ch1_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_ch2 = ch2_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_ch3 = ch3_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_idx = idx_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
+			uint8_t cm_pos = 0x0u;
+			const uint32_t cmps_ch0 = ch0_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
+			const uint32_t cmps_ch1 = ch1_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
+			const uint32_t cmps_ch2 = ch2_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
+			const uint32_t cmps_ch3 = ch3_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
+			const uint32_t cmps_idx = idx_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
 
 			const uint32_t st_ch1 	= cmps_ch0;
 			const uint32_t st_ch2 	= st_ch1 + cmps_ch1;
@@ -1654,7 +1654,7 @@ SLIM_ERROR SLIM_Read_Layer_Map(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 			qnt_idx 	= uint8_t(meta_code & 0x07u);
 			meta_code >>= 0x03u;
 
-			const uint16_t packed 	= SLIM_META_CODE_LUT[meta_code];
+			const uint16_t packed 	= *(SLIM_META_CODE_LUT + meta_code);
     		const uint16_t v0 		= (packed >> 12) & 0x07u;
     		const uint16_t v1 		= (packed >> 9)  & 0x07u;
     		const uint16_t v2 		= (packed >> 6)  & 0x07u;
@@ -1671,12 +1671,12 @@ SLIM_ERROR SLIM_Read_Layer_Map(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 
 			if (!SLIM_STREAM_READ(file, m_size, sizeof(uint8_t), cm_size)) { return SLIM_ERROR::ERROR_END; }
 
-			uint8_t  cm_pos = 0x0u;
-			const uint32_t cmps_ch0 = ch0_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_ch1 = ch1_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_ch2 = ch2_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_ch3 = ch3_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_idx = idx_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
+			uint8_t cm_pos = 0x0u;
+			const uint32_t cmps_ch0 = ch0_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
+			const uint32_t cmps_ch1 = ch1_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
+			const uint32_t cmps_ch2 = ch2_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
+			const uint32_t cmps_ch3 = ch3_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
+			const uint32_t cmps_idx = idx_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
 
 			const uint32_t st_size 	= cmps_ch0 + cmps_ch1 + cmps_ch2 + cmps_ch3 + cmps_idx;
 
@@ -1855,7 +1855,7 @@ SLIM_ERROR SLIM_Read_Layer_Info(SLIM_STREAM* file, SLIM_LAYER_INFO_DESC* desc) {
 			qnt 		= uint32_t((meta_code & 0x07u) << 1);
 			meta_code >>= 0x03u;
 
-			const uint16_t packed 	= SLIM_META_CODE_LUT[meta_code];
+			const uint16_t packed 	= *(SLIM_META_CODE_LUT + meta_code);
     		const uint16_t v0 		= (packed >> 12) & 0x07u;
     		const uint16_t v1 		= (packed >> 9)  & 0x07u;
     		const uint16_t v2 		= (packed >> 6)  & 0x07u;

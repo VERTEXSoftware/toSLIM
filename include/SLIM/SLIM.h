@@ -547,10 +547,10 @@ inline void GEN_CLR_MAP(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t
 
 	while (left < right) {
         const uint32_t mid = left + ((right - left) >> 1);
-        const uint32_t cur = ((uint32_t)R[mid] << 24u) | ((uint32_t)G[mid] << 16u) | ((uint32_t)B[mid] << 8u) | (uint32_t)A[mid];
+        const uint32_t cur = ((uint32_t)*(R+mid) << 24u) | ((uint32_t)*(G+mid) << 16u) | ((uint32_t)*(B+mid) << 8u) | (uint32_t)*(A+mid);
         
         if (cur == fnd) {
-            idx[pidx] = mid;
+            *(idx+pidx) = mid;
             return;
         }
         
@@ -562,24 +562,24 @@ inline void GEN_CLR_MAP(uint8_t* R, uint8_t* G, uint8_t* B, uint8_t* A, uint32_t
     }
 
 	while(p < pidx) {
-		if (idx[p] >= left) { ++idx[p]; }
+		if (*(idx+p)>= left) { ++*(idx+p); }
 		++p;
 	}
 
 	while (i > left) {
-		R[i] = R[j];
-		G[i] = G[j];
-		B[i] = B[j];
-		A[i] = A[j];
+		*(R+i) = *(R+j);
+		*(G+i) = *(G+j);
+		*(B+i) = *(B+j);
+		*(A+i) = *(A+j);
 		--i;
 		--j;
 	}
 
-	R[left] = cR;
-	G[left] = cG;
-	B[left] = cB;
-	A[left] = cA;
-	idx[pidx] = left;
+	*(R+left) 	= cR;
+	*(G+left) 	= cG;
+	*(B+left) 	= cB;
+	*(A+left) 	= cA;
+	*(idx+pidx) = left;
 	++*size;
 }
 
@@ -589,40 +589,39 @@ inline uint16_t ENCODE_REVOLVER(bool orig, uint8_t* src, uint8_t* dest, uint32_t
 	//Encode by the revolver method
 	//--------------------------------------------------------------//
 
-	if (size == 0) { return 0; }
-	if (orig == false) { return 0; }
+	if (size == 0) 		{ return 0; }
+	if (orig == false) 	{ return 0; }
 
 	uint8_t t_pack 		[4096]{};
 	uint8_t* t_rle 		= t_pack;
-	uint8_t* t_rice 	= t_pack+1024;
-	uint8_t* t_sldd 	= t_pack+2048;
-	uint8_t* t_maskared = t_pack+3072;
+	uint8_t* t_rice 	= t_pack+1024u;
+	uint8_t* t_sldd 	= t_pack+2048u;
+	uint8_t* t_maskared = t_pack+3072u;
 
-	
-	uint8_t* pack[5u]{ src, t_rle,t_rice, t_sldd, t_maskared };
+	uint8_t* pack			[5u]{src, t_rle, t_rice, t_sldd, t_maskared};
+	uint32_t r_size_pack	[5u]{size, size, size, size, size};
 
 	uint16_t pos_mode = 0;
-	uint32_t r_size_pack[5u]{ size,size,size,size,size };
+	
+	RLE_ENCODE(src, size, t_rle, 			&*(r_size_pack+1u));
+	RICE_ENCODE(src, size, t_rice, 			&*(r_size_pack+2u));
+	SLDD_ENCODE(src, size, t_sldd, 			&*(r_size_pack+3u));
+	MASKARED_ENCODE(src, size, t_maskared, 	&*(r_size_pack+4u));
 
-	RLE_ENCODE(src, size, t_rle, &r_size_pack[1u]);
-	RICE_ENCODE(src, size, t_rice, &r_size_pack[2u]);
-	SLDD_ENCODE(src, size, t_sldd, &r_size_pack[3u]);
-	MASKARED_ENCODE(src, size, t_maskared, &r_size_pack[4u]);
-
-	for (uint16_t i = 1; i < 5; ++i) {
-		if (r_size_pack[pos_mode] > r_size_pack[i]) {
+	for (uint16_t i = 1u; i < 5u; ++i) {
+		if (*(r_size_pack+pos_mode) > *(r_size_pack+i)) {
 			pos_mode = i;
 		}
 	}
 
-	*r_size = r_size_pack[pos_mode];
+	*r_size = *(r_size_pack + pos_mode);
 
 	uint8_t* d = dest;
-	uint8_t* s = pack[pos_mode];
+	uint8_t* s = *(pack+pos_mode);
 	uint8_t* e = s + *r_size;
 	while (s < e) { *d++ = *s++; }
 
-	return pos_mode + 1;
+	return pos_mode + 1u;
 }
 
 inline void  DECODE_REVOLVER(uint16_t mode, uint8_t* src, uint8_t* dest, uint32_t size) {

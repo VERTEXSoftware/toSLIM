@@ -122,8 +122,8 @@ SLDD_RESULT SLDD_ENCODE(uint8_t* buffer, uint32_t size, uint8_t* buffercomp, uin
 	uint8_t mstart 	= (0x80u >> leftCount);
 	uint8_t mend 	= (0x80u >> (8 - rightCount));
 	uint32_t step 	= 0;
-	
-	for (uint8_t* p = buffer, *c = pstr; p < end; ++p) {
+
+	for (uint8_t *c, *p = buffer; p < end; ++p) {
 		for (uint8_t bit = mstart; bit > mend; bit >>= 0x01u) {
 			if (*p & bit) {
 				c = pstr + (step >> 0x03u);

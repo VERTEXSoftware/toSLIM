@@ -40,7 +40,7 @@ uint32_t RICE_VERSION(){ return RICE_VER; }
 
 RICE_RESULT RICE_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint32_t* sizec)
 {
-    if (buf == NULL || bufc == NULL  || size <= 0) { return RICE_RESULT::RICE_ERROR_INVALID_PARAM; }
+    if (buf == NULL || bufc == NULL  || size == 0) { return RICE_RESULT::RICE_ERROR_INVALID_PARAM; }
 
     const uint8_t* end	= buf + size;
     double avg          = 0.0;

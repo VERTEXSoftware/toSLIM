@@ -71,7 +71,7 @@ uint32_t SLDD_VERSION(){ return SLDD_VER; }
 
 SLDD_RESULT SLDD_ENCODE(uint8_t* buffer, uint32_t size, uint8_t* buffercomp, uint32_t* sizecomp) {
 
-    if (buffer == NULL || buffercomp == NULL  || size <= 0) { return SLDD_RESULT::SLDD_ERROR_INVALID_PARAM; }
+    if (buffer == NULL || buffercomp == NULL  || size == 0) { return SLDD_RESULT::SLDD_ERROR_INVALID_PARAM; }
 
 
 	uint8_t* pstr		= buffercomp + 0x01u;
@@ -147,7 +147,7 @@ SLDD_RESULT SLDD_ENCODE(uint8_t* buffer, uint32_t size, uint8_t* buffercomp, uin
 
 SLDD_RESULT SLDD_DECODE(uint8_t* buffer, uint32_t size, uint8_t* bufferde, uint32_t sizede) {
 
-    if (buffer == NULL || bufferde == NULL  || size <= 0 ) { return SLDD_RESULT::SLDD_ERROR_INVALID_PARAM; }
+    if (buffer == NULL || bufferde == NULL  || size == 0 ) { return SLDD_RESULT::SLDD_ERROR_INVALID_PARAM; }
 
 	uint8_t* pstr			= buffer + 0x01u;
 	uint8_t DataByte		= *buffer;

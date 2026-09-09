@@ -40,7 +40,7 @@ uint32_t RLE_VERSION(){ return RLE_VER; }
 
 RLE_RESULT RLE_ENCODE(uint8_t* data, uint32_t Length, uint8_t* outdata, uint32_t* counter)
 {
-    if (data == NULL || outdata == NULL  || Length <= 0) { return RLE_RESULT::RLE_ERROR_INVALID_PARAM; }
+    if (data == NULL || outdata == NULL  || Length == 0) { return RLE_RESULT::RLE_ERROR_INVALID_PARAM; }
 
 	uint32_t idx = 0;
 	uint32_t i = 0;
@@ -69,7 +69,7 @@ RLE_RESULT RLE_ENCODE(uint8_t* data, uint32_t Length, uint8_t* outdata, uint32_t
 
 RLE_RESULT RLE_DECODE(uint8_t* data, uint32_t Length, uint8_t* outdata, uint32_t* outLength)
 {
-    if (data == NULL || outdata == NULL  || Length <= 0 ) { return RLE_RESULT::RLE_ERROR_INVALID_PARAM; }
+    if (data == NULL || outdata == NULL  || Length == 0 ) { return RLE_RESULT::RLE_ERROR_INVALID_PARAM; }
 
 	uint32_t idx = 0;
 	uint32_t i = 0;

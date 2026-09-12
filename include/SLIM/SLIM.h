@@ -589,8 +589,7 @@ inline uint16_t ENCODE_REVOLVER(bool orig, uint8_t* src, uint8_t* dest, uint32_t
 	//Encode by the revolver method
 	//--------------------------------------------------------------//
 
-	if (size == 0) 		{ return 0; }
-	if (orig == false) 	{ return 0; }
+	if (size == 0 || orig == false) { return 0; }
 
 	uint8_t t_pack 		[4096u]{};
 	uint8_t* t_rle 		= t_pack;
@@ -630,8 +629,7 @@ inline void  DECODE_REVOLVER(uint16_t mode, uint8_t* src, uint8_t* dest, uint32_
 	//Decode by the revolver method
 	//--------------------------------------------------------------//
 
-	if (size == 0) { return; }
-	if (mode == 0) { return; }
+	if (size == 0 || mode == 0) { return; }
 
 	switch (mode)
 	{
@@ -1122,15 +1120,13 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 	const uint32_t HEIGHT 	= _slim_lh._height;
 	const uint32_t WIDTH 	= _slim_lh._width;
 
-	uint8_t m_data	[1280u]{};	//Curret	block memory
-	uint8_t m_read	[1280u]{};	//Read		block memory
-	uint8_t m_size	[5u]{};		//Size 		blocks packed
-
-	uint8_t* m_ch0 = m_data;
-	uint8_t* m_ch1 = m_data + 256u;
-	uint8_t* m_ch2 = m_data + 512u;
-	uint8_t* m_ch3 = m_data + 768u;
-	uint8_t* m_idx = m_data + 1024u;
+	uint8_t m_data	[2560u]{};
+	
+	uint8_t* m_ch0 = m_data + 1280u;
+	uint8_t* m_ch1 = m_data + 1536u;
+	uint8_t* m_ch2 = m_data + 1792u;
+	uint8_t* m_ch3 = m_data + 2048u;
+	uint8_t* m_idx = m_data + 2304u;
 
 	uint32_t qnt 		= 0u;
 	uint16_t meta_code 	= 0u;
@@ -1162,14 +1158,14 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 
 			const uint8_t cm_size = ch0_org + ch1_org + ch2_org + ch3_org + idx_org;
 
-			if (!SLIM_STREAM_READ(file, m_size, sizeof(uint8_t), cm_size)) { return SLIM_ERROR::ERROR_END; }
+			if (!SLIM_STREAM_READ(file, m_data, sizeof(uint8_t), cm_size)) { return SLIM_ERROR::ERROR_END; }
 
 			uint8_t cm_pos = 0x0u;
-			const uint32_t cmps_ch0 = ch0_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
-			const uint32_t cmps_ch1 = ch1_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
-			const uint32_t cmps_ch2 = ch2_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
-			const uint32_t cmps_ch3 = ch3_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
-			const uint32_t cmps_idx = idx_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
+			const uint32_t cmps_ch0 = ch0_org ? 0x1u + uint32_t(*(m_data + cm_pos++)) : 0x0u;
+			const uint32_t cmps_ch1 = ch1_org ? 0x1u + uint32_t(*(m_data + cm_pos++)) : 0x0u;
+			const uint32_t cmps_ch2 = ch2_org ? 0x1u + uint32_t(*(m_data + cm_pos++)) : 0x0u;
+			const uint32_t cmps_ch3 = ch3_org ? 0x1u + uint32_t(*(m_data + cm_pos++)) : 0x0u;
+			const uint32_t cmps_idx = idx_org ? 0x1u + uint32_t(*(m_data + cm_pos++)) : 0x0u;
 
 			const uint32_t st_ch1 	= cmps_ch0;
 			const uint32_t st_ch2 	= st_ch1 + cmps_ch1;
@@ -1177,13 +1173,13 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 			const uint32_t st_idx 	= st_ch3 + cmps_ch3;
 			const uint32_t st_size 	= st_idx + cmps_idx;
 
-			if (!SLIM_STREAM_READ(file, m_read, sizeof(uint8_t), st_size)) { return SLIM_ERROR::ERROR_END; }
+			if (!SLIM_STREAM_READ(file, m_data, sizeof(uint8_t), st_size)) { return SLIM_ERROR::ERROR_END; }
 
-			DECODE_REVOLVER(v0, m_read, m_ch0, cmps_ch0);
-			DECODE_REVOLVER(v1, m_read + st_ch1, m_ch1, cmps_ch1);
-			DECODE_REVOLVER(v2, m_read + st_ch2, m_ch2, cmps_ch2);
-			DECODE_REVOLVER(v3, m_read + st_ch3, m_ch3, cmps_ch3);
-			DECODE_REVOLVER(v4, m_read + st_idx, m_idx, cmps_idx);
+			DECODE_REVOLVER(v0, m_data, m_ch0, cmps_ch0);
+			DECODE_REVOLVER(v1, m_data + st_ch1, m_ch1, cmps_ch1);
+			DECODE_REVOLVER(v2, m_data + st_ch2, m_ch2, cmps_ch2);
+			DECODE_REVOLVER(v3, m_data + st_ch3, m_ch3, cmps_ch3);
+			DECODE_REVOLVER(v4, m_data + st_idx, m_idx, cmps_idx);
 
 			uint32_t Cout = 0x0u;
 
@@ -1379,15 +1375,13 @@ SLIM_ERROR SLIM_Read_Layer_MapIDX(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 	const uint32_t HEIGHT 	= _slim_lh._height;
 	const uint32_t WIDTH 	= _slim_lh._width;
 
-	uint8_t m_data	[1280u]{};	//Curret	block memory
-	uint8_t m_read	[1280u]{};	//Read		block memory
-	uint8_t m_size	[5u]{};		//Size 		blocks packed
-
-	uint8_t* m_ch0 = m_data;
-	uint8_t* m_ch1 = m_data + 256u;
-	uint8_t* m_ch2 = m_data + 512u;
-	uint8_t* m_ch3 = m_data + 768u;
-	uint8_t* m_idx = m_data + 1024u;
+	uint8_t m_data	[2560u]{};
+	
+	uint8_t* m_ch0 = m_data + 1280u;
+	uint8_t* m_ch1 = m_data + 1536u;
+	uint8_t* m_ch2 = m_data + 1792u;
+	uint8_t* m_ch3 = m_data + 2048u;
+	uint8_t* m_idx = m_data + 2304u;
 
 	uint16_t meta_code 	= 0u;
 
@@ -1415,14 +1409,14 @@ SLIM_ERROR SLIM_Read_Layer_MapIDX(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 
 			const uint8_t cm_size = ch0_org + ch1_org + ch2_org + ch3_org + idx_org;
 
-			if (!SLIM_STREAM_READ(file, m_size, sizeof(uint8_t), cm_size)) { return SLIM_ERROR::ERROR_END; }
+			if (!SLIM_STREAM_READ(file, m_data, sizeof(uint8_t), cm_size)) { return SLIM_ERROR::ERROR_END; }
 
 			uint8_t cm_pos = 0x0u;
-			const uint32_t cmps_ch0 = ch0_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
-			const uint32_t cmps_ch1 = ch1_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
-			const uint32_t cmps_ch2 = ch2_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
-			const uint32_t cmps_ch3 = ch3_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
-			const uint32_t cmps_idx = idx_org ? 0x1u + uint32_t(*(m_size + cm_pos++)) : 0x0u;
+			const uint32_t cmps_ch0 = ch0_org ? 0x1u + uint32_t(*(m_data + cm_pos++)) : 0x0u;
+			const uint32_t cmps_ch1 = ch1_org ? 0x1u + uint32_t(*(m_data + cm_pos++)) : 0x0u;
+			const uint32_t cmps_ch2 = ch2_org ? 0x1u + uint32_t(*(m_data + cm_pos++)) : 0x0u;
+			const uint32_t cmps_ch3 = ch3_org ? 0x1u + uint32_t(*(m_data + cm_pos++)) : 0x0u;
+			const uint32_t cmps_idx = idx_org ? 0x1u + uint32_t(*(m_data + cm_pos++)) : 0x0u;
 
 			const uint32_t st_ch1 	= cmps_ch0;
 			const uint32_t st_ch2 	= st_ch1 + cmps_ch1;
@@ -1430,13 +1424,13 @@ SLIM_ERROR SLIM_Read_Layer_MapIDX(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 			const uint32_t st_idx 	= st_ch3 + cmps_ch3;
 			const uint32_t st_size 	= st_idx + cmps_idx;
 
-			if (!SLIM_STREAM_READ(file, m_read, sizeof(uint8_t), st_size)) { return SLIM_ERROR::ERROR_END; }
+			if (!SLIM_STREAM_READ(file, m_data, sizeof(uint8_t), st_size)) { return SLIM_ERROR::ERROR_END; }
 
-			DECODE_REVOLVER(v0, m_read, m_ch0, cmps_ch0);
-			DECODE_REVOLVER(v1, m_read + st_ch1, m_ch1, cmps_ch1);
-			DECODE_REVOLVER(v2, m_read + st_ch2, m_ch2, cmps_ch2);
-			DECODE_REVOLVER(v3, m_read + st_ch3, m_ch3, cmps_ch3);
-			DECODE_REVOLVER(v4, m_read + st_idx, m_idx, cmps_idx);
+			DECODE_REVOLVER(v0, m_data, m_ch0, cmps_ch0);
+			DECODE_REVOLVER(v1, m_data + st_ch1, m_ch1, cmps_ch1);
+			DECODE_REVOLVER(v2, m_data + st_ch2, m_ch2, cmps_ch2);
+			DECODE_REVOLVER(v3, m_data + st_ch3, m_ch3, cmps_ch3);
+			DECODE_REVOLVER(v4, m_data + st_idx, m_idx, cmps_idx);
 
 			uint32_t Cout = 0x0u;
 
@@ -1756,15 +1750,13 @@ SLIM_ERROR SLIM_Read_Layer_Info(SLIM_STREAM* file, SLIM_LAYER_INFO_DESC* desc) {
 	const uint32_t HEIGHT 	= _slim_lh._height;
 	const uint32_t WIDTH 	= _slim_lh._width;
 
-	uint8_t m_data	[1280u]{};	//Curret	block memory
-	uint8_t m_read	[1280u]{};	//Read		block memory
-	uint8_t m_size	[5u]{};		//Size 		blocks packed
-
-	uint8_t* m_ch0 = m_data;
-	uint8_t* m_ch1 = m_data + 256u;
-	uint8_t* m_ch2 = m_data + 512u;
-	uint8_t* m_ch3 = m_data + 768u;
-	uint8_t* m_idx = m_data + 1024u;
+	uint8_t m_data	[2560u]{};
+	
+	uint8_t* m_ch0 = m_data + 1280u;
+	uint8_t* m_ch1 = m_data + 1536u;
+	uint8_t* m_ch2 = m_data + 1792u;
+	uint8_t* m_ch3 = m_data + 2048u;
+	uint8_t* m_idx = m_data + 2304u;
 
 	uint32_t qnt 		= 0u;
 	uint16_t meta_code 	= 0u;
@@ -1811,14 +1803,14 @@ SLIM_ERROR SLIM_Read_Layer_Info(SLIM_STREAM* file, SLIM_LAYER_INFO_DESC* desc) {
 			desc->block_256_empty 	+= (cm_size == 0u);
 			desc->block_q_avg 		+= qnt;
 
-			if (!SLIM_STREAM_READ(file, m_size, sizeof(uint8_t), cm_size)) { return SLIM_ERROR::ERROR_END; }
+			if (!SLIM_STREAM_READ(file, m_data, sizeof(uint8_t), cm_size)) { return SLIM_ERROR::ERROR_END; }
 
 			uint8_t cm_pos = 0x0u;
-			const uint32_t cmps_ch0 = ch0_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_ch1 = ch1_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_ch2 = ch2_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_ch3 = ch3_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
-			const uint32_t cmps_idx = idx_org ? 0x1u + uint32_t(m_size[cm_pos++]) : 0x0u;
+			const uint32_t cmps_ch0 = ch0_org ? 0x1u + uint32_t(m_data[cm_pos++]) : 0x0u;
+			const uint32_t cmps_ch1 = ch1_org ? 0x1u + uint32_t(m_data[cm_pos++]) : 0x0u;
+			const uint32_t cmps_ch2 = ch2_org ? 0x1u + uint32_t(m_data[cm_pos++]) : 0x0u;
+			const uint32_t cmps_ch3 = ch3_org ? 0x1u + uint32_t(m_data[cm_pos++]) : 0x0u;
+			const uint32_t cmps_idx = idx_org ? 0x1u + uint32_t(m_data[cm_pos++]) : 0x0u;
 
 			const uint32_t st_ch1 	= cmps_ch0;
 			const uint32_t st_ch2 	= st_ch1 + cmps_ch1;
@@ -1826,13 +1818,13 @@ SLIM_ERROR SLIM_Read_Layer_Info(SLIM_STREAM* file, SLIM_LAYER_INFO_DESC* desc) {
 			const uint32_t st_idx 	= st_ch3 + cmps_ch3;
 			const uint32_t st_size 	= st_idx + cmps_idx;
 
-			if (!SLIM_STREAM_READ(file, m_read, sizeof(uint8_t), st_size)) { return SLIM_ERROR::ERROR_END; }
+			if (!SLIM_STREAM_READ(file, m_data, sizeof(uint8_t), st_size)) { return SLIM_ERROR::ERROR_END; }
 
-			DECODE_REVOLVER(v0, m_read, m_ch0, cmps_ch0);
-			DECODE_REVOLVER(v1, m_read + st_ch1, m_ch1, cmps_ch1);
-			DECODE_REVOLVER(v2, m_read + st_ch2, m_ch2, cmps_ch2);
-			DECODE_REVOLVER(v3, m_read + st_ch3, m_ch3, cmps_ch3);
-			DECODE_REVOLVER(v4, m_read + st_idx, m_idx, cmps_idx);
+			DECODE_REVOLVER(v0, m_data, m_ch0, cmps_ch0);
+			DECODE_REVOLVER(v1, m_data + st_ch1, m_ch1, cmps_ch1);
+			DECODE_REVOLVER(v2, m_data + st_ch2, m_ch2, cmps_ch2);
+			DECODE_REVOLVER(v3, m_data + st_ch3, m_ch3, cmps_ch3);
+			DECODE_REVOLVER(v4, m_data + st_idx, m_idx, cmps_idx);
 
 			uint32_t lc_blk_max = 0u;
 			uint32_t lc_blk_min = 0xFFFFFFFFu;

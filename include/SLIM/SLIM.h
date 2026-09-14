@@ -1263,7 +1263,7 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 						case SLIM_CODE::CODE_RGB:
 						{
 							*outpix 		= (uint8_t)cR;
-							*(outpix+1u)		= (uint8_t)cG;
+							*(outpix+1u)	= (uint8_t)cG;
 							*(outpix+2u) 	= (uint8_t)cB;
 							break;
 						}
@@ -1277,7 +1277,7 @@ SLIM_ERROR SLIM_Read_Layer(SLIM_STREAM* file, SLIM_LAYER_DESC* desc) {
 						case SLIM_CODE::CODE_RGBA:
 						{
 							*outpix 		= (uint8_t)cR;
-							*(outpix+1u)		= (uint8_t)cG;
+							*(outpix+1u)	= (uint8_t)cG;
 							*(outpix+2u) 	= (uint8_t)cB;
 							*(outpix+3u) 	= (uint8_t)cA;
 							break;

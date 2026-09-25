@@ -51,6 +51,112 @@ extern "C" {
 
 uint32_t MASKARED_VERSION(){ return MASKARED_VER; }
 
+#ifdef SLEP_MASKARED_EXP
+
+MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint32_t* sizec) {
+
+    if (buf == NULL || bufc == NULL  || size == 0) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
+
+	uint8_t* pstr		= bufc + 0x02u;
+	const uint8_t* end	= buf + size;
+	uint8_t mask		= 255u;
+	uint8_t accum		= 0x00u;
+	uint32_t step		= 0x00u;
+	uint8_t mover		= 0x00u;
+	uint8_t first 		= 0x00u;
+
+	for (uint16_t mv = 0u; mv < 256u && mask != 0x0u; ++mv) {
+		uint8_t firstt 		= uint8_t(*buf + mv);
+		uint8_t maskt		= 0x00u;
+
+		for (uint8_t* p = buf+1u; p < end && maskt != 0xFFu; ++p) {
+			maskt |= (firstt ^ uint8_t(*p+mv));
+		}
+
+		if(mask > maskt){
+			mover 	= uint8_t(mv);
+			mask 	= maskt;
+			first 	= firstt;
+		}
+	}		
+
+	for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
+		if (!(mask & bit)) {
+			if (first & bit) {
+				accum |= (0x80u >> step);
+			}
+			++step;
+		}
+	}
+
+	uint32_t total = size * (0x08u - step);
+	*sizec = (step + total + 23u) >> 0x03u;
+
+	*bufc = mover;
+	*(bufc+1) = mask;
+	*pstr = accum;
+
+	for (uint8_t *c, *p = buf; p < end; ++p) {
+		const uint8_t ps = uint8_t(*p+mover);
+		for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
+			if (mask & bit) {
+				if (ps & bit) {
+					c = pstr + (step >> 0x03u);
+					*c |= (0x80u >> (step & 0x07u));
+				}
+				++step;
+			}
+		}
+	}
+
+	//Tails remover
+    uint32_t pos_tail = *sizec;
+    while (pos_tail > 1 && bufc[pos_tail - 1] == 0) {
+        --pos_tail;
+    }
+    *sizec = pos_tail;
+
+    return MASKARED_RESULT::SL_OK;
+}
+
+
+MASKARED_RESULT MASKARED_DECODE(uint8_t* buf, uint32_t size, uint8_t* bufd, uint32_t sized) {
+
+    if (buf == NULL || bufd == NULL  || size == 0 || sized == 0 ) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
+
+	uint8_t* pstr		= buf + 0x02u;
+	const uint8_t mask	= *(buf+1);
+	const uint8_t mover	= *buf;
+	const uint8_t accum = *pstr;
+	const uint8_t* endd = bufd + sized;
+	const uint8_t* endp = buf + size;
+	uint8_t  chr		= 0x00u;
+	uint32_t step		= 0x00u;
+
+	for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
+		if (!(mask & bit)) {
+			if ((accum << step) & 0x80u) {
+				chr |= bit;
+			}
+			++step;
+		}
+	}
+
+	for (uint8_t* d = bufd, *p = pstr; d < endd; ++d) {
+		*d = chr;
+		for (uint8_t bit = 0x80u; bit > 0x00u && p < endp; bit >>= 0x01u) {
+			if (mask & bit) {
+				if (*p & (0x80u >> (step & 0x07u))) { *d |= bit; }
+				p = pstr + (++step >> 0x03u);
+			}
+		}
+		*d-=mover;
+	}
+
+    return MASKARED_RESULT::SL_OK;
+}
+
+#else
 
 MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec, uint8_t mask) {
 
@@ -169,6 +275,6 @@ MASKARED_RESULT MASKARED_DECODE(uint8_t* buf, uint32_t size, uint8_t* bufd, uint
     return MASKARED_RESULT::SL_OK;
 }
 
-
+#endif // SLEP_MASKARED_EXP
 #endif // SLEP_MASKARED_IMP 
 #endif // SLEP_MASKARED_H

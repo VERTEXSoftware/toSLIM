@@ -22,6 +22,7 @@
 //Custom Compression
 #define SLEP_SLDD_IMP
 #define SLEP_MASKARED_IMP
+#define SLEP_MASKARED_EXP
 #define RLE_IMP
 #define RICE_IMP
 #include "./compress/SLDD.h"
@@ -236,24 +237,26 @@ typedef struct
 	uint32_t _version;
 	uint16_t _canvas_width;
 	uint16_t _canvas_height;
-	uint8_t  _canvas_code;
 	uint16_t _layers;
+	uint8_t  _canvas_code;
+	uint8_t  _reserved[5];
 } _SLIM_HEADER;
 #pragma pack(pop)
 
 #pragma pack(push, 1)
 typedef struct
 {
-	uint16_t _id;
-	uint16_t _width;
-	uint16_t _height;
-	uint16_t _x;
-	uint16_t _y;
-	uint16_t _z;
-	uint32_t _flags;
-	uint8_t  _code;
-	uint8_t  _name_size;
-	uint16_t _ext_size;
+    uint32_t _flags;
+    uint16_t _id;
+    uint16_t _width;
+    uint16_t _height;
+    uint16_t _x;
+    uint16_t _y;
+    uint16_t _z;
+    uint16_t _ext_size;
+    uint8_t  _code;
+    uint8_t  _name_size;
+    uint8_t  _reserved[4];
 } _SLIM_LAYER_HEADER;
 #pragma pack(pop)
 

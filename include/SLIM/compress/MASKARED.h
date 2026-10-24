@@ -81,11 +81,10 @@ MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec,
 
 	best_move ^= 0xFFu;
 
-
 	uint8_t first = *buf+best_move;
 
 	for (uint16_t i = 0; i < 256; ++i) {
-		if(hist[i]>0){mask |=(first ^ uint8_t(i+best_move));}
+		if(hist[i]>0){mask |= (first ^ uint8_t(i+best_move));}
 
     }
 
@@ -136,7 +135,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 	uint8_t first = *buf+best_move;
 
 	for (uint16_t i = 0u; i < 256u; ++i) {
-		if(hist[i]>0){mask |=(first ^ uint8_t(i+best_move));}
+		if(hist[i]>0){mask |= (first ^ uint8_t(i+best_move));}
 
     }
 

@@ -62,13 +62,13 @@ MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec,
 
 	if (buf == NULL || size == 0) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 
-	uint8_t accum			= 0x00u;
-	uint32_t step			= 0x00u;
-    uint8_t best_move 		= 0u;
-	uint64_t hist	[256] 	= {0};
+	uint8_t 	accum			= 0x00u;
+	uint32_t 	step			= 0x00u;
+    uint8_t 	best_move 		= 0x00u;
+	uint32_t 	hist[256u] 		= {0};
 
-    for (uint32_t i = 0; i < size; ++i) {
-        hist[buf[i]]++;
+    for (uint32_t i = 0u; i < size; ++i) {
+        ++hist[buf[i]];
     }
 
     for (uint16_t i = 0u; i < 256u; ++i)
@@ -111,16 +111,16 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 
     if (buf == NULL || bufc == NULL  || size == 0) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 
-	uint8_t* pstr			= bufc + 0x02u;
-	const uint8_t* end		= buf + size;
-	uint8_t mask			= 0u;
-	uint8_t accum			= 0x00u;
-	uint32_t step			= 0x00u;
-    uint8_t best_move 		= 0u;
-	uint64_t hist	[256] 	= {0};
+	const uint8_t* 	end				= buf + size;
+	uint8_t* 		pstr			= bufc + 0x02u;
+	uint8_t 		mask			= 0x00u;
+	uint8_t 		accum			= 0x00u;
+	uint32_t 		step			= 0x00u;
+    uint8_t 		best_move 		= 0x00u;
+	uint32_t 		hist[256u] 		= {0};
 
-    for (uint32_t i = 0; i < size; ++i) {
-        hist[buf[i]]++;
+    for (uint32_t i = 0u; i < size; ++i) {
+        ++hist[buf[i]];
     }
 
     for (uint16_t i = 0u; i < 256u; ++i)
@@ -133,10 +133,9 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 
 	best_move ^= 0xFFu;
 
-
 	uint8_t first = *buf+best_move;
 
-	for (uint16_t i = 0; i < 256; ++i) {
+	for (uint16_t i = 0u; i < 256u; ++i) {
 		if(hist[i]>0){mask |=(first ^ uint8_t(i+best_move));}
 
     }
@@ -185,14 +184,14 @@ MASKARED_RESULT MASKARED_DECODE(uint8_t* buf, uint32_t size, uint8_t* bufd, uint
 
     if (buf == NULL || bufd == NULL  || size == 0 || sized == 0 ) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 
-	uint8_t* pstr		= buf + 0x02u;
-	const uint8_t mask	= *(buf+1);
-	const uint8_t mover	= *buf;
-	const uint8_t accum = *pstr;
-	const uint8_t* endd = bufd + sized;
-	const uint8_t* endp = buf + size;
-	uint8_t  chr		= 0x00u;
-	uint32_t step		= 0x00u;
+	uint8_t* 		pstr	= buf + 0x02u;
+	const uint8_t 	mask	= *(buf+1);
+	const uint8_t 	mover	= *buf;
+	const uint8_t 	accum 	= *pstr;
+	const uint8_t* 	endd 	= bufd + sized;
+	const uint8_t* 	endp 	= buf + size;
+	uint8_t  		chr		= 0x00u;
+	uint32_t 		step	= 0x00u;
 
 	for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
 		if (!(mask & bit)) {

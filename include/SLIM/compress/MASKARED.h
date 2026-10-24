@@ -65,7 +65,7 @@ MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec,
 	uint8_t 	accum			= 0x00u;
 	uint32_t 	step			= 0x00u;
     uint8_t 	best_move 		= 0x00u;
-	uint32_t 	hist[256u] 		= {0};
+	uint32_t 	hist			[256u]{};
 
     for (uint32_t i = 0u; i < size; ++i) {
         ++hist[buf[i]];
@@ -73,7 +73,7 @@ MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec,
 
     for (uint16_t i = 0u; i < 256u; ++i)
     {
-        if (hist[i] > 0u && best_move <i)
+        if (hist[i] > 0u && best_move < i)
         {
             best_move = i;
         }
@@ -117,7 +117,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 	uint8_t 		accum			= 0x00u;
 	uint32_t 		step			= 0x00u;
     uint8_t 		best_move 		= 0x00u;
-	uint32_t 		hist[256u] 		= {0};
+	uint32_t 		hist			[256u]{};
 
     for (uint32_t i = 0u; i < size; ++i) {
         ++hist[buf[i]];
@@ -125,7 +125,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 
     for (uint16_t i = 0u; i < 256u; ++i)
     {
-        if (hist[i] > 0u && best_move <i)
+        if (hist[i] > 0u && best_move < i)
         {
             best_move = i;
         }

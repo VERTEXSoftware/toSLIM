@@ -133,7 +133,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 		}
 	}
 
-	move = p1 ^ 0xFFu;
+	move = uint8_t(p1) ^ 0xFFu;
 
 	uint8_t first = *buf + move;
 

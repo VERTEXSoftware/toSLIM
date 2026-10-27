@@ -138,7 +138,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 
 	move ^= 0xFFu;
 
-	uint8_t first = *buf+move;
+	uint8_t first = *buf + move;
 
 	for (uint16_t i = p0; i <= p1; ++i)
     {

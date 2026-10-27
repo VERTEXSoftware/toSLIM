@@ -142,8 +142,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 
 	for (uint16_t i = p0; i <= p1; ++i)
     {
-		if(hist[i]>0){mask |= (first ^ uint8_t(i+move));}
-
+		if(hist[i] > 0){mask |= (first ^ uint8_t(i + move));}
     }
 
 	for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {

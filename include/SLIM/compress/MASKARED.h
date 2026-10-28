@@ -58,41 +58,62 @@ uint32_t MASKARED_VERSION(){ return MASKARED_VER; }
 #include <cstddef>
 #include <algorithm>
 
+static constexpr uint8_t MASKARED_POPCOUNT_TABLE[256] = {
+    0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 
+    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 
+    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 
+    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 
+    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 
+    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 
+    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 
+    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 
+    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 
+    4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
+};
+
 MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec, uint8_t mask) {
 
 	if (buf == NULL || size == 0) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 
-	uint8_t 	accum		= 0x00u;
-	uint32_t 	step		= 0x00u;
-    uint8_t 	move 		= 0x00u;
-	uint32_t 	hist		[256u]{};
+					mask 		= 0xFFu;
+	uint32_t 		step		= 0x00u;
+	uint16_t		p0 			= 0x00u;
+	uint16_t		p1 			= 0x00u;
+	bool 			hist		[256u]{};
 
     for (uint32_t i = 0u; i < size; ++i) {
-        ++hist[buf[i]];
+        hist[buf[i]]=true;
     }
 
-    for (uint16_t i = 0u; i < 256u; ++i)
+	for (uint16_t i = 0u; i < 256u; ++i) {
+		if (hist[i]) {
+			p0 = (i < p0) ? i : p0;
+			p1 = (i > p1) ? i : p1;
+		}
+	}
+
+	for (uint16_t m = 0u; m< 256u; ++m)
     {
-        if (hist[i] > 0u && move < i)
-        {
-            move = i;
-        }
-    }
+		uint8_t mask_tmp = 0x00u;
+		for (uint16_t i = p0; i <= p1; ++i)
+    	{
+			uint8_t first_tmp = *buf + m;
+			if(hist[i]){mask_tmp |= (first_tmp ^ uint8_t(i + m));}
+		}
 
-	move ^= 0xFFu;
-
-	uint8_t first = *buf+move;
-
-	for (uint16_t i = 0; i < 256; ++i) {
-		if(hist[i]>0){mask |= (first ^ uint8_t(i+move));}
-
-    }
+		if(*(MASKARED_POPCOUNT_TABLE+mask_tmp) < *(MASKARED_POPCOUNT_TABLE+mask) ){
+			mask 	= mask_tmp;
+		}
+	}
 
 	for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
 		if (!(mask & bit)) {
-			if (first & bit) {
-				accum |= (0x80u >> step);
-			}
 			++step;
 		}
 	}
@@ -103,44 +124,47 @@ MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec,
 	return MASKARED_RESULT::SL_OK;
 }
 
-
-
-
 MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint32_t* sizec) {
 
     if (buf == NULL || bufc == NULL  || size == 0) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 
 	const uint8_t* 	end			= buf + size;
 	uint8_t* 		pstr		= bufc + 0x02u;
-	uint8_t 		mask		= 0x00u;
 	uint8_t 		accum		= 0x00u;
 	uint32_t 		step		= 0x00u;
-    uint8_t 		move 		= 0x00u;
-	uint16_t		p0 			= 0xFFu;
+	uint16_t		p0 			= 0x00u;
 	uint16_t		p1 			= 0x00u;
-	uint8_t 		chr 		= 0x00u;
-	uint32_t 		hist		[256u]{};
+	uint8_t 		move 		= 0x00u;
+	uint8_t 		mask 		= 0xFFu;
+	bool 			hist		[256u]{};
 
     for (uint32_t i = 0u; i < size; ++i) {
-		chr = buf[i];
-        ++hist[chr];
+        hist[buf[i]]=true;
     }
 
 	for (uint16_t i = 0u; i < 256u; ++i) {
-		if (hist[i]>0) {
+		if (hist[i]) {
 			p0 = (i < p0) ? i : p0;
 			p1 = (i > p1) ? i : p1;
 		}
 	}
 
-	move = uint8_t(p1) ^ 0xFFu;
-
-	uint8_t first = *buf + move;
-
-	for (uint16_t i = p0; i <= p1; ++i)
+	for (uint16_t m = 0u; m< 256u; ++m)
     {
-		if(hist[i] > 0){mask |= (first ^ uint8_t(i + move));}
-    }
+		uint8_t mask_tmp = 0x00u;
+		for (uint16_t i = p0; i <= p1; ++i)
+    	{
+			uint8_t first_tmp = *buf + m;
+			if(hist[i]){mask_tmp |= (first_tmp ^ uint8_t(i + m));}
+		}
+
+		if(*(MASKARED_POPCOUNT_TABLE+mask_tmp) < *(MASKARED_POPCOUNT_TABLE+mask) ){
+			mask 	= mask_tmp;
+			move 	= m;
+		}
+	}
+
+	uint8_t first 	= *buf + move;
 
 	for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
 		if (!(mask & bit)) {

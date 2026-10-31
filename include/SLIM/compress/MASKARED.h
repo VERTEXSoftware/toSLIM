@@ -82,9 +82,9 @@ MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec,
 	if (buf == NULL || size == 0) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 
 					mask 		= 0xFFu;
-	uint32_t 		step		= 0x00u;
-	uint16_t		p0 			= 0x00u;
+	uint16_t		p0 			= 0xFFu;
 	uint16_t		p1 			= 0x00u;
+	uint32_t 		step		= 0x00u;
 	bool 			hist		[256u]{};
 
     for (uint32_t i = 0u; i < size; ++i) {
@@ -130,12 +130,12 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 
 	const uint8_t* 	end			= buf + size;
 	uint8_t* 		pstr		= bufc + 0x02u;
-	uint8_t 		accum		= 0x00u;
-	uint32_t 		step		= 0x00u;
-	uint16_t		p0 			= 0x00u;
-	uint16_t		p1 			= 0x00u;
 	uint8_t 		move 		= 0x00u;
+	uint8_t 		accum		= 0x00u;
 	uint8_t 		mask 		= 0xFFu;
+	uint16_t		p0 			= 0xFFu;
+	uint16_t		p1 			= 0x00u;
+	uint32_t 		step		= 0x00u;
 	bool 			hist		[256u]{};
 
     for (uint32_t i = 0u; i < size; ++i) {

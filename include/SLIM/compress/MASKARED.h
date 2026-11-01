@@ -102,8 +102,8 @@ MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec,
 			if(hist[i]){mask_tmp |= (first_tmp ^ uint8_t(i + m));}
 		}
 
-		if(*(MASKARED_PCTABLE+mask_tmp) < *(MASKARED_PCTABLE+mask) ){
-			mask 	= mask_tmp;
+		if(*(MASKARED_PCTABLE+mask_tmp) < *(MASKARED_PCTABLE+mask)){
+			mask = mask_tmp;
 		}
 	}
 
@@ -153,13 +153,13 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 			if(hist[i]){mask_tmp |= (first_tmp ^ uint8_t(i + m));}
 		}
 
-		if(*(MASKARED_PCTABLE+mask_tmp) < *(MASKARED_PCTABLE+mask) ){
-			mask 	= mask_tmp;
-			move 	= m;
+		if(*(MASKARED_PCTABLE+mask_tmp) < *(MASKARED_PCTABLE+mask)){
+			mask = mask_tmp;
+			move = m;
 		}
 	}
 
-	uint8_t first 	= *buf + move;
+	uint8_t first = *buf + move;
 
 	for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
 		if (!(mask & bit)) {

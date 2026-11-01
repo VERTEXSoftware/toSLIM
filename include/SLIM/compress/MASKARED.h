@@ -53,7 +53,7 @@ uint32_t MASKARED_VERSION(){ return MASKARED_VER; }
 
 #ifdef SLEP_MASKARED_EXP
 
-static constexpr uint8_t MASKARED_POPCOUNT_TABLE[256] = {
+static constexpr uint8_t MASKARED_PCTABLE[256] = {
     0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 
     1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 
     1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 
@@ -102,7 +102,7 @@ MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec,
 			if(hist[i]){mask_tmp |= (first_tmp ^ uint8_t(i + m));}
 		}
 
-		if(*(MASKARED_POPCOUNT_TABLE+mask_tmp) < *(MASKARED_POPCOUNT_TABLE+mask) ){
+		if(*(MASKARED_PCTABLE+mask_tmp) < *(MASKARED_PCTABLE+mask) ){
 			mask 	= mask_tmp;
 		}
 	}
@@ -153,7 +153,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 			if(hist[i]){mask_tmp |= (first_tmp ^ uint8_t(i + m));}
 		}
 
-		if(*(MASKARED_POPCOUNT_TABLE+mask_tmp) < *(MASKARED_POPCOUNT_TABLE+mask) ){
+		if(*(MASKARED_PCTABLE+mask_tmp) < *(MASKARED_PCTABLE+mask) ){
 			mask 	= mask_tmp;
 			move 	= m;
 		}

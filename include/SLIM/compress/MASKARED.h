@@ -53,11 +53,6 @@ uint32_t MASKARED_VERSION(){ return MASKARED_VER; }
 
 #ifdef SLEP_MASKARED_EXP
 
-#include <vector>
-#include <cstdint>
-#include <cstddef>
-#include <algorithm>
-
 static constexpr uint8_t MASKARED_POPCOUNT_TABLE[256] = {
     0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 
     1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 

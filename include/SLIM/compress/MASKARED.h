@@ -147,6 +147,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 	for (uint16_t m = 0u; m< 256u; ++m)
     {
 		uint8_t mask_tmp = 0x00u;
+
 		for (uint16_t i = p0; i <= p1; ++i)
     	{
 			uint8_t first_tmp = *buf + m;
@@ -156,9 +157,8 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 		if(*(MASKARED_PCTABLE+mask_tmp) < *(MASKARED_PCTABLE+mask)){
 			mask = mask_tmp;
 			move = m;
-		}
-		
-		if(mask==0x00u){break;}
+			if(mask == 0x00u){break;}
+		}	
 	}
 
 	uint8_t first = *buf + move;

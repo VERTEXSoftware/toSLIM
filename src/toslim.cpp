@@ -82,7 +82,7 @@ bool load_image(const std::string& input, unsigned char* &data, int &w, int &h, 
 
 
 static void showHelp() {
-    std::cout << "SLEP IMAGE CONVERTER\n";
+    std::cout << "SLEPTSOV IMAGE CONVERTER (SLIM CONVERTER)\n";
     std::cout << "Copyright (C) 2026 VERTEX Software by Sleptsov Vladimir\n";
     std::cout << "Version: "<<PROGRAM_VERSION<<"\n";
     std::cout << "Build date: "<<BUILD_DATE<<" "<<BUILD_TIME<<"\n";

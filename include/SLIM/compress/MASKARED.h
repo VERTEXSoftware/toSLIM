@@ -157,6 +157,8 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 			mask = mask_tmp;
 			move = m;
 		}
+		
+		if(mask==0x00u){break;}
 	}
 
 	uint8_t first = *buf + move;

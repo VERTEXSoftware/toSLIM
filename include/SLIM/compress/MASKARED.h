@@ -53,7 +53,7 @@ uint32_t MASKARED_VERSION(){ return MASKARED_VER; }
 
 #ifdef SLEP_MASKARED_EXP
 
-static constexpr uint8_t MASKARED_PCTABLE[256] = {
+static constexpr uint8_t MASKARED_PCTABLE[0x100u] = {
     0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 
     1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 
     1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 
@@ -80,31 +80,32 @@ MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec,
 	uint16_t		p0 			= 0xFFu;
 	uint16_t		p1 			= 0x00u;
 	uint32_t 		step		= 0x00u;
-	bool 			hist		[256u]{};
+	bool 			hist		[0x100u]{};
 
-    for (uint32_t i = 0u; i < size; ++i) {
-        hist[buf[i]]=true;
+    for (uint32_t i = 0x00u; i < size; ++i) {
+        *(hist + *(buf + i)) = true;
     }
 
-	for (uint16_t i = 0u; i < 256u; ++i) {
-		if (hist[i]) {
+	for (uint16_t i = 0x00u; i < 0x100u; ++i) {
+		if (*(hist + i)) {
 			p0 = (i < p0) ? i : p0;
 			p1 = (i > p1) ? i : p1;
 		}
 	}
 
-	for (uint16_t m = 0u; m< 256u; ++m)
+	for (uint8_t m = 0x00u; m < 0x80u; ++m)
     {
 		uint8_t mask_tmp = 0x00u;
+
 		for (uint16_t i = p0; i <= p1; ++i)
     	{
-			uint8_t first_tmp = *buf + m;
-			if(hist[i]){mask_tmp |= (first_tmp ^ uint8_t(i + m));}
+			if(*(hist + i)){mask_tmp |= ((*buf + m) ^ (uint8_t(i) + m));}
 		}
 
 		if(*(MASKARED_PCTABLE+mask_tmp) < *(MASKARED_PCTABLE+mask)){
 			mask = mask_tmp;
-		}
+			if(mask == 0x00u){break;}
+		}	
 	}
 
 	for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
@@ -114,7 +115,7 @@ MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec,
 	}
 
 	uint32_t total = size * (0x08u - step);
-	*sizec = (step + total + 23u) >> 0x03u;
+	*sizec = (step + total + 0x23u) >> 0x03u;
 
 	return MASKARED_RESULT::SL_OK;
 }
@@ -131,26 +132,26 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 	uint16_t		p0 			= 0xFFu;
 	uint16_t		p1 			= 0x00u;
 	uint32_t 		step		= 0x00u;
-	bool 			hist		[256u]{};
+	bool 			hist		[0x100u]{};
 
-    for (uint32_t i = 0u; i < size; ++i) {
-        hist[buf[i]]=true;
+    for (uint32_t i = 0x00u; i < size; ++i) {
+        *(hist + *(buf + i)) = true;
     }
 
-	for (uint16_t i = 0u; i < 256u; ++i) {
-		if (hist[i]) {
+	for (uint16_t i = 0x00u; i < 0x100u; ++i) {
+		if (*(hist + i)) {
 			p0 = (i < p0) ? i : p0;
 			p1 = (i > p1) ? i : p1;
 		}
 	}
 
-	for (uint8_t m = 0u; m < 128u; ++m)
+	for (uint8_t m = 0x00u; m < 0x80u; ++m)
     {
 		uint8_t mask_tmp = 0x00u;
 
 		for (uint16_t i = p0; i <= p1; ++i)
     	{
-			if(hist[i]){mask_tmp |= ((*buf + m) ^ (uint8_t(i) + m));}
+			if(*(hist + i)){mask_tmp |= ((*buf + m) ^ (uint8_t(i) + m));}
 		}
 
 		if(*(MASKARED_PCTABLE+mask_tmp) < *(MASKARED_PCTABLE+mask)){
@@ -173,9 +174,9 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 
 	uint32_t total 	= size * (0x08u - step);
 
-	*sizec 			= (step + total + 23u) >> 0x03u;
+	*sizec 			= (step + total + 0x17u) >> 0x03u;
 	*bufc 			= move;
-	*(bufc+1) 		= mask;
+	*(bufc + 0x01u) = mask;
 	*pstr 			= accum;
 
 	for (uint8_t *c, *p = buf; p < end; ++p) {
@@ -193,7 +194,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 
 	//Tails remover
     uint32_t pos_tail = *sizec;
-    while (pos_tail > 1 && bufc[pos_tail - 1] == 0) {
+    while (pos_tail > 0x01u && *(bufc + pos_tail - 0x01u) == 0x00u) {
         --pos_tail;
     }
     *sizec = pos_tail;
@@ -207,7 +208,7 @@ MASKARED_RESULT MASKARED_DECODE(uint8_t* buf, uint32_t size, uint8_t* bufd, uint
     if (buf == NULL || bufd == NULL  || size == 0 || sized == 0 ) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 
 	uint8_t* 		pstr	= buf + 0x02u;
-	const uint8_t 	mask	= *(buf+1);
+	const uint8_t 	mask	= *(buf + 0x01u);
 	const uint8_t 	move	= *buf;
 	const uint8_t 	accum 	= *pstr;
 	const uint8_t* 	endd 	= bufd + sized;
@@ -249,7 +250,7 @@ MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec,
 	uint8_t accum		= 0x00u;
 	uint32_t step		= 0x00u;
 
-	for (uint8_t* p = buf+1u; p < end && mask != 0xFFu; ++p) {
+	for (uint8_t* p = buf + 0x01u; p < end && mask != 0xFFu; ++p) {
 		mask |= (first ^ *p);
 	}
 
@@ -281,7 +282,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 	uint8_t accum		= 0x00u;
 	uint32_t step		= 0x00u;
 
-	for (uint8_t* p = buf+1u; p < end && mask != 0xFFu; ++p) {
+	for (uint8_t* p = buf + 0x01u; p < end && mask != 0xFFu; ++p) {
 		mask |= (first ^ *p);
 	}
 
@@ -314,7 +315,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 
 	//Tails remover
     uint32_t pos_tail = *sizec;
-    while (pos_tail > 1 && bufc[pos_tail - 1] == 0) {
+    while (pos_tail > 0x01u && *(bufc + pos_tail - 0x01u) == 0x00u) {
         --pos_tail;
     }
     *sizec = pos_tail;

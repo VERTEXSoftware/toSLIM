@@ -144,7 +144,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 		}
 	}
 
-	for (uint16_t m = 0u; m< 256u; ++m)
+	for (uint16_t m = 0u; m < 256u; ++m)
     {
 		uint8_t mask_tmp = 0x00u;
 

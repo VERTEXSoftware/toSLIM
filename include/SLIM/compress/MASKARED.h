@@ -74,7 +74,7 @@ static constexpr uint8_t MASKARED_PCTABLE[0x100u] = {
 
 MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec, uint8_t mask) {
 
-	if (buf == NULL || size == 0) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
+	if (buf == NULL || size == 0x00u) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 
 					mask 		= 0xFFu;
 	uint16_t		p0 			= 0xFFu;
@@ -115,14 +115,14 @@ MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec,
 	}
 
 	uint32_t total = size * (0x08u - step);
-	*sizec = (step + total + 0x23u) >> 0x03u;
+	*sizec = (step + total + 0x17u) >> 0x03u;
 
 	return MASKARED_RESULT::SL_OK;
 }
 
 MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint32_t* sizec) {
 
-    if (buf == NULL || bufc == NULL  || size == 0) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
+    if (buf == NULL || bufc == NULL  || size == 0x00u) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 
 	const uint8_t* 	end			= buf + size;
 	uint8_t* 		pstr		= bufc + 0x02u;
@@ -205,7 +205,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 
 MASKARED_RESULT MASKARED_DECODE(uint8_t* buf, uint32_t size, uint8_t* bufd, uint32_t sized) {
 
-    if (buf == NULL || bufd == NULL  || size == 0 || sized == 0 ) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
+    if (buf == NULL || bufd == NULL  || size == 0x00u || sized == 0x00u) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 
 	uint8_t* 		pstr	= buf + 0x02u;
 	const uint8_t 	mask	= *(buf + 0x01u);
@@ -243,7 +243,7 @@ MASKARED_RESULT MASKARED_DECODE(uint8_t* buf, uint32_t size, uint8_t* bufd, uint
 
 MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec, uint8_t mask) {
 
-	if (buf == NULL || size == 0) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
+	if (buf == NULL || size == 0x00u) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 
 	const uint8_t first = *buf;
 	const uint8_t* end	= buf + size;
@@ -273,7 +273,7 @@ MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec,
 
 MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint32_t* sizec) {
 
-    if (buf == NULL || bufc == NULL  || size == 0) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
+    if (buf == NULL || bufc == NULL  || size == 0x00u) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 
 	uint8_t* pstr		= bufc + 0x01u;
 	const uint8_t first = *buf;
@@ -326,7 +326,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 
 MASKARED_RESULT MASKARED_DECODE(uint8_t* buf, uint32_t size, uint8_t* bufd, uint32_t sized) {
 
-    if (buf == NULL || bufd == NULL  || size == 0 || sized == 0 ) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
+    if (buf == NULL || bufd == NULL  || size == 0x00u || sized == 0x00u) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 
 	uint8_t* pstr		= buf + 0x01u;
 	const uint8_t mask	= *buf;

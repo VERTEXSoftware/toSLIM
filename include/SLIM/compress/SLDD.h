@@ -83,8 +83,22 @@ SLDD_RESULT SLDD_ENCODE(uint8_t* buffer, uint32_t size, uint8_t* buffercomp, uin
 	const bool leftc		= (first >> 7)	& 0x1u;
 	const bool rightc		= first			& 0x1u;
 
-    for (uint8_t* p = buffer; p != end; ++p) {
-        const uint8_t cur = *p;
+	uint16_t 		pos			= 0x00u;
+	uint8_t			hist		[0x100u]{};
+
+    for (uint32_t i = 0x00u; i < size; ++i) {
+        *(hist + *(buffer + i)) = 0x01u;
+    }
+	
+	for (uint16_t i = 0x00u; i < 0x100u; ++i) {
+		if (*(hist+i) == 1) {
+			*(hist + pos++) = uint8_t(i);
+		}
+	}
+
+	for (uint16_t i = 0x00u; i < pos; ++i)
+    {
+        const uint8_t cur = *(hist + i);
 
         uint32_t left_c = 0;
         uint32_t right_c = 0;

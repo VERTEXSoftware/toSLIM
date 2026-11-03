@@ -131,8 +131,8 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
 	uint16_t 		pos			= 0x00u;
 	uint8_t			hist		[0x100u]{};
 
-    for (uint32_t i = 0x00u; i < size; ++i) {
-        *(hist + *(buf + i)) = 0x01u;
+   for (uint8_t *p = buf; p < end; ++p) {
+        *(hist + *p) = 0x01u;
     }
 	
 	for (uint16_t i = 0x00u; i < 0x100u; ++i) {

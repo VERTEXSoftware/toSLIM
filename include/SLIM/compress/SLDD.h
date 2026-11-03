@@ -74,9 +74,9 @@ SLDD_RESULT SLDD_ENCODE(uint8_t* buffer, uint32_t size, uint8_t* buffercomp, uin
     if (buffer == NULL || buffercomp == NULL  || size == 0) { return SLDD_RESULT::SLDD_ERROR_INVALID_PARAM; }
 
 
-	uint8_t* pstr		= buffercomp + 0x01u;
-	const uint8_t first = *buffer;
-	const uint8_t* end	= buffer + size;
+	uint8_t* pstr			= buffercomp + 0x01u;
+	const uint8_t first 	= *buffer;
+	const uint8_t* end		= buffer + size;
 
 	uint32_t leftCount		= 0x07u;
 	uint32_t rightCount		= 0x07u;
@@ -86,8 +86,8 @@ SLDD_RESULT SLDD_ENCODE(uint8_t* buffer, uint32_t size, uint8_t* buffercomp, uin
 	uint16_t 		pos			= 0x00u;
 	uint8_t			hist		[0x100u]{};
 
-    for (uint32_t i = 0x00u; i < size; ++i) {
-        *(hist + *(buffer + i)) = 0x01u;
+   for (uint8_t *p = buffer; p < end; ++p) {
+        *(hist + *p) = 0x01u;
     }
 	
 	for (uint16_t i = 0x00u; i < 0x100u; ++i) {

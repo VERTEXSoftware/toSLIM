@@ -149,10 +149,8 @@ SLDD_RESULT SLDD_ENCODE(uint8_t* buffer, uint32_t size, uint8_t* buffercomp, uin
     const uint32_t rmax = 0x08u - leftCount;
     if (rmax < rightCount) { rightCount = rmax; }
 
-	uint32_t total 	= size * (rmax - rightCount);
-	*sizecomp 		= (total + 0x0Fu) >> 0x03u;
-
-	*buffercomp = uint8_t((leftCount << 0x05u)|(rightCount << 0x02u)|((lfill & 0x01u) << 0x01u)|(rfill & 0x01u));
+	*sizecomp 		= (size * (rmax - rightCount) + 0x0Fu) >> 0x03u;
+	*buffercomp 	= uint8_t((leftCount << 0x05u)|(rightCount << 0x02u)|((lfill & 0x01u) << 0x01u)|(rfill & 0x01u));
 
 	uint8_t mstart 	= (0x80u >> leftCount);
 	uint8_t mend 	= (0x80u >> (0x08u - rightCount));

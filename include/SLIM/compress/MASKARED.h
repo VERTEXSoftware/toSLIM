@@ -72,51 +72,6 @@ static constexpr uint8_t MASKARED_PCTABLE[0x100u] = {
     0x04, 0x05, 0x05, 0x06, 0x05, 0x06, 0x06, 0x07, 0x05, 0x06, 0x06, 0x07, 0x06, 0x07, 0x07, 0x08,
 };
 
-MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec, uint8_t mask) {
-
-	if (buf == NULL || size == 0x00u) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
-
-					mask 		= 0xFFu;
-	uint32_t 		step		= 0x00u;
-	uint16_t 		pos			= 0x00u;
-	uint8_t			hist		[0x100u]{};
-
-    for (uint32_t i = 0x00u; i < size; ++i) {
-        *(hist + *(buf + i)) = 0x01u;
-    }
-	
-	for (uint16_t i = 0x00u; i < 0x100u; ++i) {
-		if (*(hist+i) == 1) {
-			*(hist + pos++)= uint8_t(i);
-		}
-	}
-
-	for (uint8_t m = 0x00u; m < 0x80u; ++m)
-    {
-		uint8_t mask_tmp = 0x00u;
-
-		for (uint16_t i = 0x00u; i < pos; ++i)
-    	{
-			mask_tmp |= (*buf + m) ^ (*(hist + i) + m);
-		}
-
-		if(*(MASKARED_PCTABLE+mask_tmp) < *(MASKARED_PCTABLE+mask)){
-			mask = mask_tmp;
-			if(mask == 0x00u){break;}
-		}	
-	}
-
-	for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
-		if (!(mask & bit)) {
-			++step;
-		}
-	}
-
-	uint32_t total = size * (0x08u - step);
-	*sizec = (step + total + 0x17u) >> 0x03u;
-
-	return MASKARED_RESULT::SL_OK;
-}
 
 MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint32_t* sizec) {
 
@@ -236,35 +191,6 @@ MASKARED_RESULT MASKARED_DECODE(uint8_t* buf, uint32_t size, uint8_t* bufd, uint
 }
 
 #else
-
-MASKARED_RESULT MASKARED_SIZE_CALC(uint8_t* buf, uint32_t size, uint32_t* sizec, uint8_t mask) {
-
-	if (buf == NULL || size == 0x00u) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
-
-	const uint8_t first = *buf;
-	const uint8_t* end	= buf + size;
-	uint8_t accum		= 0x00u;
-	uint32_t step		= 0x00u;
-
-	for (uint8_t* p = buf + 0x01u; p < end && mask != 0xFFu; ++p) {
-		mask |= (first ^ *p);
-	}
-
-	for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
-		if (!(mask & bit)) {
-			if (first & bit) {
-				accum |= (0x80u >> step);
-			}
-			++step;
-		}
-	}
-
-	uint32_t total = size * (0x08u - step);
-	*sizec = (step + total + 0x0Fu) >> 0x03u;
-
-	return MASKARED_RESULT::SL_OK;
-}
-
 
 
 MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint32_t* sizec) {

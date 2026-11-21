@@ -75,136 +75,194 @@ static constexpr uint8_t MASKARED_PCTABLE[0x100u] = {
 
 MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint32_t* sizec) {
 
-    if (buf == NULL || bufc == NULL  || size == 0x00u) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
+    if (buf == NULL || bufc == NULL || sizec == NULL || size == 0x00u) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 
-	const uint8_t* 	end			= buf + size;
-	uint8_t* 		pstr		= bufc + 0x02u;
-	uint8_t 		first 		= *buf;
-	uint8_t 		move 		= 0x00u;
-	uint8_t 		accum		= 0x00u;
-	uint8_t 		mask 		= 0xFFu;
-	uint32_t 		step		= 0x00u;
-	uint8_t  		chrt		= 0x00u;
-	uint8_t			hist		[0x100u]{};
-	uint8_t			*histend	= hist;
+    const uint8_t*  end   = buf + size;
+    uint8_t*        pstr  = bufc + 0x02u;
+    uint8_t         move  = 0x00u;
+    uint8_t         accum = 0x00u;
+    uint8_t         mask  = 0xFFu;
+    uint32_t        step  = 0x00u;
+    uint8_t         chrt  = 0x00u;
+    bool            smode = false;
 
-   	for (uint8_t *p = buf; p < end; ++p) {
+    uint8_t         hist[0x100u]{};
+    uint8_t*        histend = hist;
+
+    for (const uint8_t* p = buf; p < end; ++p) {
         *(hist + *p) = 0x01u;
     }
-	
-	for (uint16_t i = 0x00u; i < 0x100u; ++i) {
-		if (*(hist + i) == 1) {
-			*histend++ = uint8_t(i);
-		}
-	}
-
-	for (uint8_t m = 0x00u; m < 0x80u; ++m)
-    {
-		uint8_t mask_tmp = 0x00u;
-
-		for (uint8_t* p = hist; p < histend; ++p)
-		{
-			mask_tmp |= (first + m) ^ (*p + m);
-		}
-
-		if(*(MASKARED_PCTABLE+mask_tmp) < *(MASKARED_PCTABLE+mask)){
-			mask = mask_tmp;
-			move = m;
-			if(mask == 0x00u){break;}
-		}	
-	}
-
-	first = *buf + move;
-
-	for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
-		if (!(mask & bit)) {
-			if (first & bit) {
-				accum |= (0x80u >> step);
-			}
-			++step;
-		}
-	}
-
-	uint32_t total 	= size * (0x08u - step);
-
-	*sizec 			= (step + total + 0x17u) >> 0x03u;
-	*bufc 			= move;
-	*(bufc + 0x01u) = mask;
-	*pstr 			= accum;
-
-	for (uint8_t *p = buf; p < end; ++p) {
-		chrt = uint8_t(*p+move);
-		for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
-			if (mask & bit) {
-				if (chrt & bit) {
-					*pstr |= (0x80u >> (step & 0x07u));
-				}
-				pstr += !(++step & 0x07u);
-			}
-		}
-	}
-
-	//Tails remover
-    uint32_t pos_tail = *sizec;
-    while (pos_tail > 0x01u && *(bufc + pos_tail - 0x01u) == 0x00u) {
-        --pos_tail;
+    for (uint16_t i = 0x00u; i < 0x100u; ++i) {
+        if (*(hist + i) == 1) {
+            *histend++ = uint8_t(i);
+        }
     }
+
+    const uint8_t first0 = *buf;
+
+    for (uint8_t m = 0x00u; m < 0x80u; ++m) {
+
+        uint8_t mask_tmp = 0x00u;
+
+        for (const uint8_t* p = hist; p < histend; ++p) {
+            mask_tmp |= (first0 + m) ^ (*p + m);
+        }
+        if (*(MASKARED_PCTABLE + mask_tmp) < *(MASKARED_PCTABLE + mask)) {
+            mask = mask_tmp;
+            move = m;
+            smode = false;
+            if (mask == 0x00u) { break; }
+        }
+    }
+
+
+    if (mask != 0x00u) {
+        uint8_t best_pc = *(MASKARED_PCTABLE + mask);
+        for (uint8_t m = 0x00u; m < 0x80u; ++m) {
+
+            const uint8_t first = uint8_t(first0 - m);
+            uint8_t state     = m;
+            uint8_t prev_orig = first0;
+            uint8_t mask_tmp  = 0x00u;
+
+            for (const uint8_t* p = buf+0x01u; p < end; ++p) {
+                const uint8_t orig = *p;
+                mask_tmp |= first ^ uint8_t(orig - state);
+                if (orig < prev_orig) { 
+                    state = uint8_t(state + 0x01u); 
+                }
+                prev_orig = orig;
+                if (*(MASKARED_PCTABLE + mask_tmp) >= best_pc) { break; }
+            }
+
+            if (*(MASKARED_PCTABLE + mask_tmp) < best_pc) {
+                mask    = mask_tmp;
+                move    = uint8_t(m + 0x80u);
+                smode   = true;
+                best_pc = *(MASKARED_PCTABLE + mask);
+                if (mask == 0x00u) { break; }
+            }
+        }
+    }
+
+    const uint8_t first = smode ? uint8_t(first0 - (move - 0x80u)) : uint8_t(first0 + move);
+
+    for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
+        if (!(mask & bit)) {
+            if (first & bit) { accum |= (0x80u >> step); }
+            ++step;
+        }
+    }
+
+    const uint32_t total = size * (0x08u - step);
+
+    *sizec = (step + total + 0x17u) >> 0x03u;
+    *bufc  = move;
+    *(bufc + 0x01u) = mask;
+    *pstr = accum;
+
+
+    uint8_t state     = smode ? uint8_t(move - 0x80u) : 0x00u;
+    uint8_t prev_orig = 0x00u;
+
+    for (const uint8_t* p = buf; p < end; ++p) {
+        const uint8_t orig = *p;
+        const bool    cond = (p != buf) && (orig < prev_orig);
+
+        chrt = smode ? uint8_t(orig - state) : uint8_t(orig + move);
+
+        if (cond) { state = uint8_t(state + 1); }
+        prev_orig = orig;
+
+        for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
+            if (mask & bit) {
+                if (chrt & bit) { *pstr |= (0x80u >> (step & 0x07u)); }
+                pstr += !(++step & 0x07u);
+            }
+        }
+    }
+
+    uint32_t pos_tail = *sizec;
+    while (pos_tail > 0x01u && *(bufc + pos_tail - 0x01u) == 0x00u) { --pos_tail; }
     *sizec = pos_tail;
 
     return MASKARED_RESULT::SL_OK;
 }
 
-
 MASKARED_RESULT MASKARED_DECODE(uint8_t* buf, uint32_t size, uint8_t* bufd, uint32_t sized) {
 
-    if (buf == NULL || bufd == NULL  || size == 0x00u || sized == 0x00u) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
+    if (buf == NULL || bufd == NULL || size == 0x00u || sized == 0x00u) { return MASKARED_RESULT::SL_ERROR_INVALID_PARAM; }
 
-	uint8_t* 		pstr	= buf + 0x02u;
-	const uint8_t 	mask	= *(buf + 0x01u);
-	const uint8_t 	move	= *buf;
-	const uint8_t 	accum 	= *pstr;
-	const uint8_t* 	endd 	= bufd + sized;
-	const uint8_t* 	endp 	= buf + size;
-	uint8_t  		chrt	= 0x00u;
-	uint8_t  		chr		= 0x00u;
-	uint32_t 		step	= 0x00u;
+    const uint8_t move  = *buf;
+    const uint8_t mask  = (size >= 0x02u) ? *(buf+0x01u) : 0x00u;
+    const bool    smode = (move >= 0x80u);
+    const uint8_t shift = smode ? uint8_t(move - 0x80u) : move;
 
-	if (mask == 0x00u) {
-        chrt = accum - move;
+    uint8_t*        pstr = buf + 0x02u;
+    const uint8_t*  endp = buf + size;
+    const uint8_t*  endd = bufd + sized;
+    uint32_t        step = 0x00u;
+
+    const uint8_t accum = (pstr < endp) ? *pstr : 0x00u;
+
+    if (mask == 0x00u) {
+        const uint8_t chrt = smode ? uint8_t(accum + shift) : uint8_t(accum - move);
         for (uint8_t* d = bufd; d != endd; ++d) { *d = chrt; }
         return MASKARED_RESULT::SL_OK;
     }
 
-	if (mask == 0xFF) { 
-		for (uint8_t* d = bufd, *p = pstr; d != endd && p!=endp; ++d,++p) { *d = *p; }
+    if (mask == 0xFFu) {
+        for (uint8_t* d = bufd, *p = pstr; d != endd && p != endp; ++d, ++p) { *d = uint8_t(*p - move); }
         return MASKARED_RESULT::SL_OK;
     }
 
-	for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
-		if (!(mask & bit)) {
-			if ((accum << step) & 0x80u) {
-				chr |= bit;
-			}
-			++step;
-		}
-	}
+    uint8_t chr = 0x00u;
+    for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
+        if (!(mask & bit)) { 
+            if ((accum << step) & 0x80u) { 
+                chr |= bit; 
+            } 
+            ++step; 
+        }
+    }
 
-	for (uint8_t* d = bufd; d < endd; ++d) {
-		chrt = chr;
-		if(pstr < endp){
-			for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
-				if (pstr >= endp){break;}
-				if (mask & bit) {
-					if (*pstr & (0x80u >> (step & 0x07u))) { chrt |= bit; }
-					pstr += !(++step & 0x07u); 
-				}
-			}
-		}
-		*d = chrt-move;
-	}
+    for (uint8_t* d = bufd; d < endd; ++d) {
+        uint8_t chrt = chr;
+        if (pstr < endp) {
+            for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
+                if (pstr >= endp) { break; }
+                if (mask & bit) {
+                    if (*pstr & (0x80u >> (step & 0x07u))) { chrt |= bit; }
+                    pstr += !(++step & 0x07u);
+                }
+            }
+        }
+        *d = chrt;
+    }
+
+    if (smode) { 
+
+        uint8_t state = shift;
+        uint8_t prev_orig = 0;
+
+        for (uint8_t* d = bufd; d < endd; ++d) {
+            uint8_t orig = uint8_t(*d + state);
+            *d = orig;
+            bool cond = (d != bufd) && (orig < prev_orig);
+            if (cond) { state = uint8_t(state + 1u); }
+            prev_orig = orig;
+        }
+    }
+    else       
+    { 
+        for (uint8_t* d = bufd; d < endd; ++d) { 
+            *d = uint8_t(*d - move);
+        } 
+    }
 
     return MASKARED_RESULT::SL_OK;
 }
+
 
 #else
 

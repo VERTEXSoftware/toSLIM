@@ -84,9 +84,11 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
     uint8_t         mask  = 0xFFu;
     uint32_t        step  = 0x00u;
     uint8_t         chrt  = 0x00u;
+    uint8_t         first = 0x00u;
 
     uint8_t         hist[0x100u]{};
     uint8_t*        histend = hist;
+    
 
     for (const uint8_t* p = buf; p < end; ++p) {
         *(hist + *p) = 0x01u;
@@ -105,9 +107,10 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
     for (uint8_t m = 0x00u; m < 0x80u; ++m) {
 
         uint8_t mask_tmp = 0x00u;
+        first = first0 + m;
 
         for (const uint8_t* p = hist; p < histend; ++p) {
-            mask_tmp |= (first0 + m) ^ (*p + m);
+            mask_tmp |= first ^ (*p + m);
         }
 
         best_pcmask_tmp =*(MASKARED_PCTABLE + mask_tmp);
@@ -124,7 +127,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
     if (mask != 0x00u) {
         for (uint8_t m = 0x00u; m < 0x80u; ++m) {
 
-            const uint8_t first = uint8_t(first0 - m);
+            first = first0 - m;
             uint8_t state       = m;
             uint8_t prev_orig   = first0;
             uint8_t mask_tmp    = 0x00u;
@@ -133,7 +136,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
             for (const uint8_t* p = buf+0x01u; p < end; ++p) {
 
                 orig = *p;
-                mask_tmp |= first ^ uint8_t(orig - state);
+                mask_tmp |= first ^ (orig - state);
 
                 if (orig < prev_orig) { state += 0x01u; }
 
@@ -153,7 +156,7 @@ MASKARED_RESULT MASKARED_ENCODE(uint8_t* buf, uint32_t size, uint8_t* bufc, uint
     }
 
     const bool smode        = move >= 0x80u;
-    const uint8_t first     = smode ? uint8_t(first0 - (move - 0x80u)) : uint8_t(first0 + move);
+    first     = smode ? uint8_t(first0 - (move - 0x80u)) : uint8_t(first0 + move);
 
     for (uint8_t bit = 0x80u; bit > 0x00u; bit >>= 0x01u) {
         if (!(mask & bit)) {
